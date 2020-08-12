@@ -25,5 +25,3 @@ def get_schema():
     meta = MetaData()
     meta.reflect(bind=get_db_engine())
     return {name: repr_table(table) for name, table in meta.tables.items()}
-
-    
