@@ -14,8 +14,11 @@ def get_db_session_maker() -> sessionmaker:
     return g.db_session_maker
 
 def get_db_session() -> Session:
-    return get_db_session_maker()()
+    if 'db_session' not in g:
+        g.db_session = get_db_session_maker()()
+    return g.db_session
 
 def close_db(e=None):
-    g.pop('db_engine')
-    g.pop('db_session_maker')
+    session: Session = g.pop('db_session', None)
+    if session is not None:
+        session.close()

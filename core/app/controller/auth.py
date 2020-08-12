@@ -2,6 +2,8 @@ from flask import Blueprint, request, session, g
 from app.service.database import get_db_session
 from app.model.user import User
 from sqlalchemy.orm.exc import NoResultFound
+from flasgger import swag_from
+from app.view import UserView
 import functools
 
 auth = Blueprint('auth', __name__, url_prefix='/api/auth')
@@ -15,9 +17,28 @@ def load_logged_in_user():
     else:
         db_session = get_db_session()
         g.user = db_session.query(User).filter(User.id == user_id).one()
-        db_session.close()
 
 @auth.route('/register', methods=('POST',))
+@swag_from({
+    'tags': ['Auth'],
+    'parameters': [
+        {
+            'name': 'email',
+            'in': 'formData',
+            'description': 'New user email',
+            'required': True,
+            'type': 'string'
+        },
+    ],
+    'responses': {
+        200: {
+            'description': 'Successfully registered'
+        },
+        400: {
+            'description': 'Bad request'
+        }
+    }
+})
 def register():
     email = request.form['email']
     if not email:
@@ -29,7 +50,6 @@ def register():
     db_session = get_db_session()
     count = db_session.query(User).filter(User.email == email).count()
     if count:
-        db_session.close()
         return {
             'result': 'error',
             'message': 'User with this email already exists'
@@ -39,7 +59,6 @@ def register():
     db_session.add(user)
     db_session.commit()
     session['user_id'] = user.id
-    db_session.close()
 
     return {
         'result': 'ok',
@@ -47,6 +66,26 @@ def register():
     }
 
 @auth.route('/login', methods=('POST',))
+@swag_from({
+    'tags': ['Auth'],
+    'parameters': [
+        {
+            'name': 'email',
+            'in': 'formData',
+            'description': 'User email',
+            'required': True,
+            'type': 'string'
+        },
+    ],
+    'responses': {
+        200: {
+            'description': 'Successfully logged int'
+        },
+        400: {
+            'description': 'Bad request'
+        }
+    }
+})
 def login():
     if 'email' not in request.form:
         return {
@@ -66,7 +105,6 @@ def login():
 
     session.clear()
     session['user_id'] = user.id
-    db_session.close()
     return {
         'result': 'ok',
         'message': 'Logged in'
@@ -86,6 +124,17 @@ def login_required(view):
 
 @login_required
 @auth.route('/logout', methods=('POST',))
+@swag_from({
+    'tags': ['Auth'],
+    'responses': {
+        200: {
+            'description': 'Successfully logged out'
+        },
+        400: {
+            'description': 'Bad request'
+        }
+    }
+})
 def logout():
     session.clear()
     return {
@@ -95,8 +144,17 @@ def logout():
 
 @login_required
 @auth.route('/user')
-def get_user():
-    return {
-        'id': g.user.id,
-        'email': g.user.email
+@swag_from({
+    'tags': ['Auth'],
+    'responses': {
+        200: {
+            'description': 'Return logged in user',
+            'schema': UserView
+        },
+        400: {
+            'description': 'Bad request'
+        }
     }
+})
+def get_user():
+    return UserView().dump(g.user)
