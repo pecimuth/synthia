@@ -3,10 +3,11 @@ from app.service.database import get_db_session
 from app.model.user import User
 from sqlalchemy.orm.exc import NoResultFound
 from flasgger import swag_from
-from app.view import UserView
+from app.view import UserView, MessageView
 import functools
 
 auth = Blueprint('auth', __name__, url_prefix='/api/auth')
+
 
 @auth.before_app_request
 def load_logged_in_user():
@@ -17,6 +18,7 @@ def load_logged_in_user():
     else:
         db_session = get_db_session()
         g.user = db_session.query(User).filter(User.id == user_id).one()
+
 
 @auth.route('/register', methods=('POST',))
 @swag_from({
@@ -32,10 +34,12 @@ def load_logged_in_user():
     ],
     'responses': {
         200: {
-            'description': 'Successfully registered'
+            'description': 'Successfully registered',
+            'schema': MessageView
         },
         400: {
-            'description': 'Bad request'
+            'description': 'Bad request',
+            'schema': MessageView
         }
     }
 })
@@ -65,6 +69,7 @@ def register():
         'message': 'User registered'
     }
 
+
 @auth.route('/login', methods=('POST',))
 @swag_from({
     'tags': ['Auth'],
@@ -79,10 +84,12 @@ def register():
     ],
     'responses': {
         200: {
-            'description': 'Successfully logged int'
+            'description': 'Successfully logged int',
+            'schema': MessageView
         },
         400: {
-            'description': 'Bad request'
+            'description': 'Bad request',
+            'schema': MessageView
         }
     }
 })
@@ -110,28 +117,31 @@ def login():
         'message': 'Logged in'
     }
 
+
 def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         if g.user is None:
-            return {
+            return MessageView().dump({
                 'result': 'error',
                 'message': 'Login is required'
-            }, 400
-
+            }), 400
         return view(**kwargs)
     return wrapped_view
 
-@login_required
+
 @auth.route('/logout', methods=('POST',))
+@login_required
 @swag_from({
     'tags': ['Auth'],
     'responses': {
         200: {
-            'description': 'Successfully logged out'
+            'description': 'Successfully logged out',
+            'schema': MessageView
         },
         400: {
-            'description': 'Bad request'
+            'description': 'Bad request',
+            'schema': MessageView
         }
     }
 })
@@ -142,8 +152,9 @@ def logout():
         'message': 'Logged out'
     }
 
-@login_required
+
 @auth.route('/user')
+@login_required
 @swag_from({
     'tags': ['Auth'],
     'responses': {
@@ -152,7 +163,8 @@ def logout():
             'schema': UserView
         },
         400: {
-            'description': 'Bad request'
+            'description': 'Bad request',
+            'schema': MessageView
         }
     }
 })

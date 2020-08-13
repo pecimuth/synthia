@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from . import base
 from app.model.metacolumn import MetaColumn
 
+
 class MetaTable(base):
     __tablename__ = 'metatable'
     id = Column(Integer, primary_key=True)

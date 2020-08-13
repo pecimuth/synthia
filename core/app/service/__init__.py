@@ -4,6 +4,7 @@ from app import model
 from app.service.database import get_db_engine, close_db
 import click
 
+
 @click.command('create-db')
 @with_appcontext
 def create_db_command():

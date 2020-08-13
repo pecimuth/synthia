@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from . import base
 
+
 class MetaColumn(base):
     __tablename__ = 'metacolumn'
     id = Column(Integer, primary_key=True)
