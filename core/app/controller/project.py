@@ -1,22 +1,15 @@
-import os
-from flask import Blueprint, g, request, current_app
-from sqlalchemy.engine import Engine
+from flask import Blueprint, g, request
 from sqlalchemy.orm import Session
-
-from app.model.project import Project
 from flasgger import swag_from
 
+from app.model.project import Project
 from app.service.deserializer import create_mock_meta
 from app.service.externdb import ExternDb
 from app.service.generator import Generator
 from app.service.serializer import StructureSerializer
 from app.view import ProjectListView, ProjectView, MessageView
 from app.controller.auth import login_required
-from app.service.database import get_db_session, get_db_engine
-from sqlalchemy.schema import MetaData
-from sqlalchemy import Table, Column, create_engine, Integer, String, ForeignKey, DateTime
-from app.model.metacolumn import MetaColumn
-from app.model.metatable import MetaTable
+from app.service.database import get_db_session
 
 project = Blueprint('project', __name__, url_prefix='/api')
 

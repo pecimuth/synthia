@@ -4,6 +4,7 @@ from . import service
 from . import controller
 import os
 
+
 def create_app(test_config=None) -> Flask:
 
     app = Flask(__name__, instance_relative_config=True)

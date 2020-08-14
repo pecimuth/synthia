@@ -1,4 +1,4 @@
-from flask import current_app, g, Flask
+from flask import Flask
 from flask.cli import with_appcontext
 from app import model
 from app.service.database import get_db_engine, close_db
