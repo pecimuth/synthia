@@ -5,6 +5,11 @@ from sqlalchemy.orm import Session
 
 from app.model.project import Project
 from flasgger import swag_from
+
+from app.service.deserializer import create_mock_meta
+from app.service.externdb import ExternDb
+from app.service.generator import Generator
+from app.service.serializer import StructureSerializer
 from app.view import ProjectListView, ProjectView, MessageView
 from app.controller.auth import login_required
 from app.service.database import get_db_session, get_db_engine
@@ -98,31 +103,6 @@ def get_project(id):
     return ProjectView().dump(proj)
 
 
-def make_meta_column(column: Column) -> MetaColumn:
-    return MetaColumn(
-        name=column.name,
-        primary_key=column.primary_key,
-        col_type=column.type.__visit_name__,
-        nullable=column.nullable
-    )
-
-
-def make_meta_table(table: Table) -> MetaTable:
-    return MetaTable(
-        name=table.name,
-        columns=[make_meta_column(col) for col in table.c.values()]
-    )
-
-
-def insert_new_schema(proj: Project, input_engine: Engine, output_session: Session):
-    meta = MetaData()
-    meta.reflect(bind=input_engine)
-    for tab in meta.tables.values():
-        meta_table = make_meta_table(tab)
-        meta_table.project = proj
-        output_session.add(meta_table)
-
-
 def delete_schema_from_project(proj: Project, session: Session):
     for table in proj.tables:
         for col in table.columns:
@@ -160,31 +140,13 @@ def get_project_refresh_schema(id):
     # TODO not found error
     proj = db_session.query(Project).filter(Project.id == id, Project.user == g.user).one()
     delete_schema_from_project(proj, db_session)
-    insert_new_schema(proj, get_db_engine(), db_session)
+
+    extern_db = ExternDb(proj)
+    serializer = StructureSerializer(bind=extern_db.engine)
+    serializer.add_schema_to_project(proj)
     db_session.commit()
 
     return ProjectView().dump(proj)
-
-
-def create_mock_meta() -> MetaData:
-    meta = MetaData()
-    Table('cookie', meta,
-          Column('id', Integer, primary_key=True),
-          Column('name', String, nullable=False),
-          Column('price', Integer)
-          )
-    Table('order', meta,
-          Column('id', Integer, primary_key=True),
-          Column('place', String),
-          Column('created_at', DateTime)
-          )
-    Table('order_item', meta,
-          Column('id', Integer, primary_key=True),
-          Column('order_id', Integer, ForeignKey('order.id'), nullable=False),
-          Column('cookie_id', Integer, ForeignKey('cookie.id'), nullable=False),
-          Column('quantity', Integer, nullable=False)
-          )
-    return meta
 
 
 @project.route('/project/<id>/create-mock-database', methods=('POST',))
@@ -217,12 +179,58 @@ def create_mock_database(id):
     # TODO not found error
     proj = db_session.query(Project).filter(Project.id == id, Project.user == g.user).one()
 
-    db_path = os.path.join(current_app.instance_path, 'project_{}.db'.format(proj.id))
-    engine = create_engine('sqlite:///' + db_path)
+    extern_db = ExternDb(proj)
     meta = create_mock_meta()
-    meta.create_all(bind=engine)
+    meta.create_all(bind=extern_db.engine)
     delete_schema_from_project(proj, db_session)
-    insert_new_schema(proj, engine, db_session)
+    serializer = StructureSerializer(bind=extern_db.engine)
+    serializer.add_schema_to_project(proj)
     db_session.commit()
 
     return ProjectView().dump(proj)
+
+
+@project.route('/project/<id>/generate', methods=('POST',))
+@login_required
+@swag_from({
+    'tags': ['Project'],
+    'parameters': [
+        {
+            'name': 'id',
+            'in': 'path',
+            'description': 'Project ID',
+            'required': True,
+            'type': 'integer'
+        },
+    ],
+    'responses': {
+        200: {
+            'description': 'Filled the database with data',
+            'schema': MessageView
+        },
+        400: {
+            'description': 'Bad request',
+            'schema': MessageView
+        }
+    }
+})
+def generate(id):
+    db_session = get_db_session()
+
+    # TODO not found error
+    proj = db_session.query(Project).filter(Project.id == id, Project.user == g.user).one()
+
+    gen = Generator(proj)
+    try:
+        gen.fill_all()
+    except Exception as err:
+        raise err
+        return {
+            'result': 'error',
+            'message': err.__traceback__
+        }, 400
+
+    return {
+        'result': 'ok',
+        'message': 'Successfully filled the database'
+    }

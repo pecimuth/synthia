@@ -8,8 +8,10 @@ import click
 @click.command('create-db')
 @with_appcontext
 def create_db_command():
+    model.base.metadata.drop_all(get_db_engine())
     model.base.metadata.create_all(get_db_engine())
     click.echo('Created the database')
+
 
 def init_app(app: Flask):
     app.cli.add_command(create_db_command)

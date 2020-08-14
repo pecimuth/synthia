@@ -17,7 +17,11 @@ def load_logged_in_user():
         g.user = None
     else:
         db_session = get_db_session()
-        g.user = db_session.query(User).filter(User.id == user_id).one()
+        try:
+            g.user = db_session.query(User).filter(User.id == user_id).one()
+        except NoResultFound:
+            session.pop('user_id')
+            g.user = None
 
 
 @auth.route('/register', methods=('POST',))

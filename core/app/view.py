@@ -6,12 +6,14 @@ class MessageView(Schema):
     result = Str()
     message = Str()
 
+
 class ColumnView(Schema):
     id = Integer()
     name = Str()
     col_type = Str()
     primary_key = Bool()
     nullable = Bool()
+    foreign_key = Str()
 
 
 class TableView(Schema):

@@ -13,6 +13,7 @@ def create_app(test_config=None) -> Flask:
         },
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'data.db'),
+        EXTERN_DB_PATH=os.path.join(app.instance_path, 'extern/')
     )
 
     Swagger(app)
@@ -27,6 +28,11 @@ def create_app(test_config=None) -> Flask:
 
     try:
         os.makedirs(app.instance_path)
+    except OSError:
+        pass
+
+    try:
+        os.makedirs(app.config['EXTERN_DB_PATH'])
     except OSError:
         pass
 

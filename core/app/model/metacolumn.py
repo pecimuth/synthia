@@ -10,6 +10,7 @@ class MetaColumn(base):
     col_type = Column(String)
     primary_key = Column(Boolean)
     nullable = Column(Boolean)
+    foreign_key = Column(String, nullable=True)
 
     table_id = Column(Integer, ForeignKey('metatable.id'))
     table = relationship('MetaTable', back_populates='columns')
