@@ -1,5 +1,7 @@
 from flask import Flask
 from flasgger import Swagger
+from flask_cors import CORS
+
 from . import service
 from . import controller
 import os
@@ -18,6 +20,7 @@ def create_app(test_config=None) -> Flask:
     )
 
     Swagger(app)
+    CORS(app)
 
     if test_config is None:
         app.config.from_pyfile('config.py', silent=True)
