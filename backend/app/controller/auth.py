@@ -39,7 +39,7 @@ def load_logged_in_user():
     'responses': {
         200: {
             'description': 'Successfully registered',
-            'schema': MessageView
+            'schema': UserView
         },
         400: {
             'description': 'Bad request',
@@ -68,10 +68,7 @@ def register():
     db_session.commit()
     session['user_id'] = user.id
 
-    return {
-        'result': 'ok',
-        'message': 'User registered'
-    }
+    return UserView().dump(user)
 
 
 @auth.route('/login', methods=('POST',))
@@ -89,7 +86,7 @@ def register():
     'responses': {
         200: {
             'description': 'Successfully logged int',
-            'schema': MessageView
+            'schema': UserView
         },
         400: {
             'description': 'Bad request',
@@ -116,10 +113,7 @@ def login():
 
     session.clear()
     session['user_id'] = user.id
-    return {
-        'result': 'ok',
-        'message': 'Logged in'
-    }
+    return UserView().dump(user)
 
 
 def login_required(view):

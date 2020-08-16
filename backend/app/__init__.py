@@ -16,11 +16,12 @@ def create_app(test_config=None) -> Flask:
         },
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'data.db'),
-        EXTERN_DB_PATH=os.path.join(app.instance_path, 'extern/')
+        EXTERN_DB_PATH=os.path.join(app.instance_path, 'extern/'),
+        ORIGINS='http://localhost:4200'
     )
 
     Swagger(app)
-    CORS(app)
+    CORS(app, origins=app.config['ORIGINS'], supports_credentials=True)
 
     if test_config is None:
         app.config.from_pyfile('config.py', silent=True)
