@@ -7,8 +7,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { ReactiveFormsModule } from '@angular/forms';
-import { ApiModule } from 'src/app/api/api.module';
-import { environment } from 'src/environments/environment';
 
 const routes: Routes = [
   {
@@ -25,8 +23,7 @@ const routes: Routes = [
     MatInputModule,
     MatButtonModule,
     MatCardModule,
-    ReactiveFormsModule,
-    ApiModule.forRoot({rootUrl: environment.apiUrl})
+    ReactiveFormsModule
   ]
 })
 export class LoginModule { }

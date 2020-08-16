@@ -1,19 +1,35 @@
-import { Component } from '@angular/core';
-import { Observable } from 'rxjs';
-import { Breakpoints, BreakpointObserver } from '@angular/cdk/layout';
-import { map, shareReplay } from 'rxjs/operators';
+import { Component, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { filter, distinctUntilChanged } from 'rxjs/operators';
+import { AuthFacadeService } from './service/auth-facade.service';
+import { ProjectFacadeService } from './service/project-facade.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
-  isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
-    .pipe(
-      map(result => result.matches),
-      shareReplay()
-    );
+export class AppComponent implements OnDestroy {
 
-  constructor(private breakpointObserver: BreakpointObserver) {}
+  private userSub: Subscription;
+
+  constructor(
+    private authFacade: AuthFacadeService,
+    private projectFacade: ProjectFacadeService
+  ) {}
+
+  ngOnInit() {
+    this.authFacade.refresh();
+    this.userSub = this.authFacade.user$
+      .pipe(filter((user) => !!user), distinctUntilChanged())
+      .subscribe(() => this.projectFacade.refreshList());
+  }
+
+  ngOnDestroy() {
+    if (this.userSub) {
+      this.userSub.unsubscribe();
+    }
+    this.authFacade.complete();
+    this.projectFacade.complete();
+  }
 }

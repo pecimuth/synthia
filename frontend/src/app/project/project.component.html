@@ -1,0 +1,23 @@
+<app-page-header
+  [title]="project?.name || 'Project'"
+  [sidenavButton]="true"
+  (toggleSidenav)="drawer.toggle()"></app-page-header>
+
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav #drawer class="sidenav"
+    [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+    [mode]="(isHandset$ | async) ? 'over' : 'side'"
+    [opened]="(isHandset$ | async) === false">
+    <mat-nav-list>
+      <div mat-subheader>Project</div>
+      <a mat-list-item [routerLink]="['/project', project?.id]">Overview</a>
+    </mat-nav-list>
+    <mat-nav-list>
+      <div mat-subheader>Tables</div>
+      <a mat-list-item *ngFor="let table of project?.tables" [routerLink]="['table', table.id]">{{ table.name }}</a>
+    </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
+</mat-sidenav-container>

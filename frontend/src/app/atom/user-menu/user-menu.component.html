@@ -1,0 +1,16 @@
+<ng-container *ngIf="user">
+  <button mat-button [matMenuTriggerFor]="menu">
+    <span>{{ user?.email }}</span>
+    <mat-icon>expand_more</mat-icon>
+  </button>
+  <mat-menu #menu="matMenu">
+    <button mat-menu-item (click)="authFacade.logout()">
+      <mat-icon>exit_to_app</mat-icon>
+      <span>Logout</span>
+    </button>
+  </mat-menu>
+</ng-container>
+
+<button *ngIf="!user" mat-icon-button routerLink="/login">
+  <mat-icon>login</mat-icon>
+</button>

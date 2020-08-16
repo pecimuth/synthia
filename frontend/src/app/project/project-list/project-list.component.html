@@ -1,0 +1,10 @@
+<app-page-header title="Projects"></app-page-header>
+
+<div *ngIf="projects" class="project-list">
+  <mat-card *ngFor="let project of projects" class="project-card">
+    <mat-card-title>{{ project.name }}</mat-card-title>
+    <mat-card-actions>
+      <button mat-button [routerLink]="project.id">OPEN</button>
+    </mat-card-actions>
+  </mat-card>
+</div>

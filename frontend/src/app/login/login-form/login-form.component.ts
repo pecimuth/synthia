@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { AuthService } from 'src/app/api/services';
+import { AuthFacadeService } from 'src/app/service/auth-facade.service';
 
 @Component({
   selector: 'app-login-form',
@@ -12,9 +12,9 @@ export class LoginFormComponent {
     email: [null, Validators.required]
   });
 
-  constructor(private fb: FormBuilder, private authService: AuthService) {}
+  constructor(private fb: FormBuilder, private authFacade: AuthFacadeService) {}
 
   onSubmit() {
-    this.authService.postApiAuthLogin(this.loginForm.value['email']).subscribe();
+    this.authFacade.login(this.loginForm.value['email']);
   }
 }
