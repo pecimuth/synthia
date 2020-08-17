@@ -1,7 +1,7 @@
 from sqlalchemy import MetaData, Table, Column, Integer, String, DateTime, ForeignKey
 
-from app.model.metacolumn import MetaColumn
-from app.model.metatable import MetaTable
+from app.model.meta_column import MetaColumn
+from app.model.meta_table import MetaTable
 from app.model.project import Project
 
 

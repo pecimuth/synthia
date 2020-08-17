@@ -4,8 +4,8 @@ from flasgger import swag_from
 
 from app.model.project import Project
 from app.service.deserializer import create_mock_meta
-from app.service.externdb import ExternDb
-from app.service.generator import Generator
+from app.service.extern_db import ExternDb
+from app.service.generator.database_generator import DatabaseGenerator
 from app.service.serializer import StructureSerializer
 from app.view import ProjectListView, ProjectView, MessageView
 from app.controller.auth import login_required
@@ -58,11 +58,11 @@ def get_projects():
     }
 })
 def create_project():
-    project = Project(name=request.form['name'], user=g.user)
+    proj = Project(name=request.form['name'], user=g.user)
     db_session = get_db_session()
-    db_session.add(project)
+    db_session.add(proj)
     db_session.commit()
-    return ProjectView().dump(project)
+    return ProjectView().dump(proj)
 
 
 @project.route('/project/<id>')
@@ -213,17 +213,12 @@ def generate(id):
     # TODO not found error
     proj = db_session.query(Project).filter(Project.id == id, Project.user == g.user).one()
 
-    gen = Generator(proj)
-    try:
-        gen.fill_all()
-    except Exception as err:
-        raise err
-        return {
-            'result': 'error',
-            'message': err.__traceback__
-        }, 400
+    gen = DatabaseGenerator(proj)
+    gen.build_with_recommended_generators()
+    gen.fill_database()
 
     return {
         'result': 'ok',
         'message': 'Successfully filled the database'
     }
+

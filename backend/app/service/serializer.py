@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Table, MetaData
 from sqlalchemy.engine import Engine
 
-from app.model.metacolumn import MetaColumn
-from app.model.metatable import MetaTable
+from app.model.meta_column import MetaColumn
+from app.model.meta_table import MetaTable
 from app.model.project import Project
 
 

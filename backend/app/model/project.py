@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
-from app.model.metatable import MetaTable
+from app.model.meta_table import MetaTable
 from . import base
 
 

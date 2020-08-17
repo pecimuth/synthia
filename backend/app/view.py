@@ -1,5 +1,5 @@
 from marshmallow import Schema
-from marshmallow.fields import Integer, Str, Nested, List, Bool
+from marshmallow.fields import Integer, Str, Nested, List, Bool, Dict
 
 
 class MessageView(Schema):
@@ -39,3 +39,7 @@ class ProjectListView(Schema):
 class UserView(Schema):
     id = Integer()
     email = Str()
+
+
+class TablePreviewView(Schema):
+    rows = List(Dict(keys=Str()))
