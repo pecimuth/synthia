@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, JSON
 from sqlalchemy.orm import relationship
 from . import base
 
@@ -14,3 +14,6 @@ class MetaColumn(base):
 
     table_id = Column(Integer, ForeignKey('metatable.id'))
     table = relationship('MetaTable', back_populates='columns')
+
+    generator_name = Column(String, nullable=True)
+    generator_params = Column(JSON, nullable=True)

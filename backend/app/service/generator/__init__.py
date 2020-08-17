@@ -1,4 +1,4 @@
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Generic, TypeVar, Union, NamedTuple, Literal
 
 # represents one generated row
 # key is column name
@@ -11,3 +11,14 @@ GeneratedTable = List[GeneratedRow]
 # holds all generated values in a generation procedure
 # key is table name
 GeneratedDatabase = Dict[str, GeneratedTable]
+
+ValueType = TypeVar('ValueType', int, str, bool)
+
+
+class ColumnGeneratorParam(NamedTuple, Generic[ValueType]):
+    name: str
+    value_type: Literal['number', 'string', 'bool']
+    default_value: Union[ValueType, None]
+
+
+ColumnGeneratorParamList = List[ColumnGeneratorParam]

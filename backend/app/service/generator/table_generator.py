@@ -6,7 +6,8 @@ from sqlalchemy.engine import Connection
 from app.model.meta_column import MetaColumn
 from app.model.meta_table import MetaTable
 from app.service.generator import GeneratedDatabase, GeneratedTable, GeneratedRow
-from app.service.generator.column_generator import ColumnGeneratorBase, find_recommended_generator
+from app.service.generator.column_generator import ColumnGeneratorBase, find_recommended_generator, \
+    get_generator_by_name
 
 Generators = List[Tuple[MetaColumn, ColumnGeneratorBase]]
 
@@ -25,18 +26,23 @@ class TableGenerator:
     def __init__(self, meta_table: MetaTable, generated_database: GeneratedDatabase):
         self._meta_table = meta_table
         self._generated_database = generated_database
-        self._generators: Generators = []
+        self._generators: Generators = self._make_generators()
 
-    def build_with_recommended_generators(self):
-        self._generators.clear()
+    def _make_generators(self) -> Generators:
+        result = []
         for meta_column in self._meta_table.columns:
-            gen = find_recommended_generator(meta_column)
+            if meta_column.generator_name is None:
+                gen = find_recommended_generator(meta_column)
+            else:
+                gen = get_generator_by_name(meta_column.generator_name)
+
             # TODO improve error handling
             if gen is None:
                 raise Exception('No suitable generator for {}.{}'.\
                                 format(self._meta_table.name, meta_column.name))
             gen_instance = gen(self._meta_table, meta_column, self._generated_database)
-            self._generators.append((meta_column, gen_instance))
+            result.append((meta_column, gen_instance))
+        return result
 
     def make_table_preview(self, row_count: int) -> Iterable[GeneratedRow]:
         yield from self._make_table(row_count, True)
@@ -61,8 +67,8 @@ class TableGenerator:
                 return meta_column
         return None
 
-    def fill_database(self, conn: Connection, table: Table, row_count: int):
-        row_iter = self._make_table(row_count, False)
+    def fill_database(self, conn: Connection, table: Table):
+        row_iter = self._make_table(self._meta_table.row_count, False)
         primary_key = self._get_primary_key_column()
         for row in row_iter:
             result = conn.execute(table.insert(), row)

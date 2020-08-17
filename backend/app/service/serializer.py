@@ -4,6 +4,7 @@ from sqlalchemy.engine import Engine
 from app.model.meta_column import MetaColumn
 from app.model.meta_table import MetaTable
 from app.model.project import Project
+from app.service.generator.column_generator import find_recommended_generator
 
 
 class StructureSerializer:
@@ -13,18 +14,27 @@ class StructureSerializer:
         self.meta.reflect(bind=bind)
 
     @classmethod
+    def _with_recommended_generator(cls, meta_column: MetaColumn) -> MetaColumn:
+        generator = find_recommended_generator(meta_column)
+        if generator is None:
+            return meta_column
+        meta_column.generator_name = generator.name
+        return meta_column
+
+    @classmethod
     def _make_meta_column(cls, column: Column) -> MetaColumn:
         fk = column.foreign_keys
         if len(fk) > 1:
             raise Exception('too many fks')
         fk_column = fk.pop()._get_colspec() if len(fk) == 1 else None
-        return MetaColumn(
+        meta_column = MetaColumn(
             name=column.name,
             primary_key=column.primary_key,
             col_type=column.type.__visit_name__,
             nullable=column.nullable,
             foreign_key=fk_column
         )
+        return cls._with_recommended_generator(meta_column)
 
     @classmethod
     def _make_meta_table(cls, table: Table) -> MetaTable:

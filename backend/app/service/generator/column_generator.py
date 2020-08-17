@@ -4,11 +4,11 @@ import datetime
 import random
 import string
 from abc import ABC, abstractmethod
-from typing import TypeVar, Generic, Type
+from typing import TypeVar, Generic, Type, Dict, Union
 
 from app.model.meta_column import MetaColumn
 from app.model.meta_table import MetaTable
-from app.service.generator import GeneratedDatabase
+from app.service.generator import GeneratedDatabase, ColumnGeneratorParamList, ColumnGeneratorParam
 
 OutputType = TypeVar('OutputType')
 
@@ -17,6 +17,7 @@ class ColumnGeneratorBase(Generic[OutputType], ABC):
     name: str
     has_generated_value: bool = True
     has_preview_value: bool = True
+    param_list: ColumnGeneratorParamList = []
 
     def __init__(self,
                  meta_table: MetaTable,
@@ -25,6 +26,17 @@ class ColumnGeneratorBase(Generic[OutputType], ABC):
         self._meta_table: MetaTable = meta_table
         self._meta_column: MetaColumn = meta_column
         self._generated_database: GeneratedDatabase = generated_database
+        self._params = self._prepare_params()
+
+    def _prepare_params(self) -> Dict[str, Union[str, int, bool]]:
+        result = {}
+        for param in self.param_list:
+            if self._meta_column.generator_params and \
+               param.name in self._meta_column.generator_params:
+                result[param.name] = self._meta_column.generator_params[param.name]
+            else:
+                result[param.name] = param.default_value
+        return result
 
     @classmethod
     @abstractmethod
@@ -88,24 +100,31 @@ class ForeignKeyGenerator(ColumnGeneratorBase[int]):
 
 class StringGenerator(ColumnGeneratorBase[str]):
     name = 'string'
+    param_list = [
+        ColumnGeneratorParam(name='length', value_type='number', default_value=10)
+    ]
 
     @classmethod
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
         return meta_column.col_type == 'VARCHAR'
 
     def make_value(self) -> str:
-        return ''.join(random.choice(string.ascii_letters) for _ in range(10))
+        return ''.join(random.choice(string.ascii_letters) for _ in range(self._params['length']))
 
 
 class IntegerGenerator(ColumnGeneratorBase[int]):
     name = 'integer'
+    param_list = [
+        ColumnGeneratorParam(name='from', value_type='number', default_value=0),
+        ColumnGeneratorParam(name='to', value_type='number', default_value=1000000)
+    ]
 
     @classmethod
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
         return meta_column.col_type == 'INTEGER'
 
     def make_value(self) -> int:
-        return random.randint(0, 1000000)
+        return random.randint(self._params['from'], self._params['to'])
 
 
 class DatetimeGenerator(ColumnGeneratorBase[int]):

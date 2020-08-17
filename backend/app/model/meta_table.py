@@ -13,3 +13,5 @@ class MetaTable(base):
     project = relationship('Project', back_populates='tables')
 
     columns = relationship('MetaColumn', order_by=MetaColumn.id, back_populates='table')
+
+    row_count = Column(Integer, default=10)

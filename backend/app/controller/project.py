@@ -214,7 +214,6 @@ def generate(id):
     proj = db_session.query(Project).filter(Project.id == id, Project.user == g.user).one()
 
     gen = DatabaseGenerator(proj)
-    gen.build_with_recommended_generators()
     gen.fill_database()
 
     return {

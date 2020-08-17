@@ -14,12 +14,24 @@ class ColumnView(Schema):
     primary_key = Bool()
     nullable = Bool()
     foreign_key = Str()
+    generator_name = Str()
+    generator_params = Dict(keys=Str())
+
+
+class ColumnWrite(Schema):
+    generator_name = Str()
+    generator_params = Dict(keys=Str())
 
 
 class TableView(Schema):
     id = Integer()
     name = Str()
     columns = List(Nested(ColumnView()))
+    row_count = Integer()
+
+
+class TableWrite(Schema):
+    row_count = Integer()
 
 
 class TableListView(Schema):
@@ -43,3 +55,18 @@ class UserView(Schema):
 
 class TablePreviewView(Schema):
     rows = List(Dict(keys=Str()))
+
+
+class GeneratorParam(Schema):
+    name = Str()
+    value_type = Str()
+
+
+class GeneratorView(Schema):
+    name = Str()
+    param_list = List(Nested(GeneratorParam()))
+
+
+class GeneratorListView(Schema):
+    items = List(Nested(GeneratorView))
+
