@@ -1,8 +1,13 @@
 <app-page-header title="Projects"></app-page-header>
 
-<div *ngIf="projects" class="project-list">
+<div *ngIf="projects" class="margin">
   <mat-card *ngFor="let project of projects" class="project-card">
     <mat-card-title>{{ project.name }}</mat-card-title>
+    <mar-card-content>
+      <mat-chip-list>
+        <mat-chip *ngFor="let table of project.tables">{{ table.name }}</mat-chip>
+      </mat-chip-list>
+    </mar-card-content>
     <mat-card-actions>
       <button mat-button [routerLink]="project.id">OPEN</button>
     </mat-card-actions>

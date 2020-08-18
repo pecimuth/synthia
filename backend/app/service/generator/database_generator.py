@@ -13,8 +13,8 @@ class DatabaseGenerator:
         self._proj = proj
         self._deserializer = StructureDeserializer(proj)
         self._extern_db = ExternDb(proj)
-        self._generators = self._make_generators()
         self._generated_database: GeneratedDatabase = {}
+        self._generators = self._make_generators()
 
     def _make_generators(self) -> Dict[str,TableGenerator]:
         result = {}

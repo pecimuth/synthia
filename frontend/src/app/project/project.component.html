@@ -1,7 +1,14 @@
 <app-page-header
   [title]="project?.name || 'Project'"
-  [sidenavButton]="true"
-  (toggleSidenav)="drawer.toggle()"></app-page-header>
+  [sidenavButton]="isHandset$ | async"
+  (toggleSidenav)="drawer.toggle()">
+  <div class="action-buttons padding-right col">
+    <button mat-flat-button color="accent" (click)="generate()">
+      <mat-icon>play_arrow</mat-icon>
+      <span>Generate</span>
+    </button>
+  </div>
+</app-page-header>
 
 <mat-sidenav-container class="sidenav-container">
   <mat-sidenav #drawer class="sidenav"

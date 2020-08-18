@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Subscription, combineLatest, Observable } from 'rxjs';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { map, shareReplay } from 'rxjs/operators';
+import { ProjectService } from '../api/services';
 
 @Component({
   selector: 'app-project',
@@ -24,7 +25,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
   constructor(
     private breakpointObserver: BreakpointObserver,
     private projectFacade: ProjectFacadeService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private projectService: ProjectService
   ) { }
 
   ngOnInit(): void {
@@ -43,5 +45,9 @@ export class ProjectComponent implements OnInit, OnDestroy {
     if (this.projectSub) {
       this.projectSub.unsubscribe();
     }
+  }
+
+  generate() {
+    this.projectService.postApiProjectIdGenerate(this.project.id).subscribe();
   }
 }

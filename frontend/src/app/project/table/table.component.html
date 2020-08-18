@@ -1,12 +1,18 @@
-<mat-tab-group *ngIf="table">
-  <mat-tab
-    *ngFor="let column of table.columns"
-    [label]="column.name">
-    <div>col_type {{ column.col_type }}</div>
-    <div>foreign_key {{ column.foreign_key }}</div>
-    <div>id  {{ column.id }}</div>
-    <div>name {{ column.name }}</div>
-    <div>nullable {{ column.nullable }}</div>
-    <div>primary_key {{ column.primary_key }}</div>
-  </mat-tab>
-</mat-tab-group>
+<mat-card class="margin">
+  <mat-tab-group *ngIf="table">
+    <mat-tab
+      *ngFor="let column of table.columns"
+      [label]="column.name">
+      <div>col_type {{ column.col_type }}</div>
+      <div>foreign_key {{ column.foreign_key }}</div>
+      <div>id  {{ column.id }}</div>
+      <div>name {{ column.name }}</div>
+      <div>nullable {{ column.nullable }}</div>
+      <div>primary_key {{ column.primary_key }}</div>
+    </mat-tab>
+  </mat-tab-group>
+</mat-card>
+
+<div class="margin">
+  <app-table-preview *ngIf="table" [table]="table"></app-table-preview>
+</div>

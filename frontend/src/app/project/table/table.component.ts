@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Subscription, combineLatest } from 'rxjs';
 import { ProjectFacadeService } from 'src/app/service/project-facade.service';
 import { ActivatedRoute } from '@angular/router';
+import { TableView } from 'src/app/api/models/table-view';
 
 @Component({
   selector: 'app-table',
@@ -10,7 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class TableComponent implements OnInit {
 
-  table: any;
+  table: TableView;
   private tableSub: Subscription;
 
   constructor(

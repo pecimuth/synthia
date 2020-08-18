@@ -1,11 +1,15 @@
-<header class="page-header full-width background-primary">
-  <button
-    *ngIf="sidenavButton"
-    type="button"
-    aria-label="Toggle sidenav"
-    mat-icon-button
-    (click)="onClick()">
-    <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
-  </button>
-  <h1 class="page-title">{{ title }}</h1>
+<header class="background-primary row">
+  <div *ngIf="sidenavButton" class="padding-top padding-bottom col">
+    <button
+      type="button"
+      aria-label="Toggle sidenav"
+      mat-button
+      (click)="onClick()">
+      <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+      <span>{{ title }}</span>
+    </button>
+  </div>
+  <h1 *ngIf="!sidenavButton" class="page-title col">{{ title }}</h1>
+
+  <ng-content></ng-content>
 </header>
