@@ -1,0 +1,10 @@
+<form *ngIf="form" [formGroup]="form" novalidate (ngSubmit)="onSubmit()">
+  <div class="row">
+    <div class="col" *ngFor="let param of generator.param_list">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ param.name }}</mat-label>
+        <input matInput [formControlName]="param.name" [type]="getInputType(param)">
+      </mat-form-field>
+    </div>
+  </div>
+</form>

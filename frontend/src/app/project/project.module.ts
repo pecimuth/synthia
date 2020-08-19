@@ -16,10 +16,17 @@ import { TablePreviewComponent } from './table/table-preview/table-preview.compo
 import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
+import { ParamFormComponent } from './table/param-form/param-form.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatDividerModule } from '@angular/material/divider';
+import { GeneratorSelectComponent } from './table/generator-select/generator-select.component';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 
 @NgModule({
-  declarations: [ProjectComponent, ProjectListComponent, OverviewComponent, TableComponent, TablePreviewComponent],
+  declarations: [ProjectComponent, ProjectListComponent, OverviewComponent, TableComponent, TablePreviewComponent, ParamFormComponent, GeneratorSelectComponent],
   imports: [
     CommonModule,
     ProjectRoutingModule,
@@ -31,7 +38,12 @@ import { MatIconModule } from '@angular/material/icon';
     MatTabsModule,
     MatTableModule,
     MatChipsModule,
-    MatIconModule
+    MatIconModule,
+    ReactiveFormsModule,
+    MatInputModule,
+    MatDividerModule,
+    MatSelectModule,
+    MatSnackBarModule
   ]
 })
 export class ProjectModule { }

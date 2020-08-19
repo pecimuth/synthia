@@ -6,6 +6,7 @@ import { Subscription, combineLatest, Observable } from 'rxjs';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { map, shareReplay } from 'rxjs/operators';
 import { ProjectService } from '../api/services';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-project',
@@ -26,7 +27,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
     private breakpointObserver: BreakpointObserver,
     private projectFacade: ProjectFacadeService,
     private activatedRoute: ActivatedRoute,
-    private projectService: ProjectService
+    private projectService: ProjectService,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
@@ -48,6 +50,24 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   generate() {
-    this.projectService.postApiProjectIdGenerate(this.project.id).subscribe();
+    const config = {
+      duration: 2000
+    };
+    this.projectService.postApiProjectIdGenerate(this.project.id)
+      .subscribe(
+        () => this.snackBar.open('Successfully filled the database', 'OK', config),
+        () => this.snackBar.open('Generation failed', 'OK', config)
+      );
+  }
+
+  refreshSchema() {
+    const config = {
+      duration: 2000
+    };
+    this.projectService.postApiProjectIdRefreshSchema(this.project.id)
+      .subscribe(
+        () => this.snackBar.open('Successfully refreshed the schema', 'OK', config),
+        () => this.snackBar.open('Schema refresh failed', 'OK', config)
+      );
   }
 }

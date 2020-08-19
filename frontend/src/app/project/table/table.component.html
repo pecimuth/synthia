@@ -3,12 +3,19 @@
     <mat-tab
       *ngFor="let column of table.columns"
       [label]="column.name">
-      <div>col_type {{ column.col_type }}</div>
-      <div>foreign_key {{ column.foreign_key }}</div>
-      <div>id  {{ column.id }}</div>
-      <div>name {{ column.name }}</div>
-      <div>nullable {{ column.nullable }}</div>
-      <div>primary_key {{ column.primary_key }}</div>
+      <div class="padding-top padding-left padding-right">
+        <mat-chip-list>
+          <mat-chip color="primary" *ngIf="column.primary_key" selected>Primary Key</mat-chip>
+          <mat-chip color="accent" *ngIf="column.foreign_key" selected>FK: {{ column.foreign_key }}</mat-chip>
+          <mat-chip>{{ column.col_type }}</mat-chip>
+          <mat-chip *ngIf="column.nullable">Nullable</mat-chip>
+        </mat-chip-list>
+        <div class="padding-top padding-bottom">
+          <mat-divider></mat-divider>
+        </div>
+        <app-generator-select [column]="column"></app-generator-select>
+        <app-param-form [column]="column"></app-param-form>
+      </div>
     </mat-tab>
   </mat-tab-group>
 </mat-card>

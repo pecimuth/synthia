@@ -33,7 +33,12 @@ class ColumnGeneratorBase(Generic[OutputType], ABC):
         for param in self.param_list:
             if self._meta_column.generator_params and \
                param.name in self._meta_column.generator_params:
-                result[param.name] = self._meta_column.generator_params[param.name]
+                value = self._meta_column.generator_params[param.name]
+                if param.value_type == 'number' and not isinstance(value, int):
+                    value = int(value)
+                elif param.value_type == 'bool' and not isinstance(value, bool):
+                    value = value == 'true'
+                result[param.name] = value
             else:
                 result[param.name] = param.default_value
         return result

@@ -3,6 +3,10 @@
   [sidenavButton]="isHandset$ | async"
   (toggleSidenav)="drawer.toggle()">
   <div class="action-buttons padding-right col">
+    <button mat-flat-button color="basic" (click)="refreshSchema()">
+      <mat-icon>refresh</mat-icon>
+      <span>Refresh schema</span>
+    </button>
     <button mat-flat-button color="accent" (click)="generate()">
       <mat-icon>play_arrow</mat-icon>
       <span>Generate</span>

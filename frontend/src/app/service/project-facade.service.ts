@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { ProjectListView } from '../api/models/project-list-view';
-import { ProjectView } from '../api/models/project-view';
 import { ProjectService } from '../api/services';
 
 @Injectable({

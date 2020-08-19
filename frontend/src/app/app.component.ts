@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs';
 import { filter, distinctUntilChanged } from 'rxjs/operators';
 import { AuthFacadeService } from './service/auth-facade.service';
 import { ProjectFacadeService } from './service/project-facade.service';
+import { GeneratorFacadeService } from './service/generator-facade.service';
 
 @Component({
   selector: 'app-root',
@@ -15,11 +16,13 @@ export class AppComponent implements OnDestroy {
 
   constructor(
     private authFacade: AuthFacadeService,
-    private projectFacade: ProjectFacadeService
+    private projectFacade: ProjectFacadeService,
+    private generatorFacade: GeneratorFacadeService
   ) {}
 
   ngOnInit() {
     this.authFacade.refresh();
+    this.generatorFacade.refresh();
     this.userSub = this.authFacade.user$
       .pipe(filter((user) => !!user), distinctUntilChanged())
       .subscribe(() => this.projectFacade.refreshList());
@@ -31,5 +34,6 @@ export class AppComponent implements OnDestroy {
     }
     this.authFacade.complete();
     this.projectFacade.complete();
+    this.generatorFacade.complete();
   }
 }
