@@ -1,17 +1,22 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ProjectFacadeService } from '../service/project-facade.service';
 import { ProjectView } from '../api/models/project-view';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription, combineLatest, Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { map, shareReplay } from 'rxjs/operators';
+import { map, shareReplay, takeUntil } from 'rxjs/operators';
 import { ProjectService } from '../api/services';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActiveProjectService } from './service/active-project.service'
+
+const config = {
+  duration: 2000
+};
 
 @Component({
   selector: 'app-project',
   templateUrl: './project.component.html',
-  styleUrls: ['./project.component.scss']
+  styleUrls: ['./project.component.scss'],
+  viewProviders: [ActiveProjectService]
 })
 export class ProjectComponent implements OnInit, OnDestroy {
 
@@ -21,38 +26,33 @@ export class ProjectComponent implements OnInit, OnDestroy {
       shareReplay()
     );
   project: ProjectView;
-  private projectSub: Subscription;
+  private unsubscribe$ = new Subject();
 
   constructor(
     private breakpointObserver: BreakpointObserver,
-    private projectFacade: ProjectFacadeService,
     private activatedRoute: ActivatedRoute,
     private projectService: ProjectService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private activeProject: ActiveProjectService
   ) { }
 
   ngOnInit(): void {
-    this.projectSub = combineLatest([
-      this.activatedRoute.params,
-      this.projectFacade.list$
-    ]).subscribe(
-      ([params, list]) => {
-        const id = parseInt(params.id);
-        this.project = list.items.find((item) => item.id === id);
-      }
-    );
+    this.activatedRoute.params
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((params) => {
+        this.activeProject.projectId = parseInt(params.id);
+      });
+    this.activeProject.project$
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((project) => this.project = project);
   }
 
   ngOnDestroy() {
-    if (this.projectSub) {
-      this.projectSub.unsubscribe();
-    }
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   generate() {
-    const config = {
-      duration: 2000
-    };
     this.projectService.postApiProjectIdGenerate(this.project.id)
       .subscribe(
         () => this.snackBar.open('Successfully filled the database', 'OK', config),
@@ -61,9 +61,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   refreshSchema() {
-    const config = {
-      duration: 2000
-    };
     this.projectService.postApiProjectIdRefreshSchema(this.project.id)
       .subscribe(
         () => this.snackBar.open('Successfully refreshed the schema', 'OK', config),

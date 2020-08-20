@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { ProjectListView } from '../api/models/project-list-view';
 import { ProjectService } from '../api/services';
@@ -6,7 +6,7 @@ import { ProjectService } from '../api/services';
 @Injectable({
   providedIn: 'root'
 })
-export class ProjectFacadeService {
+export class ProjectFacadeService implements OnDestroy {
 
   _list$ = new BehaviorSubject<ProjectListView>({items: []});
   get list$() {
@@ -17,7 +17,7 @@ export class ProjectFacadeService {
     private projectService: ProjectService
   ) { }
 
-  complete() {
+  ngOnDestroy() {
     this.list$.complete();
   }
 

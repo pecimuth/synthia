@@ -5,17 +5,3 @@
 .sidenav {
   width: 200px;
 }
-
-.action-buttons {
-  align-self: center;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.action-buttons > button {
-  margin-right: 20px;
-}
-
-.action-buttons > button:last-child {
-  margin-right: 0;
-}

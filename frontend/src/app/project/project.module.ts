@@ -23,6 +23,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { GeneratorSelectComponent } from './table/generator-select/generator-select.component';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 
 @NgModule({
@@ -43,7 +44,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MatInputModule,
     MatDividerModule,
     MatSelectModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatExpansionModule
   ]
 })
 export class ProjectModule { }

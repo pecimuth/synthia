@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { GeneratorListView } from '../api/models/generator-list-view';
 import { GeneratorService } from '../api/services';
 import { BehaviorSubject } from 'rxjs';
@@ -6,7 +6,7 @@ import { BehaviorSubject } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class GeneratorFacadeService {
+export class GeneratorFacadeService implements OnDestroy {
   private _generators$ = new BehaviorSubject<GeneratorListView>({items: []});
   get generators$() {
     return this._generators$;
@@ -16,7 +16,7 @@ export class GeneratorFacadeService {
     private generatorService: GeneratorService
   ) { }
 
-  complete() {
+  ngOnDestroy() {
     this.generators$.complete();
   }
 

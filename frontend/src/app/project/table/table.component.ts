@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { Subscription, combineLatest } from 'rxjs';
-import { ProjectFacadeService } from 'src/app/service/project-facade.service';
+import { Subject } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { TableView } from 'src/app/api/models/table-view';
+import { ColumnView } from 'src/app/api/models/column-view';
+import { ActiveProjectService } from '../service/active-project.service';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-table',
@@ -12,34 +14,28 @@ import { TableView } from 'src/app/api/models/table-view';
 export class TableComponent implements OnInit {
 
   table: TableView;
-  private tableSub: Subscription;
+  private unsubscribe$ = new Subject();
 
   constructor(
-    private projectFacade: ProjectFacadeService,
+    private activeProject: ActiveProjectService,
     private activatedRoute: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
-    this.tableSub = combineLatest([
-      this.activatedRoute.parent.params,
-      this.activatedRoute.params,
-      this.projectFacade.list$
-    ]).subscribe(
-      ([parent, params, list]) => {
-        if (!list.items.length) {
-          return;
-        }
-        const id = parseInt(parent.id);
-        const tid = parseInt(params.tid);
-        const project = list.items.find((item) => item.id === id);
-        this.table = project.tables.find((item) => item.id === tid);
-      }
-    );
+    this.activatedRoute.params
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((params) => {
+        this.activeProject.tableId = parseInt(params.tid);
+      });
+    this.activeProject.table$
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((table) => this.table = table);
   }
 
   ngOnDestroy() {
-    if (this.tableSub) {
-      this.tableSub.unsubscribe();
-    }
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
+
+  trackById = (index: number, item: ColumnView) => item.id;
 }

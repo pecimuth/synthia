@@ -1,0 +1,25 @@
+<form [formGroup]="loginForm" novalidate (ngSubmit)="onSubmit()">
+  <h2>Login</h2>
+  
+  <mat-form-field>
+    <input matInput placeholder="Email" formControlName="email">
+    <mat-error *ngIf="loginForm.controls['email'].hasError('required')">
+      Email is <strong>required</strong>
+    </mat-error>
+  </mat-form-field>
+
+  <div class="margin-bottom">
+    <button mat-button
+      color="accent"
+      type="button"
+      class="small-button"
+      (click)="goToRegistration()">I do not have an account</button>
+  </div>
+
+  <div class="margin-between">
+    <button mat-flat-button mat-dialog-close type="button">Cancel</button>
+  </div>
+  <div class="margin-between">
+    <button mat-raised-button color="primary" type="submit">Login</button>
+  </div>
+</form>

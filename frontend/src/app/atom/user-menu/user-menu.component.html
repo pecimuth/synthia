@@ -4,13 +4,13 @@
     <mat-icon>expand_more</mat-icon>
   </button>
   <mat-menu #menu="matMenu">
-    <button mat-menu-item (click)="authFacade.logout()">
+    <button mat-menu-item (click)="onLogout()">
       <mat-icon>exit_to_app</mat-icon>
       <span>Logout</span>
     </button>
   </mat-menu>
 </ng-container>
 
-<button *ngIf="!user" mat-icon-button routerLink="/login">
+<button *ngIf="!user" mat-icon-button (click)="openLoginDialog()">
   <mat-icon>login</mat-icon>
 </button>

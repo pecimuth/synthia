@@ -12,6 +12,7 @@ import { GeneratorFacadeService } from './service/generator-facade.service';
 })
 export class AppComponent implements OnDestroy {
 
+  showMenu = false;
   private userSub: Subscription;
 
   constructor(
@@ -24,16 +25,17 @@ export class AppComponent implements OnDestroy {
     this.authFacade.refresh();
     this.generatorFacade.refresh();
     this.userSub = this.authFacade.user$
-      .pipe(filter((user) => !!user), distinctUntilChanged())
-      .subscribe(() => this.projectFacade.refreshList());
+      .subscribe((user) => {
+        this.showMenu = !!user;
+        if (user) {
+          this.projectFacade.refreshList();
+        }
+      });
   }
 
   ngOnDestroy() {
     if (this.userSub) {
       this.userSub.unsubscribe();
     }
-    this.authFacade.complete();
-    this.projectFacade.complete();
-    this.generatorFacade.complete();
   }
 }

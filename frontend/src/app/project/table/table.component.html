@@ -1,7 +1,7 @@
 <mat-card class="margin">
   <mat-tab-group *ngIf="table">
     <mat-tab
-      *ngFor="let column of table.columns"
+      *ngFor="let column of table.columns; trackBy: trackById"
       [label]="column.name">
       <div class="padding-top padding-left padding-right">
         <mat-chip-list>
@@ -19,6 +19,32 @@
     </mat-tab>
   </mat-tab-group>
 </mat-card>
+
+<!-- ALTERNATIVE
+<div class="margin">
+  <mat-accordion *ngIf="table">
+    <mat-expansion-panel
+      *ngFor="let column of table.columns; trackBy: trackById">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          {{ column.name }}
+        </mat-panel-title>
+
+        <mat-panel-description>
+          <mat-chip-list>
+            <mat-chip>{{ column.col_type }}</mat-chip>
+            <mat-chip color="primary" *ngIf="column.primary_key" selected>Primary Key</mat-chip>
+            <mat-chip color="accent" *ngIf="column.foreign_key" selected>FK: {{ column.foreign_key }}</mat-chip>
+            <mat-chip *ngIf="column.nullable">Nullable</mat-chip>
+          </mat-chip-list>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      <app-generator-select [column]="column"></app-generator-select>
+      <app-param-form [column]="column"></app-param-form>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>
+-->
 
 <div class="margin">
   <app-table-preview *ngIf="table" [table]="table"></app-table-preview>

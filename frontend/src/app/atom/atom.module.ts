@@ -5,6 +5,9 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { PageHeaderComponent } from './page-header/page-header.component';
+import { RouterModule } from '@angular/router';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 
 @NgModule({
@@ -13,7 +16,10 @@ import { PageHeaderComponent } from './page-header/page-header.component';
     CommonModule,
     MatMenuModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    RouterModule,
+    MatDialogModule,
+    MatSnackBarModule
   ],
   exports: [
     UserMenuComponent,

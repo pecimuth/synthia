@@ -1,11 +1,19 @@
-<app-page-header title="Projects"></app-page-header>
+<app-page-header title="Projects">
+  <div class="action-buttons">
+    <button mat-fab color="accent" aria-label="Create new project" (click)="onAddProject()">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+</app-page-header>
 
 <div *ngIf="projects" class="margin">
-  <mat-card *ngFor="let project of projects" class="project-card">
+  <mat-card *ngFor="let project of projects" class="margin">
     <mat-card-title>{{ project.name }}</mat-card-title>
     <mar-card-content>
       <mat-chip-list>
-        <mat-chip *ngFor="let table of project.tables">{{ table.name }}</mat-chip>
+        <mat-chip *ngFor="let table of project.tables" [routerLink]="[project.id, table.id]">
+          {{ table.name }}
+        </mat-chip>
       </mat-chip-list>
     </mar-card-content>
     <mat-card-actions>

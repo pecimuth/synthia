@@ -12,6 +12,7 @@ import { environment } from 'src/environments/environment';
 import { AtomModule } from './atom/atom.module';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptorService } from './service/auth-interceptor.service';
+import { DialogModule } from './dialog/dialog.module';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,8 @@ import { AuthInterceptorService } from './service/auth-interceptor.service';
     MatButtonModule,
     LayoutModule,
     ApiModule.forRoot({rootUrl: environment.apiUrl}),
-    AtomModule
+    AtomModule,
+    DialogModule
   ],
   providers: [
     {
