@@ -1,8 +1,8 @@
 from flasgger import swag_from
 from flask import Blueprint
 
-from app.service.generator.column_generator import ColumnGeneratorBase
-from app.view import GeneratorListView
+from core.service.generator.column_generator import ColumnGeneratorBase
+from web.view import GeneratorListView
 
 generator = Blueprint('generator', __name__, url_prefix='/api')
 

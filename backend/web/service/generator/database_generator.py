@@ -1,10 +1,10 @@
 from typing import Dict
 
-from app.model.project import Project
-from app.service.deserializer import StructureDeserializer
-from app.service.extern_db import ExternDb
-from app.service.generator import GeneratedDatabase
-from app.service.generator.table_generator import TableGenerator
+from core.model.project import Project
+from core.service.deserializer import StructureDeserializer
+from web.service.extern_db import ExternDb
+from core.service.generator import GeneratedDatabase
+from core.service.generator.table_generator import TableGenerator
 
 
 class DatabaseGenerator:

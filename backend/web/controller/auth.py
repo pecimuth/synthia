@@ -1,9 +1,9 @@
 from flask import Blueprint, request, session, g
-from app.service.database import get_db_session
-from app.model.user import User
+from web.service.database import get_db_session
+from core.model.user import User
 from sqlalchemy.orm.exc import NoResultFound
 from flasgger import swag_from
-from app.view import UserView, MessageView
+from web.view import UserView, MessageView
 import functools
 
 auth = Blueprint('auth', __name__, url_prefix='/api/auth')

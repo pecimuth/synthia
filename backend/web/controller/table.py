@@ -1,12 +1,12 @@
 from flasgger import swag_from
 from flask import Blueprint, g, request
 
-from app.controller.auth import login_required
-from app.model.meta_table import MetaTable
-from app.model.project import Project
-from app.service.database import get_db_session
-from app.service.generator.table_generator import TableGenerator
-from app.view import MessageView, TablePreviewView, TableWrite, TableView
+from web.controller.auth import login_required
+from core.model.meta_table import MetaTable
+from core.model.project import Project
+from web.service.database import get_db_session
+from core.service.generator.table_generator import TableGenerator
+from web.view import MessageView, TablePreviewView, TableWrite, TableView
 
 table = Blueprint('table', __name__, url_prefix='/api')
 

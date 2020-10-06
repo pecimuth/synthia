@@ -5,11 +5,11 @@ from random import randint, choice
 from sqlalchemy import Table
 from sqlalchemy.engine import Connection
 
-from app.model.meta_column import MetaColumn
-from app.model.meta_table import MetaTable
-from app.model.project import Project
-from app.service.deserializer import StructureDeserializer
-from app.service.extern_db import ExternDb
+from core.model.meta_column import MetaColumn
+from core.model.meta_table import MetaTable
+from core.model.project import Project
+from core.service.deserializer import StructureDeserializer
+from web.service.extern_db import ExternDb
 
 
 class Generator:

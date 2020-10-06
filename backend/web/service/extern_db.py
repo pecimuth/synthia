@@ -4,7 +4,7 @@ from flask import current_app
 from sqlalchemy.engine import Engine, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from app.model.project import Project
+from core.model.project import Project
 
 
 class ExternDb:

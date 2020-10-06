@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from . import base
-from app.model.meta_column import MetaColumn
+from core.model.meta_column import MetaColumn
 
 
 class MetaTable(base):

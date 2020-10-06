@@ -2,14 +2,14 @@ from flask import Blueprint, g, request
 from sqlalchemy.orm import Session
 from flasgger import swag_from
 
-from app.model.project import Project
-from app.service.deserializer import create_mock_meta
-from app.service.extern_db import ExternDb
-from app.service.generator.database_generator import DatabaseGenerator
-from app.service.serializer import StructureSerializer
-from app.view import ProjectListView, ProjectView, MessageView
-from app.controller.auth import login_required
-from app.service.database import get_db_session
+from core.model.project import Project
+from core.service.deserializer import create_mock_meta
+from web.service.extern_db import ExternDb
+from web.service.generator.database_generator import DatabaseGenerator
+from core.service.serializer import StructureSerializer
+from web.view import ProjectListView, ProjectView, MessageView
+from web.controller.auth import login_required
+from web.service.database import get_db_session
 
 project = Blueprint('project', __name__, url_prefix='/api')
 

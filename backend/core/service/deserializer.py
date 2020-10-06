@@ -1,8 +1,8 @@
 from sqlalchemy import MetaData, Table, Column, Integer, String, DateTime, ForeignKey
 
-from app.model.meta_column import MetaColumn
-from app.model.meta_table import MetaTable
-from app.model.project import Project
+from core.model.meta_column import MetaColumn
+from core.model.meta_table import MetaTable
+from core.model.project import Project
 
 
 class StructureDeserializer:

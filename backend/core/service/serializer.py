@@ -1,10 +1,10 @@
 from sqlalchemy import Column, Table, MetaData
 from sqlalchemy.engine import Engine
 
-from app.model.meta_column import MetaColumn
-from app.model.meta_table import MetaTable
-from app.model.project import Project
-from app.service.generator.column_generator import find_recommended_generator
+from core.model.meta_column import MetaColumn
+from core.model.meta_table import MetaTable
+from core.model.project import Project
+from core.service.generator.column_generator import find_recommended_generator
 
 
 class StructureSerializer:

@@ -3,10 +3,10 @@ from typing import List, Tuple, Iterable, Union, Any, Callable
 from sqlalchemy import Table
 from sqlalchemy.engine import Connection
 
-from app.model.meta_column import MetaColumn
-from app.model.meta_table import MetaTable
-from app.service.generator import GeneratedDatabase, GeneratedTable, GeneratedRow
-from app.service.generator.column_generator import ColumnGeneratorBase, find_recommended_generator, \
+from core.model.meta_column import MetaColumn
+from core.model.meta_table import MetaTable
+from core.service.generator import GeneratedDatabase, GeneratedTable, GeneratedRow
+from core.service.generator.column_generator import ColumnGeneratorBase, find_recommended_generator, \
     get_generator_by_name
 
 Generators = List[Tuple[MetaColumn, ColumnGeneratorBase]]

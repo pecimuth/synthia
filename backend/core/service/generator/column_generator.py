@@ -6,9 +6,9 @@ import string
 from abc import ABC, abstractmethod
 from typing import TypeVar, Generic, Type, Dict, Union
 
-from app.model.meta_column import MetaColumn
-from app.model.meta_table import MetaTable
-from app.service.generator import GeneratedDatabase, ColumnGeneratorParamList, ColumnGeneratorParam
+from core.model.meta_column import MetaColumn
+from core.model.meta_table import MetaTable
+from core.service.generator import GeneratedDatabase, ColumnGeneratorParamList, ColumnGeneratorParam
 
 OutputType = TypeVar('OutputType')
 
