@@ -17,3 +17,7 @@ class MetaColumn(base):
 
     generator_name = Column(String, nullable=True)
     generator_params = Column(JSON, nullable=True)
+
+    data_source_id = Column(Integer, ForeignKey('datasource.id'))
+    data_source = relationship('DataSource')
+    data_source_idf = Column(String, nullable=True)
