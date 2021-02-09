@@ -20,4 +20,4 @@ class MetaColumn(base):
 
     data_source_id = Column(Integer, ForeignKey('datasource.id'))
     data_source = relationship('DataSource')
-    data_source_idf = Column(String, nullable=True)
+    reflected_column_idf = Column(String, nullable=True)

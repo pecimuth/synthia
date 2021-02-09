@@ -20,7 +20,7 @@ class ColumnView(Schema):
 
 class ColumnWrite(Schema):
     generator_name = Str()
-    generator_params = Dict(keys=Str())
+    generator_params = Dict(keys=Str(), allow_none=True)
 
 
 class TableView(Schema):
@@ -70,3 +70,28 @@ class GeneratorView(Schema):
 class GeneratorListView(Schema):
     items = List(Nested(GeneratorView))
 
+
+class DataSourceView(Schema):
+    id = Integer()
+
+    file_name = Str()
+    mime_type = Str()
+
+    driver = Str()
+    db = Str()
+
+    usr = Str()
+    host = Str()
+    port = Integer()
+
+
+class DataSourceDatabaseWrite(Schema):
+    project_id = Integer()
+
+    driver = Str()
+    db = Str()
+
+    usr = Str()
+    pwd = Str()
+    host = Str()
+    port = Integer()

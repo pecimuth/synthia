@@ -14,7 +14,7 @@ class Project(base):
     user = relationship('User', back_populates='projects')
     
     tables = relationship('MetaTable', order_by=MetaTable.id, back_populates='project')
-    data_source = relationship('DataSource', order_by=DataSource.id, back_populates='project')
+    data_sources = relationship('DataSource', order_by=DataSource.id, back_populates='project')
 
     def __repr__(self):
         return '<Project(id={},name={},user_id={})>'.format(self.id, self.name, self.user_id)

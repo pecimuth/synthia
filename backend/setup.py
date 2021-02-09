@@ -7,6 +7,7 @@ setup(
     install_requires=[
         # core
         'sqlalchemy',
+        'psycopg2-binary',
         # web
         'flask',
         'flasgger',

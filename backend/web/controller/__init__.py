@@ -1,5 +1,6 @@
 from flask import Flask
 
+from web.controller.data_source import source
 from web.controller.column import column
 from web.controller.generator import generator
 from web.controller.table import table
@@ -13,3 +14,4 @@ def init_app(app: Flask):
     app.register_blueprint(table)
     app.register_blueprint(generator)
     app.register_blueprint(column)
+    app.register_blueprint(source)

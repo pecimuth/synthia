@@ -2,7 +2,9 @@ from flask import Blueprint, g, request
 from sqlalchemy.orm import Session
 from flasgger import swag_from
 
+from core.model.data_source import DataSource
 from core.model.project import Project
+from core.service.data_source.database import create_database_source_engine
 from core.service.deserializer import create_mock_meta
 from web.service.extern_db import ExternDb
 from web.service.generator.database_generator import DatabaseGenerator
@@ -115,6 +117,13 @@ def delete_schema_from_project(proj: Project, session: Session):
             'required': True,
             'type': 'integer'
         },
+        {
+            'name': 'data_source_id',
+            'in': 'formData',
+            'description': 'Import from which data source',
+            'required': True,
+            'type': 'integer'
+        }
     ],
     'responses': {
         200: {
@@ -127,15 +136,24 @@ def delete_schema_from_project(proj: Project, session: Session):
         }
     }
 })
-def get_project_refresh_schema(id):
+def refresh_project_schema(id):
     db_session = get_db_session()
 
     # TODO not found error
     proj = db_session.query(Project).filter(Project.id == id, Project.user == g.user).one()
+    # TODO do not delete
     delete_schema_from_project(proj, db_session)
+    db_session.commit()
+    # TODO not found
+    data_source = db_session.query(DataSource).\
+        filter(
+            Project.id == id,
+            DataSource.id == request.form['data_source_id']
+        ).\
+        one()
 
-    extern_db = ExternDb(proj)
-    serializer = StructureSerializer(bind=extern_db.engine)
+    engine = create_database_source_engine(data_source)
+    serializer = StructureSerializer(bind=engine)
     serializer.add_schema_to_project(proj)
     db_session.commit()
 
@@ -219,5 +237,4 @@ def generate(id):
     return {
         'result': 'ok',
         'message': 'Successfully filled the database'
-    }
-
+    }, 400
