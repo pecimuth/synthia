@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+    backend:
+        build: ./backend
+        ports:
+            - 5000:5000
+        volumes:
+            - ./backend:/app
+        environment:
+            POSTGRES_USER: synthia
+            POSTGRES_PASSWORD: ta5UnhEe5kSoyb59Zm7I
+            POSTGRES_DB: synthia
+    database:
+        image: postgres
+        environment:
+            POSTGRES_USER: synthia
+            POSTGRES_PASSWORD: ta5UnhEe5kSoyb59Zm7I
+            POSTGRES_DB: synthia
+    frontend:
+        build: ./frontend
+        ports:
+            - 4200:4200
+        volumes:
+            - ./frontend:/app
