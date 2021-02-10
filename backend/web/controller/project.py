@@ -1,6 +1,9 @@
+import functools
+
 from flask import Blueprint, g, request
 from sqlalchemy.orm import Session
 from flasgger import swag_from
+from sqlalchemy.orm.exc import NoResultFound
 
 from core.model.data_source import DataSource
 from core.model.project import Project
@@ -67,8 +70,28 @@ def create_project():
     return ProjectView().dump(proj)
 
 
+def with_project_by_id(view):
+    @functools.wraps(view)
+    def wrapped_view(id):
+        db_session = get_db_session()
+        try:
+            proj = db_session.query(Project).\
+                filter(
+                    Project.id == id,
+                    Project.user == g.user).\
+                one()
+        except NoResultFound:
+            return {
+               'result': 'error',
+               'message': 'Project not found'
+            }, 400
+        return view(proj)
+    return wrapped_view
+
+
 @project.route('/project/<id>')
 @login_required
+@with_project_by_id
 @swag_from({
     'tags': ['Project'],
     'parameters': [
@@ -91,10 +114,7 @@ def create_project():
         }
     }
 })
-def get_project(id):
-    db_session = get_db_session()
-    # TODO not found error
-    proj = db_session.query(Project).filter(Project.id == id, Project.user == g.user).one()
+def get_project(proj: Project):
     return ProjectView().dump(proj)
 
 
@@ -107,6 +127,7 @@ def delete_schema_from_project(proj: Project, session: Session):
 
 @project.route('/project/<id>/refresh-schema', methods=('POST',))
 @login_required
+@with_project_by_id
 @swag_from({
     'tags': ['Project'],
     'parameters': [
@@ -136,11 +157,9 @@ def delete_schema_from_project(proj: Project, session: Session):
         }
     }
 })
-def refresh_project_schema(id):
+def refresh_project_schema(proj: Project):
     db_session = get_db_session()
 
-    # TODO not found error
-    proj = db_session.query(Project).filter(Project.id == id, Project.user == g.user).one()
     # TODO do not delete
     delete_schema_from_project(proj, db_session)
     db_session.commit()
@@ -162,6 +181,7 @@ def refresh_project_schema(id):
 
 @project.route('/project/<id>/create-mock-database', methods=('POST',))
 @login_required
+@with_project_by_id
 @swag_from({
     'tags': ['Project'],
     'parameters': [
@@ -184,11 +204,8 @@ def refresh_project_schema(id):
         }
     }
 })
-def create_mock_database(id):
+def create_mock_database(proj: Project):
     db_session = get_db_session()
-
-    # TODO not found error
-    proj = db_session.query(Project).filter(Project.id == id, Project.user == g.user).one()
 
     extern_db = ExternDb(proj)
     meta = create_mock_meta()
@@ -203,6 +220,7 @@ def create_mock_database(id):
 
 @project.route('/project/<id>/generate', methods=('POST',))
 @login_required
+@with_project_by_id
 @swag_from({
     'tags': ['Project'],
     'parameters': [
@@ -225,16 +243,11 @@ def create_mock_database(id):
         }
     }
 })
-def generate(id):
-    db_session = get_db_session()
-
-    # TODO not found error
-    proj = db_session.query(Project).filter(Project.id == id, Project.user == g.user).one()
-
+def generate(proj: Project):
     gen = DatabaseGenerator(proj)
     gen.fill_database()
 
     return {
         'result': 'ok',
         'message': 'Successfully filled the database'
-    }, 400
+    }, 200
