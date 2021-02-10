@@ -17,7 +17,6 @@ def create_database_source_engine(data_source: DataSource) -> Engine:
         port=data_source.port,
         database=data_source.db
     )
-    print(url)
     return create_engine(url)
 
 

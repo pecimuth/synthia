@@ -7,36 +7,31 @@ from . import controller
 import os
 
 
-def create_app(test_config=None) -> Flask:
-
+def create_app() -> Flask:
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SWAGGER={
             'title': 'Synthia'
         },
-        SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'data.db'),
+        SECRET_KEY=os.environ['SECRET_KEY'],
         EXTERN_DB_PATH=os.path.join(app.instance_path, 'extern/'),
-        ORIGINS='http://localhost:4200'
+        DATABASE_DRIVER='postgresql',
+        DATABASE_USER=os.environ['POSTGRES_USER'],
+        DATABASE_PASSWORD=os.environ['POSTGRES_PASSWORD'],
+        DATABASE_DB=os.environ['POSTGRES_DB'],
+        DATABASE_HOST=os.environ['DATABASE_HOST'],
+        DATABASE_PORT=os.environ['DATABASE_PORT'],
+        ORIGIN=os.environ['ORIGIN']
     )
 
     Swagger(app)
-    CORS(app, origins=app.config['ORIGINS'], supports_credentials=True)
-
-    if test_config is None:
-        app.config.from_pyfile('config.py', silent=True)
-    else:
-        app.config.from_mapping(test_config)
+    CORS(app, origins=app.config['ORIGIN'], supports_credentials=True)
 
     controller.init_app(app)
     service.init_app(app)
 
     try:
         os.makedirs(app.instance_path)
-    except OSError:
-        pass
-
-    try:
         os.makedirs(app.config['EXTERN_DB_PATH'])
     except OSError:
         pass

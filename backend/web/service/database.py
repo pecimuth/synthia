@@ -1,12 +1,21 @@
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
+from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import sessionmaker, Session
 from flask import current_app, g, Flask
 
 
 def get_db_engine() -> Engine:
     if 'db_engine' not in g:
-        g.db_engine = create_engine('sqlite:///' + current_app.config['DATABASE'])
+        url = URL(
+            drivername=current_app.config['DATABASE_DRIVER'],
+            username=current_app.config['DATABASE_USER'],
+            password=current_app.config['DATABASE_PASSWORD'],
+            host=current_app.config['DATABASE_HOST'],
+            port=current_app.config['DATABASE_PORT'],
+            database=current_app.config['DATABASE_DB']
+        )
+        return create_engine(url)
     return g.db_engine
 
 

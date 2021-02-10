@@ -5,14 +5,14 @@ from web.service.database import get_db_engine, close_db
 import click
 
 
-@click.command('create-db')
+@click.command('recreate-database')
 @with_appcontext
-def create_db_command():
+def recreate_database_command():
     model.base.metadata.drop_all(get_db_engine())
     model.base.metadata.create_all(get_db_engine())
-    click.echo('Created the database')
+    click.echo('Recreated the database')
 
 
 def init_app(app: Flask):
-    app.cli.add_command(create_db_command)
+    app.cli.add_command(recreate_database_command)
     app.teardown_appcontext(close_db)

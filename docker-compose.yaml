@@ -1,21 +1,24 @@
 version: "3.9"
 services:
+    database:
+        image: postgres
+        env_file:
+            - postgres.env
     backend:
+        depends_on:
+            - database
         build: ./backend
         ports:
             - 5000:5000
         volumes:
             - ./backend:/app
+        env_file:
+            - postgres.env
         environment:
-            POSTGRES_USER: synthia
-            POSTGRES_PASSWORD: ta5UnhEe5kSoyb59Zm7I
-            POSTGRES_DB: synthia
-    database:
-        image: postgres
-        environment:
-            POSTGRES_USER: synthia
-            POSTGRES_PASSWORD: ta5UnhEe5kSoyb59Zm7I
-            POSTGRES_DB: synthia
+            - SECRET_KEY=dev
+            - DATABASE_HOST=database
+            - DATABASE_PORT=5432
+            - ORIGIN=http://localhost:4200
     frontend:
         build: ./frontend
         ports:
