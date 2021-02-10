@@ -1,18 +1,7 @@
 <app-page-header
   [title]="project?.name || 'Project'"
   [sidenavButton]="isHandset$ | async"
-  (toggleSidenav)="drawer.toggle()">
-  <div class="action-buttons">
-    <button mat-flat-button color="basic" (click)="refreshSchema()">
-      <mat-icon>refresh</mat-icon>
-      <span>Refresh schema</span>
-    </button>
-    <button mat-flat-button color="accent" (click)="generate()">
-      <mat-icon>play_arrow</mat-icon>
-      <span>Generate</span>
-    </button>
-  </div>
-</app-page-header>
+  (toggleSidenav)="drawer.toggle()"></app-page-header>
 
 <mat-sidenav-container class="sidenav-container">
   <mat-sidenav #drawer class="sidenav"
@@ -20,12 +9,8 @@
     [mode]="(isHandset$ | async) ? 'over' : 'side'"
     [opened]="(isHandset$ | async) === false">
     <mat-nav-list>
-      <div mat-subheader>Project</div>
-      <a mat-list-item [routerLink]="['/project', project?.id]">Overview</a>
-    </mat-nav-list>
-    <mat-nav-list>
-      <div mat-subheader>Tables</div>
-      <a mat-list-item *ngFor="let table of project?.tables" [routerLink]="['table', table.id]">{{ table.name }}</a>
+      <a mat-list-item routerLink="tables">Tables</a>
+      <a mat-list-item [routerLink]="['/project', project.id]">Options</a>
     </mat-nav-list>
   </mat-sidenav>
   <mat-sidenav-content>

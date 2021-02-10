@@ -5,6 +5,7 @@ import { ProjectComponent } from './project.component';
 import { ProjectListComponent } from './project-list/project-list.component';
 import { TableComponent } from './table/table.component';
 import { OverviewComponent } from './overview/overview.component';
+import { TableListComponent } from './table-list/table-list.component';
 
 const routes: Routes = [
   {
@@ -18,6 +19,10 @@ const routes: Routes = [
       {
         path: '',
         component: OverviewComponent
+      },
+      {
+        path: 'tables',
+        component: TableListComponent
       }
     ]
   },

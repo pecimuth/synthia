@@ -1,51 +1,63 @@
-<mat-card class="margin">
-  <mat-tab-group *ngIf="table">
-    <mat-tab
-      *ngFor="let column of table.columns; trackBy: trackById"
-      [label]="column.name">
-      <div class="padding-top padding-left padding-right">
-        <mat-chip-list>
-          <mat-chip color="primary" *ngIf="column.primary_key" selected>Primary Key</mat-chip>
-          <mat-chip color="accent" *ngIf="column.foreign_key" selected>FK: {{ column.foreign_key }}</mat-chip>
-          <mat-chip>{{ column.col_type }}</mat-chip>
-          <mat-chip *ngIf="column.nullable">Nullable</mat-chip>
-        </mat-chip-list>
-        <div class="padding-top padding-bottom">
-          <mat-divider></mat-divider>
-        </div>
-        <app-generator-select [column]="column"></app-generator-select>
-        <app-param-form [column]="column"></app-param-form>
-      </div>
-    </mat-tab>
-  </mat-tab-group>
-</mat-card>
+<mat-card class="margin table-card" *ngIf="table">
+  <mat-card-header class="row justify-space-between">
+    <mat-card-title class="margin-top">{{ table.name }}</mat-card-title>
+    <div class="margin-right">
+      <button mat-icon-button aria-label="New column">
+        <mat-icon>add</mat-icon>
+      </button>
+      <button mat-icon-button aria-label="Refresh">
+        <mat-icon>refresh</mat-icon>
+      </button>
+      <button mat-icon-button aria-label="Delete" color="warn">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  </mat-card-header>
 
-<!-- ALTERNATIVE
-<div class="margin">
-  <mat-accordion *ngIf="table">
-    <mat-expansion-panel
-      *ngFor="let column of table.columns; trackBy: trackById">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          {{ column.name }}
-        </mat-panel-title>
-
-        <mat-panel-description>
+  <table mat-table [dataSource]="table.columns" class="full-width">
+    <ng-container matColumnDef="column">
+      <th mat-header-cell *matHeaderCellDef>Column</th>
+      <td mat-cell *matCellDef="let column">
+        <div class="row margin-top margin-bottom margin-right">
           <mat-chip-list>
-            <mat-chip>{{ column.col_type }}</mat-chip>
-            <mat-chip color="primary" *ngIf="column.primary_key" selected>Primary Key</mat-chip>
-            <mat-chip color="accent" *ngIf="column.foreign_key" selected>FK: {{ column.foreign_key }}</mat-chip>
-            <mat-chip *ngIf="column.nullable">Nullable</mat-chip>
+            <div class="margin-top margin-bottom margin-right">{{ column.name }}</div>
+            <mat-chip class="mat-chip-small">{{ column.col_type | lowercase }}</mat-chip>
+            <mat-chip class="mat-chip-small" *ngIf="column.primary_key">primary</mat-chip>
+            <mat-chip class="mat-chip-small" *ngIf="column.foreign_key">fk: {{ column.foreign_key }}</mat-chip>
+            <mat-chip class="mat-chip-small" *ngIf="column.nullable">null</mat-chip>
           </mat-chip-list>
-        </mat-panel-description>
-      </mat-expansion-panel-header>
-      <app-generator-select [column]="column"></app-generator-select>
-      <app-param-form [column]="column"></app-param-form>
-    </mat-expansion-panel>
-  </mat-accordion>
-</div>
--->
+        </div>
+      </td>
+    </ng-container>
 
-<div class="margin">
-  <app-table-preview *ngIf="table" [table]="table"></app-table-preview>
-</div>
+    <ng-container matColumnDef="generator">
+      <th mat-header-cell *matHeaderCellDef>Generator</th>
+      <td mat-cell *matCellDef="let column">
+        <div class="margin-right">
+          <app-generator-select [column]="column"></app-generator-select>
+        </div>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="parameters">
+      <th mat-header-cell *matHeaderCellDef>Parameters</th>
+      <td mat-cell *matCellDef="let column">
+        <div class="margin-right">
+          <app-param-form [column]="column"></app-param-form>
+        </div>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="action">
+      <th mat-header-cell *matHeaderCellDef class="text-right">Action</th>
+      <td mat-cell *matCellDef="let column" class="text-right">
+        <button mat-icon-button aria-label="Delete column">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let column; columns: displayedColumns;"></tr>
+  </table>
+</mat-card>

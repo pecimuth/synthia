@@ -24,10 +24,11 @@ import { GeneratorSelectComponent } from './table/generator-select/generator-sel
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { TableListComponent } from './table-list/table-list.component';
 
 
 @NgModule({
-  declarations: [ProjectComponent, ProjectListComponent, OverviewComponent, TableComponent, TablePreviewComponent, ParamFormComponent, GeneratorSelectComponent],
+  declarations: [ProjectComponent, ProjectListComponent, OverviewComponent, TableComponent, TablePreviewComponent, ParamFormComponent, GeneratorSelectComponent, TableListComponent],
   imports: [
     CommonModule,
     ProjectRoutingModule,

@@ -11,7 +11,11 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .col {
   flex: 1;
-  margin-right: 20px;
+  margin-right: 10px;
+}
+
+.col-fill {
+  flex: auto;
 }
 
 .col:last-child {
@@ -19,11 +23,15 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 
 .align-center {
-  align-self: center;
+  align-content: center;
 }
 
 .justify-end {
-  justify-content: flex-end;;
+  justify-content: flex-end;
+}
+
+.justify-space-between {
+  justify-content: space-between;
 }
 
 // utils
@@ -31,30 +39,35 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   width: 100%;
 }
 
+.table-card {
+  margin: 20px;
+  max-width: 1000px;
+}
+
 // margins
 .margin {
-  margin: 20px;
+  margin: 10px;
 }
 
 .margin-left {
-  margin-left: 20px;
+  margin-left: 10px;
 }
 
 .margin-right {
-  margin-right: 20px;
+  margin-right: 10px;
 }
 
 .margin-top {
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 .margin-bottom {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 // margin between
 .margin-between {
-  margin-right: 20px;
+  margin-right: 10px;
   display: inline-block;
 }
 
@@ -64,38 +77,26 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 // paddings
 .padding {
-  padding: 20px;
+  padding: 10px;
 }
 
 .padding-left {
-  padding-left: 20px;
+  padding-left: 10px;
 }
 
 .padding-right {
-  padding-right: 20px;
+  padding-right: 10px;
 }
 
 .padding-top {
-  padding-top: 20px;
+  padding-top: 10px;
 }
 
 .padding-bottom {
-  padding-bottom: 20px;
+  padding-bottom: 10px;
 }
 
-// action buttons (used in page header)
-.action-buttons {
-  flex: 1;
-  align-self: center;
-  display: flex;
-  justify-content: flex-end;
-  margin-right: 20px;
-}
-
-.action-buttons > button {
-  margin-right: 20px;
-}
-
-.action-buttons > button:last-child {
-  margin-right: 0;
+// text alignment
+.text-right {
+  text-align: right;
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { TableView } from 'src/app/api/models/table-view';
@@ -13,29 +13,12 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class TableComponent implements OnInit {
 
-  table: TableView;
-  private unsubscribe$ = new Subject();
+  @Input() table: TableView;
+  displayedColumns = ['column', 'generator', 'parameters', 'action'];
 
-  constructor(
-    private activeProject: ActiveProjectService,
-    private activatedRoute: ActivatedRoute
-  ) { }
+  constructor() { }
 
-  ngOnInit(): void {
-    this.activatedRoute.params
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((params) => {
-        this.activeProject.tableId = parseInt(params.tid);
-      });
-    this.activeProject.table$
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((table) => this.table = table);
-  }
-
-  ngOnDestroy() {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
-  }
+  ngOnInit() {}
 
   trackById = (index: number, item: ColumnView) => item.id;
 }
