@@ -38,16 +38,6 @@ class TableListView(Schema):
     items = List(Nested(TableView()))
 
 
-class ProjectView(Schema):
-    id = Integer()
-    name = Str()
-    tables = List(Nested(TableView()))
-
-
-class ProjectListView(Schema):
-    items = List(Nested(ProjectView()))
-
-
 class UserView(Schema):
     id = Integer()
     email = Str()
@@ -95,3 +85,18 @@ class DataSourceDatabaseWrite(Schema):
     pwd = Str()
     host = Str()
     port = Integer()
+
+
+class DataSourceListView(Schema):
+    items = List(Nested(DataSourceView()))
+
+
+class ProjectView(Schema):
+    id = Integer()
+    name = Str()
+    tables = List(Nested(TableView()))
+    data_sources = List(Nested(DataSourceView()))
+
+
+class ProjectListView(Schema):
+    items = List(Nested(ProjectView()))

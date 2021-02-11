@@ -77,8 +77,11 @@ class DataSourceUtil:
             return cls.MIME_TYPE_SQLITE
         raise Exception('unsupported file extension')
 
-    def make_file_path(self, file_name: str):
-        return os.path.join(self._storage_root, self._proj.id, file_name)
+    def get_file_path(self, file_name: str):
+        return os.path.join(self.get_directory(), file_name)
+
+    def get_directory(self):
+        return os.path.join(self._storage_root, str(self._proj.id))
 
     def create_file_data_source(self, file_name: str) -> DataSource:
         ext = self._extension(file_name)
@@ -89,5 +92,5 @@ class DataSourceUtil:
         )
         if ext == self.EXT_SQLITE:
             data_source.driver = self.DRIVER_SQLITE
-            data_source.db = self.make_file_path(file_name)
+            data_source.db = self.get_file_path(file_name)
         return data_source

@@ -20,8 +20,11 @@ services:
             - DATABASE_PORT=5432
             - ORIGIN=http://localhost:4200
     frontend:
+        depends_on:
+            - backend
         build: ./frontend
         ports:
             - 4200:4200
+            - 49153:49153
         volumes:
             - ./frontend:/app

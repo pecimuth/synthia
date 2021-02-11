@@ -15,6 +15,7 @@ def create_app() -> Flask:
         },
         SECRET_KEY=os.environ['SECRET_KEY'],
         EXTERN_DB_PATH=os.path.join(app.instance_path, 'extern/'),
+        PROJECT_STORAGE=os.path.join(app.instance_path, 'project'),
         DATABASE_DRIVER='postgresql',
         DATABASE_USER=os.environ['POSTGRES_USER'],
         DATABASE_PASSWORD=os.environ['POSTGRES_PASSWORD'],
@@ -32,6 +33,7 @@ def create_app() -> Flask:
 
     try:
         os.makedirs(app.instance_path)
+        os.makedirs(app.config['PROJECT_STORAGE'])
         os.makedirs(app.config['EXTERN_DB_PATH'])
     except OSError:
         pass

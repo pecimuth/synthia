@@ -1,0 +1,31 @@
+<div class="row flex-wrap" *ngIf="project">
+  <app-resource
+    *ngFor="let data_source of project.data_sources"
+    [data_source]="data_source"></app-resource>
+  <mat-card class="margin resource-card">
+    <mat-card-header>
+      <mat-card-title class="margin-top">Upload a file</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p>CSV, JSON or SQLite file.</p>
+    </mat-card-content>
+    <div class="corner-button">
+      <button mat-fab color="accent" aria-label="Upload a file">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+  </mat-card>
+  <mat-card class="margin resource-card">
+    <mat-card-header>
+      <mat-card-title class="margin-top">Existing database</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p>Enter login for a publicly accessible PostgreSQL database.</p>
+    </mat-card-content>
+    <div class="corner-button">
+      <button mat-fab color="accent" aria-label="Add an existing database">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+  </mat-card>
+</div>

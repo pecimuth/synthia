@@ -4,13 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable, Subject } from 'rxjs';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { map, shareReplay, takeUntil } from 'rxjs/operators';
-import { ProjectService } from '../api/services';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActiveProjectService } from './service/active-project.service'
-
-const config = {
-  duration: 2000
-};
 
 @Component({
   selector: 'app-project',
@@ -31,8 +25,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
   constructor(
     private breakpointObserver: BreakpointObserver,
     private activatedRoute: ActivatedRoute,
-    private projectService: ProjectService,
-    private snackBar: MatSnackBar,
     private activeProject: ActiveProjectService
   ) { }
 
@@ -50,21 +42,5 @@ export class ProjectComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
-  }
-
-  generate() {
-    this.projectService.postApiProjectIdGenerate(this.project.id)
-      .subscribe(
-        () => this.snackBar.open('Successfully filled the database', 'OK', config),
-        () => this.snackBar.open('Generation failed', 'OK', config)
-      );
-  }
-
-  refreshSchema() {
-    this.projectService.postApiProjectIdRefreshSchema(this.project.id)
-      .subscribe(
-        () => this.snackBar.open('Successfully refreshed the schema', 'OK', config),
-        () => this.snackBar.open('Schema refresh failed', 'OK', config)
-      );
   }
 }
