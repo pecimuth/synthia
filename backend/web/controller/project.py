@@ -175,12 +175,11 @@ def create_mock_database(proj: Project):
 })
 def generate_project_preview(proj: Project):
     # TODO error checking, move to a service
-    id_counts = request.json['rows_by_table_id']
+    name_counts = request.json['rows_by_table_name']
     table_counts = []
     for table in proj.tables:
-        tid = str(table.id)
-        if tid in id_counts:
-            table_counts.append((table, id_counts[tid]))
+        if table.name in name_counts:
+            table_counts.append((table, name_counts[table.name]))
     preview_driver = PreviewOutputDriver(proj, table_counts)
     export = Export(preview_driver)
     # TODO handle errors

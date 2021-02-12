@@ -103,4 +103,4 @@ class ProjectListView(Schema):
 
 
 class TableCountsWrite(Schema):
-    rows_by_table_id = Dict(keys=Str(), values=Integer())
+    rows_by_table_name = Dict(keys=Str(), values=Integer())

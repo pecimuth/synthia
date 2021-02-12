@@ -9,7 +9,7 @@ GeneratedRow = Dict[str, Any]
 GeneratedTable = List[GeneratedRow]
 
 # holds all generated values in a generation procedure
-# key is table name
+# key is table id
 GeneratedDatabase = Dict[str, GeneratedTable]
 
 ValueType = TypeVar('ValueType', int, str, bool)

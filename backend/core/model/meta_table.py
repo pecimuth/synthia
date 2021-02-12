@@ -7,8 +7,9 @@ from core.model.meta_column import MetaColumn
 class MetaTable(base):
     __tablename__ = 'metatable'
     id = Column(Integer, primary_key=True)
+    # TODO name should be primary
     name = Column(String)
-    
+
     project_id = Column(Integer, ForeignKey('project.id'))
     project = relationship('Project', back_populates='tables')
 

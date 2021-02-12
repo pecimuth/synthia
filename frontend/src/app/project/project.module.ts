@@ -12,7 +12,7 @@ import { MatListModule } from '@angular/material/list';
 import { OverviewComponent } from './overview/overview.component';
 import { TableComponent } from './table/table.component';
 import { MatTabsModule } from '@angular/material/tabs';
-import { TablePreviewComponent } from './table/table-preview/table-preview.component';
+import { TablePreviewComponent } from './preview/table-preview/table-preview.component';
 import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';

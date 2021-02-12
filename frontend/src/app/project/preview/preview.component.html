@@ -1,1 +1,6 @@
-<p>preview works!</p>
+<ng-container *ngIf="project && preview">
+    <app-table-preview
+        *ngFor="let table of project.tables"
+        [table]="table"
+        [preview]="preview.tables[table.name]"></app-table-preview>
+</ng-container>

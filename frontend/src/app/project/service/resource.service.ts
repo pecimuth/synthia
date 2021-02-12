@@ -33,11 +33,12 @@ export class ResourceService {
   }
 
   export(data_source_id: number) {
-    this.dataSourceService.postApiDataSourceDatabaseIdExport(data_source_id)
-      .subscribe(
-        (message) => this.snack(message.message),
-        () => this.snack('Export failed')
-      );
+    // TODO add counts
+    // this.dataSourceService.postApiDataSourceDatabaseIdExport(data_source_id)
+    //   .subscribe(
+    //     (message) => this.snack(message.message),
+    //     () => this.snack('Export failed')
+    //   );
   }
 
   delete(data_source_id: number) {
