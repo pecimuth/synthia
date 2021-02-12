@@ -1,1 +1,11 @@
-<p>export works!</p>
+<div *ngIf="project" class="row flex-wrap">
+  <app-table-count [project]="project" (tableCountsChanged)="tableCountsChanged($event)"></app-table-count>
+  <app-output-choice [project]="project" (outputChoiceChanged)="outputChoiceChanged($event)"></app-output-choice>
+
+  <mat-card class="margin export-card" *ngIf="tableCounts && outputChoice">
+    <mat-card-header>
+      <mat-card-title>Additional settings & preflight checks</mat-card-title>
+    </mat-card-header>
+    <button mat-raised-button color="accent">Generate</button>
+  </mat-card>
+</div>

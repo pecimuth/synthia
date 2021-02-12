@@ -1,0 +1,19 @@
+<mat-card class="margin export-card" *ngIf="project">
+  <mat-card-header>
+    <mat-card-title>Where should the result go</mat-card-title>
+  </mat-card-header>
+  <mat-radio-group class="flex-col" (change)="onChange($event)">
+    <mat-radio-button value="csv" class="flex-col-margin">
+      CSV
+    </mat-radio-button>
+    <mat-radio-button value="json" class="flex-col-margin">
+      JSON
+    </mat-radio-button>
+    <ng-container *ngFor="let dataSource of project.data_sources">
+      <mat-radio-button *ngIf="dataSource.driver" [value]="dataSource" class="flex-col-margin">
+        {{ dataSource.driver }}<br>
+        <small>{{ dataSource.usr }}@{{ dataSource.host }}/{{ dataSource.db }}</small>
+      </mat-radio-button>
+    </ng-container>
+  </mat-radio-group>
+</mat-card>

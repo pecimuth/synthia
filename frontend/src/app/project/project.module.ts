@@ -29,10 +29,14 @@ import { ResourceListComponent } from './resource/resource-list/resource-list.co
 import { PreviewComponent } from './preview/preview.component';
 import { ExportComponent } from './export/export.component';
 import { ResourceComponent } from './resource/resource.component';
+import { TableCountComponent } from './export/table-count/table-count.component';
+import { OutputChoiceComponent } from './export/output-choice/output-choice.component';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRadioModule } from '@angular/material/radio';
 
 
 @NgModule({
-  declarations: [ProjectComponent, ProjectListComponent, OverviewComponent, TableComponent, TablePreviewComponent, ParamFormComponent, GeneratorSelectComponent, TableListComponent, ResourceListComponent, PreviewComponent, ExportComponent, ResourceComponent],
+  declarations: [ProjectComponent, ProjectListComponent, OverviewComponent, TableComponent, TablePreviewComponent, ParamFormComponent, GeneratorSelectComponent, TableListComponent, ResourceListComponent, PreviewComponent, ExportComponent, ResourceComponent, TableCountComponent, OutputChoiceComponent],
   imports: [
     CommonModule,
     ProjectRoutingModule,
@@ -50,7 +54,9 @@ import { ResourceComponent } from './resource/resource.component';
     MatDividerModule,
     MatSelectModule,
     MatSnackBarModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatCheckboxModule,
+    MatRadioModule
   ]
 })
 export class ProjectModule { }
