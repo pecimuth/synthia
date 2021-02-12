@@ -9,13 +9,13 @@ from werkzeug.utils import secure_filename
 from core.model.data_source import DataSource
 from core.service.data_source import DataSourceUtil
 from core.service.data_source.database import create_database_source_engine
+from core.service.export import DatabaseExport
 from core.service.serializer import StructureSerializer
 from web.controller.auth import login_required
 from web.controller.util import BAD_REQUEST_SCHEMA, bad_request, find_user_project, PROJECT_NOT_FOUND, INVALID_INPUT, \
     DATA_SOURCE_NOT_FOUND, ok_request, find_user_data_source, OK_REQUEST_SCHEMA
 from web.service.database import get_db_session
-from core.service.generator.database_generator import DatabaseGenerator
-from web.view import DataSourceView, DataSourceDatabaseWrite, ProjectView
+from web.view import DataSourceView, DataSourceDatabaseWrite, ProjectView, TableCountsWrite
 
 source = Blueprint('data_source', __name__, url_prefix='/api')
 
@@ -215,6 +215,13 @@ def import_data_source_schema(data_source: DataSource):
             'description': 'Data source ID to export the data to',
             'required': True,
             'type': 'integer'
+        },
+        {
+            'name': 'table_counts',
+            'in': 'body',
+            'description': 'Which tables and how many rows',
+            'required': True,
+            'schema': TableCountsWrite
         }
     ],
     'responses': {
@@ -226,8 +233,11 @@ def export_to_data_source(data_source: DataSource):
     if data_source.driver is None:
         return bad_request('The data source is not a database')
 
-    gen = DatabaseGenerator(data_source)
+    # TODO
+    table_counts = []
+
+    export = DatabaseExport(data_source, table_counts)
     # TODO handle errors
-    gen.fill_database()
+    export.generate()
 
     return ok_request('Successfully filled the database')

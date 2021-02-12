@@ -1,7 +1,7 @@
 from flasgger import swag_from
 from flask import Blueprint, g, request
 
-from core.service.generator.column_generator import get_generator_by_name
+from core.service.column_generator.util import get_generator_by_name
 from web.controller.auth import login_required
 from core.model.meta_column import MetaColumn
 from core.model.meta_table import MetaTable

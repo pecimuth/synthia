@@ -5,53 +5,9 @@ from web.controller.auth import login_required
 from core.model.meta_table import MetaTable
 from core.model.project import Project
 from web.service.database import get_db_session
-from core.service.generator.table_generator import TableGenerator
-from web.view import MessageView, TablePreviewView, TableWrite, TableView
+from web.view import MessageView, TableWrite, TableView
 
 table = Blueprint('table', __name__, url_prefix='/api')
-
-
-@table.route('/table/<id>/preview')
-@login_required
-@swag_from({
-    'tags': ['Table'],
-    'parameters': [
-        {
-            'name': 'id',
-            'in': 'path',
-            'description': 'Table ID',
-            'required': True,
-            'type': 'integer'
-        }
-    ],
-    'responses': {
-        200: {
-            'description': 'Returned table preview',
-            'schema': TablePreviewView
-        },
-        400: {
-            'description': 'Bad request',
-            'schema': MessageView
-        }
-    }
-})
-def get_preview(id):
-    db_session = get_db_session()
-
-    # TODO not found error
-    meta_table = db_session.query(MetaTable).\
-        join(MetaTable.project).\
-        join(Project.user).\
-        filter(
-                MetaTable.id == id,
-                Project.user == g.user
-                ).\
-        one()
-
-    gen = TableGenerator(meta_table, {})
-    rows = list(gen.make_table_preview(10))
-
-    return TablePreviewView().dump({'rows': rows})
 
 
 @table.route('/table/<id>', methods=('PATCH',))

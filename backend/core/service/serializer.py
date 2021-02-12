@@ -4,7 +4,7 @@ from sqlalchemy.engine import Engine
 from core.model.meta_column import MetaColumn
 from core.model.meta_table import MetaTable
 from core.model.project import Project
-from core.service.generator.column_generator import find_recommended_generator
+from core.service.column_generator.util import find_recommended_generator
 
 
 class StructureSerializer:

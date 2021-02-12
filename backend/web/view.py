@@ -43,8 +43,8 @@ class UserView(Schema):
     email = Str()
 
 
-class TablePreviewView(Schema):
-    rows = List(Dict(keys=Str()))
+class PreviewView(Schema):
+    tables = Dict(keys=Str(), values=List(Dict(keys=Str())))
 
 
 class GeneratorParam(Schema):
@@ -100,3 +100,7 @@ class ProjectView(Schema):
 
 class ProjectListView(Schema):
     items = List(Nested(ProjectView()))
+
+
+class TableCountsWrite(Schema):
+    rows_by_table_id = Dict(keys=Str(), values=Integer())

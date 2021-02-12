@@ -7,10 +7,12 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from core.model.project import Project
 from core.service.deserializer import create_mock_meta
+from core.service.export import Export
+from core.service.output_driver import PreviewOutputDriver
 from web.controller.util import find_user_project, bad_request, PROJECT_NOT_FOUND, BAD_REQUEST_SCHEMA
 from web.service.extern_db import ExternDb
 from core.service.serializer import StructureSerializer
-from web.view import ProjectListView, ProjectView, DataSourceListView
+from web.view import ProjectListView, ProjectView, DataSourceListView, PreviewView, TableCountsWrite
 from web.controller.auth import login_required
 from web.service.database import get_db_session
 
@@ -140,3 +142,47 @@ def create_mock_database(proj: Project):
     db_session.commit()
 
     return ProjectView().dump(proj)
+
+
+@project.route('/project/<id>/preview', methods=('POST',))
+@login_required
+@with_project_by_id
+@swag_from({
+    'tags': ['Project'],
+    'parameters': [
+        {
+            'name': 'id',
+            'in': 'path',
+            'description': 'Project ID',
+            'required': True,
+            'type': 'integer'
+        },
+        {
+            'name': 'table_counts',
+            'in': 'body',
+            'description': 'Which tables and how many rows',
+            'required': True,
+            'schema': TableCountsWrite
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'Preview of generated tables',
+            'schema': PreviewView
+        },
+        400: BAD_REQUEST_SCHEMA
+    }
+})
+def generate_project_preview(proj: Project):
+    # TODO error checking, move to a service
+    id_counts = request.json['rows_by_table_id']
+    table_counts = []
+    for table in proj.tables:
+        tid = str(table.id)
+        if tid in id_counts:
+            table_counts.append((table, id_counts[tid]))
+    preview_driver = PreviewOutputDriver(proj, table_counts)
+    export = Export(preview_driver)
+    # TODO handle errors
+    preview = export.generate()
+    return PreviewView().dump({'tables': preview})
