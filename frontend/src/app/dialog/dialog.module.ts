@@ -11,10 +11,11 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { CreateProjectFormComponent } from './create-project-form/create-project-form.component';
 import { MatSelectModule } from '@angular/material/select';
 import { DatabaseSourceFormComponent } from './database-source-form/database-source-form.component';
+import { FileSourceFormComponent } from './file-source-form/file-source-form.component';
 
 
 @NgModule({
-  declarations: [LoginFormComponent, RegisterFormComponent, CreateProjectFormComponent, DatabaseSourceFormComponent],
+  declarations: [LoginFormComponent, RegisterFormComponent, CreateProjectFormComponent, DatabaseSourceFormComponent, FileSourceFormComponent],
   imports: [
     CommonModule,
     MatInputModule,
@@ -29,7 +30,8 @@ import { DatabaseSourceFormComponent } from './database-source-form/database-sou
     LoginFormComponent,
     RegisterFormComponent,
     CreateProjectFormComponent,
-    DatabaseSourceFormComponent
+    DatabaseSourceFormComponent,
+    FileSourceFormComponent
   ]
 })
 export class DialogModule { }

@@ -25,7 +25,7 @@
   <div>
     <mat-form-field>
       <mat-label>Password</mat-label>
-      <input matInput formControlName="pwd">
+      <input matInput formControlName="pwd" type="password">
       <mat-error *ngIf="databaseForm.controls['pwd'].hasError('required')">
         Password is <strong>required</strong>
       </mat-error>
@@ -35,7 +35,7 @@
   <div>
     <mat-form-field>
       <mat-label>Database</mat-label>
-      <input matInput formControlName="db">
+      <input matInput placeholder="postgres" formControlName="db">
       <mat-error *ngIf="databaseForm.controls['db'].hasError('required')">
         Database is <strong>required</strong>
       </mat-error>
@@ -55,7 +55,7 @@
   <div>
     <mat-form-field>
       <mat-label>Port</mat-label>
-      <input matInput placeholder="5432" formControlName="port">
+      <input matInput placeholder="5432" formControlName="port" type="number">
       <mat-error *ngIf="databaseForm.controls['host'].hasError('required')">
         Port is <strong>required</strong>
       </mat-error>

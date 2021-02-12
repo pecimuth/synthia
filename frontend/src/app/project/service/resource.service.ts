@@ -4,6 +4,7 @@ import { DataSourceService } from 'src/app/api/services';
 import { ActiveProjectService } from './active-project.service';
 import { Snack } from 'src/app/service/constants';
 import { DataSourceDatabaseWrite } from 'src/app/api/models/data-source-database-write';
+import { DataSourceView } from 'src/app/api/models/data-source-view';
 
 @Injectable({
   providedIn: 'root'
@@ -58,25 +59,46 @@ export class ResourceService {
       );
   }
 
-  create_database(dataSourceDatabase: DataSourceDatabaseWrite) {
+  createDatabase(dataSourceDatabase: DataSourceDatabaseWrite) {
     const project = this.activeProject.project$.value;
     dataSourceDatabase.project_id = project.id;
 
     this.dataSourceService.postApiDataSourceDatabase(dataSourceDatabase)
       .subscribe(
         (dataSource) => {
-          const project = this.activeProject.project$.value;
-          if (project === null) {
-            return;
-          }
-          this.snack('Database added');     
-          const newProject = {
-            ...project,
-            data_sources: [...project.data_sources, dataSource]
-          };
-          this.activeProject.project$.next(newProject);
+          this.snack('Database added');  
+          this.addDataSource(dataSource);
         },
         () => this.snack('Failed to create a database resource')
       );
+  }
+
+  createFileSource(dataFile: Blob) {
+    const project = this.activeProject.project$.value;
+    const params = {
+      projectId: project.id,
+      dataFile: dataFile
+    }
+
+    this.dataSourceService.postApiDataSourceFile(params)
+      .subscribe(
+        (dataSource) => {
+          this.snack('File uploaded');     
+          this.addDataSource(dataSource);
+        },
+        () => this.snack('Failed to create a file resource')
+      );
+  }
+
+  private addDataSource(dataSource: DataSourceView) {
+    const project = this.activeProject.project$.value;
+    if (project === null) {
+      return;
+    }  
+    const newProject = {
+      ...project,
+      data_sources: [...project.data_sources, dataSource]
+    };
+    this.activeProject.project$.next(newProject);
   }
 }

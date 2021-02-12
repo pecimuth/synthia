@@ -29,6 +29,6 @@ export class DatabaseSourceFormComponent implements OnInit {
   ngOnInit() {}
 
   onSubmit() {
-    this.resourceService.create_database(this.databaseForm.value);
+    this.resourceService.createDatabase(this.databaseForm.value);
   }
 }

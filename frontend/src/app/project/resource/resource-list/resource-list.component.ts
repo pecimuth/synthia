@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ProjectView } from 'src/app/api/models/project-view';
 import { DatabaseSourceFormComponent } from 'src/app/dialog/database-source-form/database-source-form.component';
+import { FileSourceFormComponent } from 'src/app/dialog/file-source-form/file-source-form.component';
 import { ActiveProjectService } from '../../service/active-project.service';
 
 @Component({
@@ -34,5 +35,9 @@ export class ResourceListComponent implements OnInit {
 
   createDatabase() {
     this.dialog.open(DatabaseSourceFormComponent);
+  }
+
+  createFileSource() {
+    this.dialog.open(FileSourceFormComponent);
   }
 }
