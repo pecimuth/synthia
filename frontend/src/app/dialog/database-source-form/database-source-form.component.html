@@ -1,0 +1,71 @@
+<form [formGroup]="databaseForm" novalidate (ngSubmit)="onSubmit()">
+  <h2>Existing database</h2>
+
+  <div>
+    <mat-form-field>
+      <mat-label>Driver</mat-label>
+      <mat-select formControlName="driver">
+        <mat-option value="postgresql">
+          PostgreSQL
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div>
+    <mat-form-field>
+      <mat-label>User name</mat-label>
+      <input matInput placeholder="postgres" formControlName="usr">
+      <mat-error *ngIf="databaseForm.controls['usr'].hasError('required')">
+        User name is <strong>required</strong>
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <div>
+    <mat-form-field>
+      <mat-label>Password</mat-label>
+      <input matInput formControlName="pwd">
+      <mat-error *ngIf="databaseForm.controls['pwd'].hasError('required')">
+        Password is <strong>required</strong>
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <div>
+    <mat-form-field>
+      <mat-label>Database</mat-label>
+      <input matInput formControlName="db">
+      <mat-error *ngIf="databaseForm.controls['db'].hasError('required')">
+        Database is <strong>required</strong>
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <div>
+    <mat-form-field>
+      <mat-label>Host</mat-label>
+      <input matInput placeholder="localhost" formControlName="host">
+      <mat-error *ngIf="databaseForm.controls['host'].hasError('required')">
+        Host is <strong>required</strong>
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <div>
+    <mat-form-field>
+      <mat-label>Port</mat-label>
+      <input matInput placeholder="5432" formControlName="port">
+      <mat-error *ngIf="databaseForm.controls['host'].hasError('required')">
+        Port is <strong>required</strong>
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <div class="margin-between">
+    <button mat-flat-button mat-dialog-close type="button">Cancel</button>
+  </div>
+  <div class="margin-between">
+    <button mat-raised-button color="primary" type="submit">Save</button>
+  </div>
+</form>

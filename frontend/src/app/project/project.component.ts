@@ -9,8 +9,7 @@ import { ActiveProjectService } from './service/active-project.service'
 @Component({
   selector: 'app-project',
   templateUrl: './project.component.html',
-  styleUrls: ['./project.component.scss'],
-  viewProviders: [ActiveProjectService]
+  styleUrls: ['./project.component.scss']
 })
 export class ProjectComponent implements OnInit, OnDestroy {
 

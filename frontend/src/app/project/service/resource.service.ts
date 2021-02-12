@@ -3,8 +3,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { DataSourceService } from 'src/app/api/services';
 import { ActiveProjectService } from './active-project.service';
 import { Snack } from 'src/app/service/constants';
+import { DataSourceDatabaseWrite } from 'src/app/api/models/data-source-database-write';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class ResourceService {
 
   constructor(
@@ -52,6 +55,28 @@ export class ResourceService {
           this.activeProject.project$.next(newProject);
         },
         () => this.snack('Failed to delete the resource')
+      );
+  }
+
+  create_database(dataSourceDatabase: DataSourceDatabaseWrite) {
+    const project = this.activeProject.project$.value;
+    dataSourceDatabase.project_id = project.id;
+
+    this.dataSourceService.postApiDataSourceDatabase(dataSourceDatabase)
+      .subscribe(
+        (dataSource) => {
+          const project = this.activeProject.project$.value;
+          if (project === null) {
+            return;
+          }
+          this.snack('Database added');     
+          const newProject = {
+            ...project,
+            data_sources: [...project.data_sources, dataSource]
+          };
+          this.activeProject.project$.next(newProject);
+        },
+        () => this.snack('Failed to create a database resource')
       );
   }
 }

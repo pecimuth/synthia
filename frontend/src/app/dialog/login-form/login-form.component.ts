@@ -4,10 +4,7 @@ import { AuthFacadeService } from 'src/app/service/auth-facade.service';
 import { MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { RegisterFormComponent } from '../register-form/register-form.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
-const snackConfig = {
-  duration: 2000
-};
+import { Snack } from 'src/app/service/constants';
 
 @Component({
   selector: 'app-login-form',
@@ -32,11 +29,11 @@ export class LoginFormComponent {
       .login(this.loginForm.value['email'])
       .subscribe(
         (user) => {
-          this.snackBar.open(`Logged in as ${user.email}`, 'OK', snackConfig);
+          this.snackBar.open(`Logged in as ${user.email}`, Snack.OK, Snack.CONFIG);
           this.dialogRef.close()
         },
         () => {
-          this.snackBar.open('Could not log in', 'OK', snackConfig);
+          this.snackBar.open('Could not log in', Snack.OK, Snack.CONFIG);
         }
       );
   }

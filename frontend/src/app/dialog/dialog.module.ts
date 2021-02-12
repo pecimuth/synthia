@@ -10,10 +10,11 @@ import { RegisterFormComponent } from './register-form/register-form.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { CreateProjectFormComponent } from './create-project-form/create-project-form.component';
 import { MatSelectModule } from '@angular/material/select';
+import { DatabaseSourceFormComponent } from './database-source-form/database-source-form.component';
 
 
 @NgModule({
-  declarations: [LoginFormComponent, RegisterFormComponent, CreateProjectFormComponent],
+  declarations: [LoginFormComponent, RegisterFormComponent, CreateProjectFormComponent, DatabaseSourceFormComponent],
   imports: [
     CommonModule,
     MatInputModule,
@@ -27,7 +28,8 @@ import { MatSelectModule } from '@angular/material/select';
   entryComponents: [
     LoginFormComponent,
     RegisterFormComponent,
-    CreateProjectFormComponent
+    CreateProjectFormComponent,
+    DatabaseSourceFormComponent
   ]
 })
 export class DialogModule { }

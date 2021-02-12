@@ -2,13 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { ProjectService } from 'src/app/api/services';
 import { ProjectFacadeService } from 'src/app/service/project-facade.service';
 import { MatDialogRef } from '@angular/material/dialog';
-import { FormBuilder, Validators, FormControl } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
-const snackConfig = {
-  duration: 2000
-};
-
+import { Snack } from 'src/app/service/constants';
 @Component({
   selector: 'app-create-project-form',
   templateUrl: './create-project-form.component.html',
@@ -16,7 +12,6 @@ const snackConfig = {
 })
 export class CreateProjectFormComponent implements OnInit {
   projectForm = this.fb.group({
-    engine: [{value: 'SQLite', disabled: true}, Validators.required],
     name: [null, Validators.required]
   });
 
@@ -35,12 +30,12 @@ export class CreateProjectFormComponent implements OnInit {
       .postApiProject(this.projectForm.value['name'])
       .subscribe(
         (project) => {
-          this.snackBar.open(`Created project ${project.name}`, 'OK', snackConfig);
+          this.snackBar.open(`Created project ${project.name}`, Snack.OK, Snack.CONFIG);
           this.projectFacade.refreshList();
           this.dialogRef.close()
         },
         () => {
-          this.snackBar.open('Could not create a project', 'OK', snackConfig);
+          this.snackBar.open('Could not create a project', Snack.OK, Snack.CONFIG);
         }
       );
   }

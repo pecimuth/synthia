@@ -1,15 +1,15 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ProjectView } from 'src/app/api/models/project-view';
+import { DatabaseSourceFormComponent } from 'src/app/dialog/database-source-form/database-source-form.component';
 import { ActiveProjectService } from '../../service/active-project.service';
-import { ResourceService } from '../../service/resource.service';
 
 @Component({
   selector: 'app-resource-list',
   templateUrl: './resource-list.component.html',
-  styleUrls: ['./resource-list.component.scss'],
-  viewProviders: [ResourceService]
+  styleUrls: ['./resource-list.component.scss']
 })
 export class ResourceListComponent implements OnInit {
 
@@ -18,6 +18,7 @@ export class ResourceListComponent implements OnInit {
 
   constructor(
     private activeProject: ActiveProjectService,
+    private dialog: MatDialog
   ) { }
 
   ngOnInit(): void {
@@ -29,5 +30,9 @@ export class ResourceListComponent implements OnInit {
   ngOnDestroy() {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
+  }
+
+  createDatabase() {
+    this.dialog.open(DatabaseSourceFormComponent);
   }
 }

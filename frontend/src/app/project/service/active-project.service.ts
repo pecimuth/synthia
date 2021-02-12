@@ -3,7 +3,9 @@ import { ProjectView } from 'src/app/api/models/project-view';
 import { ProjectFacadeService } from 'src/app/service/project-facade.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class ActiveProjectService implements OnDestroy {
 
   project$ = new BehaviorSubject<ProjectView>(null);
