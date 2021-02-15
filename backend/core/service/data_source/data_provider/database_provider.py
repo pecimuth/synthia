@@ -1,34 +1,17 @@
-from typing import List, Union, Iterator
+from typing import Union, List, Iterator
 
-from sqlalchemy import create_engine, MetaData, select, Column
-from sqlalchemy.engine import Engine
-from sqlalchemy.engine.url import URL
+from sqlalchemy import MetaData, select, Column
 
 from core.model.data_source import DataSource
-from core.service.data_source import SourceDataProvider
+from core.service.data_source.data_provider.base_provider import DataProvider
+from core.service.data_source.database_common import create_database_source_engine
 
 
-def create_database_source_engine(data_source: DataSource) -> Engine:
-    url = URL(
-        drivername=data_source.driver,
-        username=data_source.usr,
-        password=data_source.pwd,
-        host=data_source.host,
-        port=data_source.port,
-        database=data_source.db
-    )
-    return create_engine(url)
-
-
-class DatabaseSourceProvider(SourceDataProvider):
-
+class DatabaseDataProvider(DataProvider):
     def __init__(self, data_source: DataSource, idf: Union[str, None]):
         super().__init__(data_source, idf)
         self._engine = create_database_source_engine(data_source)
         self._column = self._get_column()
-
-    def test_connection(self) -> bool:
-        return True
 
     def identifiers(self) -> List[str]:
         meta = MetaData()

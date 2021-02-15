@@ -3,7 +3,7 @@ import random
 from core.model.meta_column import MetaColumn
 from core.service.column_generator import ColumnGeneratorParam
 from core.service.column_generator.base import ColumnGeneratorBase
-from core.service.data_source import SourceDataProvider
+from core.service.data_source.data_provider.base_provider import DataProvider
 from core.service.generation_procedure.database import GeneratedDatabase
 
 
@@ -21,6 +21,6 @@ class IntegerGenerator(ColumnGeneratorBase[int]):
     def make_value(self, generated_database: GeneratedDatabase) -> int:
         return random.randint(self._params['from'], self._params['to'])
 
-    def estimate_params_with_provider(self, provider: SourceDataProvider):
+    def estimate_params_with_provider(self, provider: DataProvider):
         self._params['from'] = provider.estimate_min() or self.param_list[0].default_value
         self._params['to'] = provider.estimate_max() or self.param_list[1].default_value

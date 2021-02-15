@@ -6,7 +6,7 @@ from sqlalchemy.engine import Connection
 from core.model.data_source import DataSource
 from core.model.meta_column import MetaColumn
 from core.model.meta_table import MetaTable
-from core.service.data_source.database import create_database_source_engine
+from core.service.data_source.database_common import create_database_source_engine
 from core.service.generation_procedure.database import GeneratedRow
 from core.service.output_driver import OutputDriver
 

@@ -6,12 +6,11 @@ from flasgger import swag_from
 from sqlalchemy.orm.exc import NoResultFound
 
 from core.model.project import Project
-from core.service.data_source import DataSourceUtil
+from core.service.data_source import DataSourceConstants
 from core.service.deserializer import create_mock_meta
 from core.service.generation_procedure.controller import ProcedureController
 from core.service.output_driver import PreviewOutputDriver
 from web.controller.util import find_user_project, bad_request, PROJECT_NOT_FOUND, BAD_REQUEST_SCHEMA
-from core.service.serializer import StructureSerializer
 from web.view import ProjectListView, ProjectView, PreviewView, TableCountsWrite
 from web.controller.auth import login_required
 from web.service.database import get_db_session
@@ -212,8 +211,8 @@ def generate_project_preview(proj: Project):
             'schema': {
                 'type': 'string',
                 'enum': [
-                    DataSourceUtil.MIME_TYPE_CSV,
-                    DataSourceUtil.MIME_TYPE_JSON
+                    DataSourceConstants.MIME_TYPE_CSV,
+                    DataSourceConstants.MIME_TYPE_JSON
                 ]
             }
         }

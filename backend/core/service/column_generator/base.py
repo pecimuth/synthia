@@ -4,9 +4,9 @@ from abc import ABC, abstractmethod
 from typing import TypeVar, Generic, Dict, Union
 
 from core.model.meta_column import MetaColumn
-from core.service.data_source import SourceDataProvider
-from core.service.data_source.database import DatabaseSourceProvider
 from core.service.column_generator import ColumnGeneratorParamList, ColumnGeneratorParam
+from core.service.data_source.data_provider import create_data_provider
+from core.service.data_source.data_provider.base_provider import DataProvider
 from core.service.generation_procedure.database import GeneratedDatabase
 
 OutputType = TypeVar('OutputType')
@@ -60,9 +60,8 @@ class ColumnGeneratorBase(Generic[OutputType], ABC):
         data_source = self._meta_column.data_source
         if data_source is None:
             raise Exception('cannot estimate parameters without a data source')
-        # TODO choose appropriate provider
-        provider = DatabaseSourceProvider(data_source, self._meta_column.reflected_column_idf)
+        provider = create_data_provider(self._meta_column)
         self._estimate_params_with_provider(provider)
 
-    def _estimate_params_with_provider(self, provider: SourceDataProvider):
+    def _estimate_params_with_provider(self, provider: DataProvider):
         pass

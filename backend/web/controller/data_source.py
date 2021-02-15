@@ -7,11 +7,11 @@ from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.utils import secure_filename
 
 from core.model.data_source import DataSource
-from core.service.data_source import DataSourceUtil
-from core.service.data_source.database import create_database_source_engine
+from core.service.data_source import DataSourceConstants
+from core.service.data_source.file_common import FileDataSourceFactory, is_file_allowed
+from core.service.data_source.schema import create_schema_provider, update_project_schema
 from core.service.generation_procedure.controller import ProcedureController
 from core.service.output_driver.database import DatabaseOutputDriver
-from core.service.serializer import StructureSerializer
 from web.controller.auth import login_required
 from web.controller.util import BAD_REQUEST_SCHEMA, bad_request, find_user_project, PROJECT_NOT_FOUND, INVALID_INPUT, \
     DATA_SOURCE_NOT_FOUND, ok_request, find_user_data_source, OK_REQUEST_SCHEMA
@@ -54,7 +54,7 @@ def create_data_source_database():
 
     data_source = DataSource(
         project=proj,
-        driver=DataSourceUtil.DRIVER_POSTGRES,
+        driver=DataSourceConstants.DRIVER_POSTGRES,
         db=request.json['db'],
         usr=request.json['usr'],
         pwd=request.json['pwd'],
@@ -106,21 +106,16 @@ def create_data_source_file():
         return bad_request('The file is required')
 
     file = request.files[file_param]
-    ds_util = DataSourceUtil(proj, current_app.config['PROJECT_STORAGE'])
     file_name = secure_filename(file.filename)
-    if not ds_util.is_file_allowed(file_name):
+    factory = FileDataSourceFactory(proj, current_app.config['PROJECT_STORAGE'], file_name)
+    if not is_file_allowed(file_name):
         return bad_request('This kind of file is not allowed')
-    directory = ds_util.get_directory()
-    file_path = ds_util.get_file_path(file_name)
     try:
-        if os.path.exists(file_path):
-            return bad_request('A data source with the same name already exists')
-        if not os.path.exists(directory):
-            os.mkdir(directory)
+        data_source = factory.create_data_source()
+        file.save(factory.file_path)
     except OSError:
         return bad_request('The file could not be saved')
-    file.save(file_path)
-    data_source = ds_util.create_file_data_source(file_name)
+
     db_session = get_db_session()
     db_session.add(data_source)
     db_session.commit()
@@ -159,9 +154,13 @@ def with_data_source_by_id(view):
 })
 def delete_data_source(data_source: DataSource):
     if data_source.file_name is not None:
-        ds_util = DataSourceUtil(data_source.project, current_app.config['PROJECT_STORAGE'])
+        factory = FileDataSourceFactory(
+            data_source.project,
+            current_app.config['PROJECT_STORAGE'],
+            data_source.file_name
+        )
         try:
-            os.remove(ds_util.get_file_path(data_source.file_name))
+            os.remove(factory.file_path)
         except OSError:
             pass
 
@@ -195,12 +194,10 @@ def delete_data_source(data_source: DataSource):
     }
 })
 def import_data_source_schema(data_source: DataSource):
-    # TODO choose appropriate schema provider
-    engine = create_database_source_engine(data_source)
-    serializer = StructureSerializer(bind=engine)
-    serializer.add_schema_to_project(data_source.project)
+    schema_provider = create_schema_provider(data_source)
+    schema = schema_provider.read_structure()
+    update_project_schema(data_source.project, schema)
     get_db_session().commit()
-
     return ProjectView().dump(data_source.project)
 
 
