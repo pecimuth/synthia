@@ -2,7 +2,7 @@ import datetime
 
 from core.model.meta_column import MetaColumn
 from core.service.column_generator.base import ColumnGeneratorBase
-from core.service.output_driver import OutputDriver
+from core.service.generation_procedure.database import GeneratedDatabase
 
 
 class DatetimeGenerator(ColumnGeneratorBase[datetime.datetime]):
@@ -12,5 +12,5 @@ class DatetimeGenerator(ColumnGeneratorBase[datetime.datetime]):
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
         return meta_column.col_type == 'DATETIME'
 
-    def make_value(self, output_driver: OutputDriver) -> datetime.datetime:
+    def make_value(self, generated_database: GeneratedDatabase) -> datetime.datetime:
         return datetime.datetime.now()

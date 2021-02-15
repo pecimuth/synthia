@@ -1,7 +1,7 @@
 from flasgger import swag_from
 from flask import Blueprint, g, request
 
-from core.service.column_generator.util import get_generator_by_name
+from core.service.column_generator.facade import get_generator_by_name
 from web.controller.auth import login_required
 from core.model.meta_column import MetaColumn
 from core.model.meta_table import MetaTable
@@ -79,7 +79,7 @@ def patch_column(id):
     if generator_factory is not None and \
             meta_column.generator_params is None and \
             meta_column.data_source is not None:
-        generator = generator_factory(meta_column.table, meta_column, {})
+        generator = generator_factory(meta_column.table)
         generator.estimate_params()
 
     db_session.commit()

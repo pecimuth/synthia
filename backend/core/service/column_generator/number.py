@@ -4,7 +4,7 @@ from core.model.meta_column import MetaColumn
 from core.service.column_generator import ColumnGeneratorParam
 from core.service.column_generator.base import ColumnGeneratorBase
 from core.service.data_source import SourceDataProvider
-from core.service.output_driver import OutputDriver
+from core.service.generation_procedure.database import GeneratedDatabase
 
 
 class IntegerGenerator(ColumnGeneratorBase[int]):
@@ -18,7 +18,7 @@ class IntegerGenerator(ColumnGeneratorBase[int]):
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
         return meta_column.col_type == 'INTEGER'
 
-    def make_value(self, output_driver: OutputDriver) -> int:
+    def make_value(self, generated_database: GeneratedDatabase) -> int:
         return random.randint(self._params['from'], self._params['to'])
 
     def estimate_params_with_provider(self, provider: SourceDataProvider):

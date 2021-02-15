@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import sessionmaker, Session
-from flask import current_app, g, Flask
+from flask import current_app, g
 
 
 def get_db_engine() -> Engine:

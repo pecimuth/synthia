@@ -6,13 +6,13 @@ from flasgger import swag_from
 from sqlalchemy.orm.exc import NoResultFound
 
 from core.model.project import Project
+from core.service.data_source import DataSourceUtil
 from core.service.deserializer import create_mock_meta
-from core.service.export import Export
+from core.service.generation_procedure.controller import ProcedureController
 from core.service.output_driver import PreviewOutputDriver
 from web.controller.util import find_user_project, bad_request, PROJECT_NOT_FOUND, BAD_REQUEST_SCHEMA
-from web.service.extern_db import ExternDb
 from core.service.serializer import StructureSerializer
-from web.view import ProjectListView, ProjectView, DataSourceListView, PreviewView, TableCountsWrite
+from web.view import ProjectListView, ProjectView, PreviewView, TableCountsWrite
 from web.controller.auth import login_required
 from web.service.database import get_db_session
 
@@ -107,7 +107,7 @@ def delete_schema_from_project(proj: Project, session: Session):
             session.delete(col)
         session.delete(table)
 
-
+'''
 @project.route('/project/<id>/create-mock-database', methods=('POST',))
 @login_required
 @with_project_by_id
@@ -142,6 +142,7 @@ def create_mock_database(proj: Project):
     db_session.commit()
 
     return ProjectView().dump(proj)
+'''
 
 
 @project.route('/project/<id>/preview', methods=('POST',))
@@ -176,12 +177,62 @@ def create_mock_database(proj: Project):
 def generate_project_preview(proj: Project):
     # TODO error checking, move to a service
     name_counts = request.json['rows_by_table_name']
-    table_counts = []
-    for table in proj.tables:
-        if table.name in name_counts:
-            table_counts.append((table, name_counts[table.name]))
-    preview_driver = PreviewOutputDriver(proj, table_counts)
-    export = Export(preview_driver)
+    preview_driver = PreviewOutputDriver()
+    controller = ProcedureController(proj, name_counts, preview_driver)
     # TODO handle errors
-    preview = export.generate()
-    return PreviewView().dump({'tables': preview})
+    preview = controller.run()
+    return PreviewView().dump({'tables': preview.get_dict()})
+
+
+@project.route('/project/<id>/export', methods=('POST',))
+@login_required
+@with_project_by_id
+@swag_from({
+    'tags': ['Project'],
+    'parameters': [
+        {
+            'name': 'id',
+            'in': 'path',
+            'description': 'Project ID',
+            'required': True,
+            'type': 'integer'
+        },
+        {
+            'name': 'table_counts',
+            'in': 'body',
+            'description': 'Which tables and how many rows',
+            'required': True,
+            'schema': TableCountsWrite
+        },
+        {
+            'name': 'mime_type',
+            'in': 'formData',
+            'description': 'Format of the output file',
+            'required': True,
+            'schema': {
+                'type': 'string',
+                'enum': [
+                    DataSourceUtil.MIME_TYPE_CSV,
+                    DataSourceUtil.MIME_TYPE_JSON
+                ]
+            }
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'File of the requested format',
+            'schema': {
+                'type': 'file'
+            }
+        },
+        400: BAD_REQUEST_SCHEMA
+    }
+})
+def export_project(proj: Project):
+    # TODO error checking, move to a service
+    name_counts = request.json['rows_by_table_name']
+    preview_driver = PreviewOutputDriver()
+    controller = ProcedureController(proj, name_counts, preview_driver)
+    # TODO handle errors
+    preview = controller.run()
+    return PreviewView().dump({'tables': preview.get_dict()})

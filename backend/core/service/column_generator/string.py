@@ -4,7 +4,7 @@ import string
 from core.model.meta_column import MetaColumn
 from core.service.column_generator import ColumnGeneratorParam
 from core.service.column_generator.base import ColumnGeneratorBase
-from core.service.output_driver import OutputDriver
+from core.service.generation_procedure.database import GeneratedDatabase
 
 
 class StringGenerator(ColumnGeneratorBase[str]):
@@ -17,5 +17,5 @@ class StringGenerator(ColumnGeneratorBase[str]):
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
         return meta_column.col_type == 'VARCHAR'
 
-    def make_value(self, output_driver: OutputDriver) -> str:
+    def make_value(self, generated_database: GeneratedDatabase) -> str:
         return ''.join(random.choice(string.ascii_letters) for _ in range(self._params['length']))

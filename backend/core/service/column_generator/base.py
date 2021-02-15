@@ -7,7 +7,7 @@ from core.model.meta_column import MetaColumn
 from core.service.data_source import SourceDataProvider
 from core.service.data_source.database import DatabaseSourceProvider
 from core.service.column_generator import ColumnGeneratorParamList, ColumnGeneratorParam
-from core.service.output_driver import OutputDriver
+from core.service.generation_procedure.database import GeneratedDatabase
 
 OutputType = TypeVar('OutputType')
 
@@ -53,7 +53,7 @@ class ColumnGeneratorBase(Generic[OutputType], ABC):
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
         return False
 
-    def make_value(self, output_driver: OutputDriver) -> OutputType:
+    def make_value(self, generated_database: GeneratedDatabase) -> OutputType:
         pass
 
     def estimate_params(self):

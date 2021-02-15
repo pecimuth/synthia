@@ -9,7 +9,8 @@ from werkzeug.utils import secure_filename
 from core.model.data_source import DataSource
 from core.service.data_source import DataSourceUtil
 from core.service.data_source.database import create_database_source_engine
-from core.service.export import DatabaseExport
+from core.service.generation_procedure.controller import ProcedureController
+from core.service.output_driver.database import DatabaseOutputDriver
 from core.service.serializer import StructureSerializer
 from web.controller.auth import login_required
 from web.controller.util import BAD_REQUEST_SCHEMA, bad_request, find_user_project, PROJECT_NOT_FOUND, INVALID_INPUT, \
@@ -233,11 +234,9 @@ def export_to_data_source(data_source: DataSource):
     if data_source.driver is None:
         return bad_request('The data source is not a database')
 
-    # TODO
-    table_counts = []
-
-    export = DatabaseExport(data_source, table_counts)
+    table_counts = request.json['rows_by_table_name']
+    database_driver = DatabaseOutputDriver(data_source)
+    controller = ProcedureController(data_source.project, table_counts, database_driver)
     # TODO handle errors
-    export.generate()
-
+    controller.run()
     return ok_request('Successfully filled the database')
