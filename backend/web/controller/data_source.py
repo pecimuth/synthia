@@ -9,7 +9,7 @@ from werkzeug.utils import secure_filename
 from core.model.data_source import DataSource
 from core.service.data_source import DataSourceConstants
 from core.service.data_source.file_common import FileDataSourceFactory, is_file_allowed
-from core.service.data_source.schema import create_schema_provider, update_project_schema
+from core.service.data_source.schema import DataSourceSchemaImport
 from core.service.generation_procedure.controller import ProcedureController
 from core.service.output_driver.database import DatabaseOutputDriver
 from web.controller.auth import login_required
@@ -107,7 +107,7 @@ def create_data_source_file():
 
     file = request.files[file_param]
     file_name = secure_filename(file.filename)
-    factory = FileDataSourceFactory(proj, current_app.config['PROJECT_STORAGE'], file_name)
+    factory = FileDataSourceFactory(proj, file_name, current_app.config['PROJECT_STORAGE'])
     if not is_file_allowed(file_name):
         return bad_request('This kind of file is not allowed')
     try:
@@ -153,14 +153,9 @@ def with_data_source_by_id(view):
     }
 })
 def delete_data_source(data_source: DataSource):
-    if data_source.file_name is not None:
-        factory = FileDataSourceFactory(
-            data_source.project,
-            current_app.config['PROJECT_STORAGE'],
-            data_source.file_name
-        )
+    if data_source.file_path is not None:
         try:
-            os.remove(factory.file_path)
+            os.remove(data_source.file_path)
         except OSError:
             pass
 
@@ -194,9 +189,8 @@ def delete_data_source(data_source: DataSource):
     }
 })
 def import_data_source_schema(data_source: DataSource):
-    schema_provider = create_schema_provider(data_source)
-    schema = schema_provider.read_structure()
-    update_project_schema(data_source.project, schema)
+    schema_import = DataSourceSchemaImport(data_source.project)
+    schema_import.import_schema(data_source)
     get_db_session().commit()
     return ProjectView().dump(data_source.project)
 

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, Index
 from sqlalchemy.orm import relationship
 from core.model.meta_table import MetaTable
 from . import base
@@ -7,6 +7,7 @@ from .data_source import DataSource
 
 class Project(base):
     __tablename__ = 'project'
+
     id = Column(Integer, primary_key=True)
     name = Column(String)
     
@@ -18,3 +19,7 @@ class Project(base):
 
     def __repr__(self):
         return '<Project(id={},name={},user_id={})>'.format(self.id, self.name, self.user_id)
+
+    __table_args__ = (
+        Index('ix_project_user', user_id),
+    )

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, Index
 from sqlalchemy.orm import relationship
 from . import base
 from core.model.meta_column import MetaColumn
@@ -7,7 +7,6 @@ from core.model.meta_column import MetaColumn
 class MetaTable(base):
     __tablename__ = 'metatable'
     id = Column(Integer, primary_key=True)
-    # TODO name should be primary
     name = Column(String)
 
     project_id = Column(Integer, ForeignKey('project.id'))
@@ -15,4 +14,6 @@ class MetaTable(base):
 
     columns = relationship('MetaColumn', order_by=MetaColumn.id, back_populates='table')
 
-    row_count = Column(Integer, default=10)
+    __table_args__ = (
+        Index('ix_metatable_project_name', project_id, name, unique=True),
+    )

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, JSON
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, JSON, Index
 from sqlalchemy.orm import relationship
 from . import base
 
@@ -21,3 +21,7 @@ class MetaColumn(base):
     data_source_id = Column(Integer, ForeignKey('datasource.id'))
     data_source = relationship('DataSource')
     reflected_column_idf = Column(String, nullable=True)
+
+    __table_args__ = (
+        Index('ix_metacolumn_table_name', table_id, name, unique=True),
+    )

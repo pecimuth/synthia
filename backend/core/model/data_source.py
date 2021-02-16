@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, Index
 from sqlalchemy.orm import relationship
 from . import base
 
@@ -9,6 +9,7 @@ class DataSource(base):
 
     # for test-based formats and SQLite
     file_name = Column(String, nullable=True)
+    file_path = Column(String, nullable=True)
     mime_type = Column(String, nullable=True)
 
     # for all databases
@@ -23,3 +24,7 @@ class DataSource(base):
 
     project_id = Column(Integer, ForeignKey('project.id'))
     project = relationship('Project', back_populates='data_sources')
+
+    __table_args__ = (
+        Index('ix_datasource_project', project_id),
+    )

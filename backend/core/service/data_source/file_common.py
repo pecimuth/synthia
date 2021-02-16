@@ -1,12 +1,23 @@
 import os
+import random
+import string
 
 from core.model.data_source import DataSource
 from core.model.project import Project
 from core.service.data_source import DataSourceConstants
 
 
+def file_extension(file_name: str) -> str:
+    split = os.path.splitext(file_name)
+    return split[1][1:].strip().lower()
+
+
+def strip_file_extensions(file_name: str) -> str:
+    return file_name.split('.')[0]
+
+
 def is_file_allowed(file_name: str) -> bool:
-    _, ext = os.path.splitext(file_name)
+    ext = file_extension(file_name)
     return ext in [DataSourceConstants.EXT_CSV, DataSourceConstants.EXT_JSON] or\
         ext in DataSourceConstants.EXT_SQLITE
 
@@ -27,11 +38,20 @@ class FileDataSourceFactory:
         self._storage_root = storage_root
         self._file_name = file_name
         self._directory = os.path.join(self._storage_root, str(self._proj.id))
-        self._file_path = os.path.join(self._directory, self._file_name)
+        random_file_name = self._with_random_prefix(self._file_name)
+        self._file_path = os.path.join(self._directory, random_file_name)
 
     @property
     def file_path(self) -> str:
         return self._file_path
+
+    @classmethod
+    def _with_random_prefix(cls,
+                            file_name: str,
+                            size: int = 10,
+                            letters: str = string.ascii_lowercase) -> str:
+        prefix = ''.join(random.choice(letters) for _ in range(size))
+        return '{}_{}'.format(prefix, file_name)
 
     def _file_exists(self) -> bool:
         return os.path.exists(self._file_path)
@@ -44,9 +64,10 @@ class FileDataSourceFactory:
         if self._file_exists():
             raise Exception('file already exists')
         self._make_sure_directory_exists()
-        _, ext = os.path.splitext(self._file_name)
+        ext = file_extension(self._file_name)
         data_source = DataSource(
             file_name=self._file_name,
+            file_path=self._file_path,
             mime_type=file_extension_to_mime_type(ext),
             project=self._proj
         )

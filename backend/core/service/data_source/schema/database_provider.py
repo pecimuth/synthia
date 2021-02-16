@@ -5,7 +5,9 @@ from sqlalchemy import Column, Table, MetaData
 from core.model.meta_column import MetaColumn
 from core.model.meta_table import MetaTable
 from core.service.data_source.database_common import create_database_source_engine
+from core.service.data_source.identifier import Identifier
 from core.service.data_source.schema.base_provider import SchemaProvider
+from core.service.types import get_column_type
 
 
 class DatabaseSchemaProvider(SchemaProvider):
@@ -18,8 +20,7 @@ class DatabaseSchemaProvider(SchemaProvider):
             for tab in meta.tables.values()
         ]
 
-    @classmethod
-    def _make_meta_column(cls, column: Column) -> MetaColumn:
+    def _make_meta_column(self, table: Table, column: Column) -> MetaColumn:
         fk = column.foreign_keys
         if len(fk) > 1:
             raise Exception('too many fks')
@@ -27,16 +28,20 @@ class DatabaseSchemaProvider(SchemaProvider):
         meta_column = MetaColumn(
             name=column.name,
             primary_key=column.primary_key,
-            col_type=column.type.__visit_name__,
+            col_type=get_column_type(column),
             nullable=column.nullable,
-            foreign_key=fk_column
+            foreign_key=fk_column,
+            data_source=self._data_source,
+            reflected_column_idf=repr(Identifier(table.name, column.name))
         )
-        cls._set_recommended_generator(meta_column)
+        self._set_recommended_generator(meta_column)
         return meta_column
 
-    @classmethod
-    def _make_meta_table(cls, table: Table) -> MetaTable:
+    def _make_meta_table(self, table: Table) -> MetaTable:
         return MetaTable(
             name=table.name,
-            columns=[cls._make_meta_column(col) for col in table.c.values()]
+            columns=[
+                self._make_meta_column(table, col)
+                for col in table.c.values()
+            ]
         )

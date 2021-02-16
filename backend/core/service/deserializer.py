@@ -3,6 +3,7 @@ from sqlalchemy import MetaData, Table, Column, Integer, String, DateTime, Forei
 from core.model.meta_column import MetaColumn
 from core.model.meta_table import MetaTable
 from core.model.project import Project
+from core.service.types import get_sql_alchemy_type
 
 
 class StructureDeserializer:
@@ -27,7 +28,7 @@ class StructureDeserializer:
             constraints.append(ForeignKey(column.foreign_key))
         return Column(
             column.name,
-            cls._get_col_type(column.col_type),
+            get_sql_alchemy_type(column.col_type),
             primary_key=column.primary_key,
             nullable=column.nullable,
             *constraints
@@ -38,17 +39,6 @@ class StructureDeserializer:
         for table in self._proj.tables:
             self._deserialize_table(table, meta)
         return meta
-
-    @classmethod
-    def _get_col_type(cls, col_type: str):
-        if col_type == 'INTEGER':
-            return Integer
-        elif col_type == 'VARCHAR':
-            return String
-        elif col_type == 'DATETIME':
-            return DateTime
-        else:
-            raise Exception('unknown type {}'.format(col_type))
 
 
 def create_mock_meta() -> MetaData:

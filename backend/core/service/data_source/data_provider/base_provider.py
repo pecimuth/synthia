@@ -1,19 +1,16 @@
 from abc import ABC, abstractmethod
 from functools import reduce
 
-from typing import List, Iterator, Union, Callable, Any
+from typing import Iterator, Callable, Any
 
 from core.model.data_source import DataSource
+from core.service.data_source.identifier import Identifier
 
 
 class DataProvider(ABC):
-    def __init__(self, data_source: DataSource, idf: Union[str, None]):
+    def __init__(self, data_source: DataSource, idf: Identifier):
         self._data_source = data_source
         self._idf = idf
-
-    @abstractmethod
-    def identifiers(self) -> List[str]:
-        pass
 
     @abstractmethod
     def column_data(self) -> Iterator:
