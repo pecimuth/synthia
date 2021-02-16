@@ -5,6 +5,7 @@ import string
 from core.model.data_source import DataSource
 from core.model.project import Project
 from core.service.data_source import DataSourceConstants
+from core.service.exception import SomeError
 
 
 def file_extension(file_name: str) -> str:
@@ -29,7 +30,7 @@ def file_extension_to_mime_type(extension: str) -> str:
         return DataSourceConstants.MIME_TYPE_JSON
     elif extension in DataSourceConstants.EXT_SQLITE:
         return DataSourceConstants.MIME_TYPE_SQLITE
-    raise Exception('unsupported file extension')
+    raise SomeError('unsupported file extension')
 
 
 class FileDataSourceFactory:
@@ -62,7 +63,7 @@ class FileDataSourceFactory:
 
     def create_data_source(self) -> DataSource:
         if self._file_exists():
-            raise Exception('file already exists')
+            raise SomeError('file already exists')
         self._make_sure_directory_exists()
         ext = file_extension(self._file_name)
         data_source = DataSource(

@@ -14,6 +14,9 @@ class MetaTable(base):
 
     columns = relationship('MetaColumn', order_by=MetaColumn.id, back_populates='table')
 
+    data_source_id = Column(Integer, ForeignKey('datasource.id', ondelete='SET NULL'))
+    data_source = relationship('DataSource')
+
     __table_args__ = (
         Index('ix_metatable_project_name', project_id, name, unique=True),
     )

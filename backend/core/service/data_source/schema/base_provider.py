@@ -21,7 +21,11 @@ class SchemaProvider(ABC):
 
     @classmethod
     def _set_recommended_generator(cls, meta_column: MetaColumn):
-        generator = find_recommended_generator(meta_column)
-        if generator is None:
+        generator_factory = find_recommended_generator(meta_column)
+        if generator_factory is None:
             return
-        meta_column.generator_name = generator.name
+        meta_column.generator_name = generator_factory.name
+        generator = generator_factory(meta_column)
+        generator.estimate_params()
+        # TODO
+        meta_column.generator_params = generator._params

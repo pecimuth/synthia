@@ -6,7 +6,7 @@ from core.model.meta_table import MetaTable
 from core.service.data_source.file_common import strip_file_extensions
 from core.service.data_source.identifier import Identifier
 from core.service.data_source.schema import SchemaProvider
-from core.service.types import Types
+from core.service.types import get_value_type
 
 JsonRow = Dict[str, Any]
 JsonTable = List[JsonRow]
@@ -48,7 +48,7 @@ class JsonSchemaProvider(SchemaProvider):
     @classmethod
     def _row_to_type(cls, row: JsonRow) -> JsonTableType:
         return {
-            column: Types.STRING  # TODO add type
+            column: get_value_type(value)
             for column, value in row.items()
         }
 
@@ -62,6 +62,7 @@ class JsonSchemaProvider(SchemaProvider):
             reflected_column_idf=repr(Identifier(table_name, col_name))
         )
         self._set_recommended_generator(meta_column)
+
         return meta_column
 
     @classmethod
@@ -80,6 +81,7 @@ class JsonSchemaProvider(SchemaProvider):
             table_type = self._row_to_type(obj[0])
         return MetaTable(
             name=table_name,
+            data_source=self._data_source,
             columns=[
                 self._type_to_columns(table_name, col_name, type_name)
                 for col_name, type_name in table_type.items()

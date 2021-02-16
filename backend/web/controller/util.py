@@ -1,7 +1,10 @@
+import functools
+
 from flask import g
 
 from core.model.data_source import DataSource
 from core.model.project import Project
+from core.service.exception import SomeError
 from web.service.database import get_db_session
 from web.view import MessageView
 
@@ -29,6 +32,17 @@ BAD_REQUEST_SCHEMA = {
     'description': 'Bad request',
     'schema': MessageView
 }
+
+
+def error_into_message(view):
+    @functools.wraps(view)
+    def wrapped_view(*args, **kwargs):
+        try:
+            return view(*args, **kwargs)
+        except SomeError as e:
+            return bad_request(e.message)
+    return wrapped_view
+
 
 # common error messages
 INVALID_INPUT = 'Invalid input'

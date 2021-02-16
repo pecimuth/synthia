@@ -2,6 +2,7 @@ import random
 
 from core.model.meta_column import MetaColumn
 from core.service.column_generator.base import ColumnGeneratorBase
+from core.service.exception import ColumnGeneratorError
 from core.service.generation_procedure.database import GeneratedDatabase
 from core.service.types import Types
 
@@ -38,5 +39,8 @@ class ForeignKeyGenerator(ColumnGeneratorBase[int]):
         return meta_column.foreign_key and meta_column.col_type == Types.INTEGER
 
     def make_value(self, generated_database: GeneratedDatabase) -> int:
-        row = random.choice(generated_database.get_table(self._fk_table_name))
+        if generated_database.get_table_row_count(self._fk_table_name) <= 0:
+            raise ColumnGeneratorError('impossible foreign key', self._meta_column)
+        rows = generated_database.get_table(self._fk_table_name)
+        row = random.choice(rows)
         return row[self._fk_column_name]

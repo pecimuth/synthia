@@ -5,6 +5,7 @@ from core.model.meta_table import MetaTable
 from core.service.column_generator.base import ColumnGeneratorBase, OutputType
 
 from core.service.column_generator import datetime, number, special, string
+from core.service.exception import ColumnGeneratorError
 
 
 def find_recommended_generator(meta_column: MetaColumn) -> Type[ColumnGeneratorBase[OutputType]]:
@@ -33,10 +34,8 @@ def make_generator_instances_for_table(meta_table: MetaTable) -> ColumnGenerator
         else:
             generator_factory = get_generator_by_name(meta_column.generator_name)
 
-        # TODO improve error handling
         if generator_factory is None:
-            raise Exception('No suitable generator for {}.{}'. \
-                            format(meta_table.name, meta_column.name))
+            raise ColumnGeneratorError('no suitable generator found', meta_column)
         generator_instance = generator_factory(meta_column)
         pairs.append((meta_column, generator_instance))
     return pairs

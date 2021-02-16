@@ -6,6 +6,7 @@ from core.model.data_source import DataSource
 from core.service.data_source.data_provider.base_provider import DataProvider
 from core.service.data_source.database_common import create_database_source_engine
 from core.service.data_source.identifier import Identifier
+from core.service.exception import DataSourceIdentifierError
 
 
 class DatabaseDataProvider(DataProvider):
@@ -23,8 +24,8 @@ class DatabaseDataProvider(DataProvider):
         meta = MetaData()
         meta.reflect(bind=self._engine)
         if self._idf.table not in meta.tables:
-            raise Exception('table {} not found in the schema'.format(self._idf.table))
+            raise DataSourceIdentifierError('table not found', self._data_source, self._idf)
         table = meta.tables[self._idf.table]
         if self._idf.column not in table.columns:
-            raise Exception('identifier {} not found in the schema'.format(self._idf))
+            raise DataSourceIdentifierError('column not found', self._data_source, self._idf)
         return table.columns[self._idf.column]

@@ -7,6 +7,7 @@ from core.model.meta_column import MetaColumn
 from core.service.column_generator import ColumnGeneratorParamList
 from core.service.data_source.data_provider import create_data_provider
 from core.service.data_source.data_provider.base_provider import DataProvider
+from core.service.exception import SomeError
 from core.service.generation_procedure.database import GeneratedDatabase
 from core.service.types import AnyBasicType, convert_value_to_type
 
@@ -30,7 +31,10 @@ class ColumnGeneratorBase(Generic[OutputType], ABC):
         for param in self.param_list:
             if self._params and param.name in self._params:
                 value = self._meta_column.generator_params[param.name]
-                result[param.name] = convert_value_to_type(value, param.value_type)
+                try:
+                    result[param.name] = convert_value_to_type(value, param.value_type)
+                except (SomeError, ValueError):
+                    result[param.name] = param.default_value
             else:
                 result[param.name] = param.default_value
         return result
@@ -50,7 +54,7 @@ class ColumnGeneratorBase(Generic[OutputType], ABC):
     def estimate_params(self):
         data_source = self._meta_column.data_source
         if data_source is None:
-            raise Exception('cannot estimate parameters without a data source')
+            raise SomeError('cannot estimate parameters without a data source')
         provider = create_data_provider(self._meta_column)
         self._estimate_params_with_provider(provider)
 

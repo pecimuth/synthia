@@ -5,6 +5,7 @@ from core.service.data_source import DataSourceConstants
 from core.service.data_source.schema.base_provider import SchemaProvider
 from core.service.data_source.schema.database_provider import DatabaseSchemaProvider
 from core.service.data_source.schema.json_provider import JsonSchemaProvider
+from core.service.exception import DataSourceError
 
 
 class DataSourceSchemaImport:
@@ -33,7 +34,7 @@ class DataSourceSchemaImport:
             return DatabaseSchemaProvider(data_source)
         if data_source.mime_type == DataSourceConstants.MIME_TYPE_JSON:
             return JsonSchemaProvider(data_source)
-        raise Exception('no appropriate schema provider found')
+        raise DataSourceError('no appropriate schema provider found', data_source)
 
     @classmethod
     def _add_missing_columns(cls, project_table: MetaTable, imported_table: MetaTable):

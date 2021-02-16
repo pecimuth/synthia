@@ -14,7 +14,7 @@ from core.service.generation_procedure.controller import ProcedureController
 from core.service.output_driver.database import DatabaseOutputDriver
 from web.controller.auth import login_required
 from web.controller.util import BAD_REQUEST_SCHEMA, bad_request, find_user_project, PROJECT_NOT_FOUND, INVALID_INPUT, \
-    DATA_SOURCE_NOT_FOUND, ok_request, find_user_data_source, OK_REQUEST_SCHEMA
+    DATA_SOURCE_NOT_FOUND, ok_request, find_user_data_source, OK_REQUEST_SCHEMA, error_into_message
 from web.service.database import get_db_session
 from web.view import DataSourceView, DataSourceDatabaseWrite, ProjectView, TableCountsWrite
 
@@ -169,6 +169,7 @@ def delete_data_source(data_source: DataSource):
 @source.route('/data-source/<id>/import', methods=('POST',))
 @login_required
 @with_data_source_by_id
+@error_into_message
 @swag_from({
     'tags': ['DataSource'],
     'parameters': [
@@ -198,6 +199,7 @@ def import_data_source_schema(data_source: DataSource):
 @source.route('/data-source-database/<id>/export', methods=('POST',))
 @login_required
 @with_data_source_by_id
+@error_into_message
 @swag_from({
     'tags': ['DataSource'],
     'parameters': [

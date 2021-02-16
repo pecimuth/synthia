@@ -12,13 +12,13 @@ class MetaColumn(base):
     nullable = Column(Boolean)
     foreign_key = Column(String, nullable=True)
 
-    table_id = Column(Integer, ForeignKey('metatable.id'))
+    table_id = Column(Integer, ForeignKey('metatable.id', ondelete='CASCADE'))
     table = relationship('MetaTable', back_populates='columns')
 
     generator_name = Column(String, nullable=True)
     generator_params = Column(JSON, nullable=True)
 
-    data_source_id = Column(Integer, ForeignKey('datasource.id'))
+    data_source_id = Column(Integer, ForeignKey('datasource.id', ondelete='SET NULL'))
     data_source = relationship('DataSource')
     reflected_column_idf = Column(String, nullable=True)
 

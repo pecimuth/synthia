@@ -1,7 +1,7 @@
-from datetime import datetime
+import datetime as dt
 from typing import List, Generic, NamedTuple, TypeVar
 
-ValueType = TypeVar('ValueType', int, float, str, bool, datetime, type(None))
+ValueType = TypeVar('ValueType', int, float, str, bool, dt.datetime, type(None))
 
 
 class ColumnGeneratorParam(NamedTuple, Generic[ValueType]):

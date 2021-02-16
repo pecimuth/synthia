@@ -22,6 +22,6 @@ class IntegerGenerator(ColumnGeneratorBase[int]):
     def make_value(self, generated_database: GeneratedDatabase) -> int:
         return random.randint(self._params['min'], self._params['max'])
 
-    def estimate_params_with_provider(self, provider: DataProvider):
+    def _estimate_params_with_provider(self, provider: DataProvider):
         self._params['min'] = provider.estimate_min() or self.param_list[0].default_value
         self._params['max'] = provider.estimate_max() or self.param_list[1].default_value
