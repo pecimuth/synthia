@@ -24,8 +24,12 @@ def create_app() -> Flask:
         DATABASE_DB=os.environ.get('POSTGRES_DB'),
         DATABASE_HOST=os.environ.get('DATABASE_HOST'),
         DATABASE_PORT=os.environ.get('DATABASE_PORT'),
-        ORIGIN=os.environ.get('ORIGIN')
+        ORIGIN=os.environ.get('ORIGIN'),
     )
+
+    if app.config['ENV'] == 'production':
+        app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+        app.config['SESSION_COOKIE_SECURE'] = True
 
     Swagger(app)
     CORS(app, origins=app.config['ORIGIN'], supports_credentials=True)
