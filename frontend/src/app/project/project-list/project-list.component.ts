@@ -32,8 +32,8 @@ export class ProjectListComponent implements OnInit, OnDestroy {
       this.projectsSub.unsubscribe();
     }
   }
-
-  onAddProject() {
+  
+  createProject() {
     this.dialog.open(CreateProjectFormComponent);
   }
 }

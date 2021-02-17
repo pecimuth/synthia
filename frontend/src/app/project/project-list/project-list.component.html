@@ -1,13 +1,7 @@
-<app-page-header title="Projects">
-  <div class="action-buttons">
-    <button mat-fab color="accent" aria-label="Create new project" (click)="onAddProject()">
-      <mat-icon>add</mat-icon>
-    </button>
-  </div>
-</app-page-header>
+<app-page-header title="Projects"></app-page-header>
 
-<div *ngIf="projects" class="margin">
-  <mat-card *ngFor="let project of projects" class="margin">
+<div *ngIf="projects" class="row flex-wrap margin">
+  <mat-card *ngFor="let project of projects" class="margin resource-card">
     <mat-card-title>{{ project.name }}</mat-card-title>
     <mar-card-content>
       <mat-chip-list>
@@ -17,7 +11,21 @@
       </mat-chip-list>
     </mar-card-content>
     <mat-card-actions>
-      <button mat-button [routerLink]="project.id">OPEN</button>
+      <button mat-button [routerLink]="project.id">Open</button>
     </mat-card-actions>
+  </mat-card>
+
+  <mat-card class="margin resource-card">
+    <mat-card-header>
+      <mat-card-title class="margin-top">New project</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p>Create an empty project.</p>
+    </mat-card-content>
+    <div class="corner-button">
+      <button mat-fab color="accent" aria-label="Create new project" (click)="createProject()">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
   </mat-card>
 </div>

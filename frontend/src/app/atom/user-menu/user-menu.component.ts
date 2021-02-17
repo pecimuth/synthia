@@ -5,10 +5,7 @@ import { Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { LoginFormComponent } from 'src/app/dialog/login-form/login-form.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
-const snackConfig = {
-  duration: 2000
-};
+import { Snack } from 'src/app/service/constants';
 
 @Component({
   selector: 'app-user-menu',
@@ -43,7 +40,7 @@ export class UserMenuComponent implements OnInit, OnDestroy {
 
   onLogout() {
     this.authFacade.logout()
-      .subscribe(() => this.snackBar.open('Logged out', 'OK', snackConfig));
+      .subscribe(() => this.snackBar.open('Logged out', Snack.OK, Snack.CONFIG));
     ;
   }
 }

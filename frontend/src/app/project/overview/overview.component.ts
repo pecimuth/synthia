@@ -34,17 +34,17 @@ export class OverviewComponent implements OnInit {
       .subscribe((project) => this.project = project);
   }
 
-  onCreateMock() {
-    this.projectService
-      .postApiProjectIdCreateMockDatabase(this.project.id)
-      .subscribe(
-        () => {
-          this.snackBar.open('Successfully created a mock database', 'OK', config);
-          this.projectFacade.refreshList();
-        },
-        () => this.snackBar.open('Failed to create a mock database', 'OK', config)
-      );
-  }
+  // onCreateMock() {
+  //   this.projectService
+  //     .postApiProjectIdCreateMockDatabase(this.project.id)
+  //     .subscribe(
+  //       () => {
+  //         this.snackBar.open('Successfully created a mock database', 'OK', config);
+  //         this.projectFacade.refreshList();
+  //       },
+  //       () => this.snackBar.open('Failed to create a mock database', 'OK', config)
+  //     );
+  // }
 
   ngOnDestroy() {
     this.unsubscribe$.next();
