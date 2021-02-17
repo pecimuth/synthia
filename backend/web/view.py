@@ -1,5 +1,5 @@
 from marshmallow import Schema
-from marshmallow.fields import Integer, Str, Nested, List, Bool, Dict
+from marshmallow.fields import Integer, Str, Nested, List, Bool, Dict, Raw
 
 
 class MessageView(Schema):
@@ -51,9 +51,14 @@ class GeneratorParam(Schema):
     name = Str()
     value_type = Str()
 
+    min_value = Raw()
+    max_value = Raw()
+    greater_equal_than = Str(allow_none=True)
+
 
 class GeneratorView(Schema):
     name = Str()
+    only_for_type = Str()
     param_list = List(Nested(GeneratorParam()))
 
 

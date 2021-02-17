@@ -50,7 +50,7 @@ class FileDataSourceFactory:
     def _with_random_prefix(cls,
                             file_name: str,
                             size: int = 10,
-                            letters: str = string.ascii_lowercase) -> str:
+                            letters: str = string.ascii_letters) -> str:
         prefix = ''.join(random.choice(letters) for _ in range(size))
         return '{}_{}'.format(prefix, file_name)
 

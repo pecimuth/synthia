@@ -8,6 +8,7 @@ from core.service.types import Types
 
 class DatetimeGenerator(ColumnGeneratorBase[datetime.datetime]):
     name = 'datetime'
+    only_for_type = Types.DATETIME
 
     @classmethod
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:

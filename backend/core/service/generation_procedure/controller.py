@@ -4,7 +4,7 @@ from sqlalchemy import Table
 
 from core.model.meta_table import MetaTable
 from core.model.project import Project
-from core.service.column_generator.facade import make_generator_instances_for_table, ColumnGeneratorPairs
+from core.service.column_generator import make_generator_instances_for_table, ColumnGeneratorPairs
 from core.service.deserializer import StructureDeserializer
 from core.service.generation_procedure.database import GeneratedRow, GeneratedDatabase
 from core.service.generation_procedure.requisition import TableCountRequisition

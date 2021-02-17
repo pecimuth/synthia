@@ -4,7 +4,7 @@ from typing import List, Iterable
 from core.model.data_source import DataSource
 from core.model.meta_column import MetaColumn
 from core.model.meta_table import MetaTable
-from core.service.column_generator.facade import find_recommended_generator
+from core.service.column_generator import find_recommended_generator
 from core.service.data_source.identifier import Identifier, structure_to_identifiers
 
 
@@ -27,5 +27,3 @@ class SchemaProvider(ABC):
         meta_column.generator_name = generator_factory.name
         generator = generator_factory(meta_column)
         generator.estimate_params()
-        # TODO
-        meta_column.generator_params = generator._params

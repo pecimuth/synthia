@@ -1,15 +1,14 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TypeVar, Generic, Dict
+from typing import TypeVar, Generic, Union
 
 from core.model.meta_column import MetaColumn
-from core.service.column_generator import ColumnGeneratorParamList
+from core.service.column_generator.params import normalized_params, ParamDict, ColumnGeneratorParamList
 from core.service.data_source.data_provider import create_data_provider
 from core.service.data_source.data_provider.base_provider import DataProvider
 from core.service.exception import SomeError
 from core.service.generation_procedure.database import GeneratedDatabase
-from core.service.types import AnyBasicType, convert_value_to_type
 
 OutputType = TypeVar('OutputType')
 
@@ -17,30 +16,16 @@ OutputType = TypeVar('OutputType')
 class ColumnGeneratorBase(Generic[OutputType], ABC):
     name: str
     is_database_generated = False
+    only_for_type: Union[str, None] = None
     param_list: ColumnGeneratorParamList = []
-
-    ParamValue = AnyBasicType
-    ParamDict = Dict[str, ParamValue]
 
     def __init__(self, meta_column: MetaColumn):
         self._meta_column: MetaColumn = meta_column
-        self._meta_column.generator_params = self._normalized_params()
-
-    def _normalized_params(self) -> ParamDict:
-        result = {}
-        for param in self.param_list:
-            if self._params and param.name in self._params:
-                value = self._meta_column.generator_params[param.name]
-                try:
-                    result[param.name] = convert_value_to_type(value, param.value_type)
-                except (SomeError, ValueError):
-                    result[param.name] = param.default_value
-            else:
-                result[param.name] = param.default_value
-        return result
+        self._meta_column.generator_params = \
+            normalized_params(self.param_list, self._meta_column.generator_params)
 
     @property
-    def _params(self) -> dict:
+    def _params(self) -> ParamDict:
         return self._meta_column.generator_params
 
     @classmethod

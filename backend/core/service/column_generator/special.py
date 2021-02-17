@@ -9,6 +9,7 @@ from core.service.types import Types
 
 class PrimaryKeyGenerator(ColumnGeneratorBase[int]):
     name = 'primary_key'
+    only_for_type = Types.INTEGER
     is_database_generated = True
 
     def __init__(self, meta_column: MetaColumn):
