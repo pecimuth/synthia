@@ -9,7 +9,7 @@ setup(
         'sqlalchemy',
         'psycopg2-binary',
         # web
-        'flask',
+        'flask>=1.1',
         'flasgger',
         'marshmallow',
         'apispec',
