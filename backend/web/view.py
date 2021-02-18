@@ -1,5 +1,6 @@
 from marshmallow import Schema
 from marshmallow.fields import Integer, Str, Nested, List, Bool, Dict, Raw
+from marshmallow.validate import OneOf
 
 
 class MessageView(Schema):
@@ -109,3 +110,8 @@ class ProjectListView(Schema):
 
 class TableCountsWrite(Schema):
     rows_by_table_name = Dict(keys=Str(), values=Integer())
+
+
+class ExportFileRequestWrite(Schema):
+    output_format = Str(validate=OneOf(['csv', 'json']))
+    table_counts = Nested(TableCountsWrite)

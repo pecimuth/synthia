@@ -2,7 +2,7 @@
   <mat-card-header>
     <mat-card-title>Where should the result go</mat-card-title>
   </mat-card-header>
-  <mat-radio-group class="flex-col" (change)="onChange($event)">
+  <mat-radio-group class="flex-col" (change)="onChange($event.value)">
     <mat-radio-button value="csv" class="flex-col-margin">
       CSV
     </mat-radio-button>

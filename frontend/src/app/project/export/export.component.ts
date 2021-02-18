@@ -49,14 +49,19 @@ export class ExportComponent implements OnInit {
   }
 
   generate() {
-    this.projectService.postApiProjectIdExportResponse({
-      tableCounts: this.tableCounts,
-      mimeType: 'application/json',
-      id: this.project.id
-    }).subscribe(
-      (response) => this.downloadBlob(response.body, this.fileName(response.headers)),
-      () => this.snackBar.open('Something went wrong', Snack.OK, Snack.CONFIG)
-    );
+    console.log(this.outputChoice);
+    if (typeof this.outputChoice === 'string') {
+      this.projectService.postApiProjectIdExportResponse({
+        id: this.project.id,
+        exportRequest: {
+          table_counts: this.tableCounts,
+          output_format: this.outputChoice as any
+        }
+      }).subscribe(
+        (response) => this.downloadBlob(response.body, this.fileName(response.headers)),
+        () => this.snackBar.open('Something went wrong', Snack.OK, Snack.CONFIG)
+      );
+    }
   }
 
   private fileName(headers: HttpHeaders): string {
@@ -65,7 +70,7 @@ export class ExportComponent implements OnInit {
     try {
       return regex.exec(contentDisposition)[1];
     } catch {
-      return 'export.txt';
+      return 'export';
     }
   }
 

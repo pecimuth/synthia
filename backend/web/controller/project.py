@@ -1,8 +1,9 @@
 import functools
+import io
 import json
 import os
 
-from flask import Blueprint, g, request, current_app, send_file, Response
+from flask import Blueprint, g, request, current_app, send_file, Response, make_response, jsonify
 from sqlalchemy.orm import Session
 from flasgger import swag_from
 from sqlalchemy.orm.exc import NoResultFound
@@ -13,9 +14,9 @@ from core.service.data_source import DataSourceConstants
 from core.service.deserializer import create_mock_meta
 from core.service.generation_procedure.controller import ProcedureController
 from core.service.output_driver import PreviewOutputDriver
-from core.service.output_driver.file_driver import JsonOutputDriver
+from core.service.output_driver.file_driver import JsonOutputDriver, ZippedCsvOutputDriver
 from web.controller.util import find_user_project, bad_request, PROJECT_NOT_FOUND, BAD_REQUEST_SCHEMA
-from web.view import ProjectListView, ProjectView, PreviewView, TableCountsWrite
+from web.view import ProjectListView, ProjectView, PreviewView, TableCountsWrite, ExportFileRequestWrite
 from web.controller.auth import login_required
 from web.service.database import get_db_session
 
@@ -201,24 +202,11 @@ def generate_project_preview(proj: Project):
             'type': 'integer'
         },
         {
-            'name': 'table_counts',
+            'name': 'export_request',
             'in': 'body',
-            'description': 'Which tables and how many rows',
+            'description': 'Export request',
             'required': True,
-            'schema': TableCountsWrite
-        },
-        {
-            'name': 'mime_type',
-            'in': 'formData',
-            'description': 'Format of the output file',
-            'required': True,
-            'schema': {
-                'type': 'string',
-                'enum': [
-                    DataSourceConstants.MIME_TYPE_CSV,
-                    DataSourceConstants.MIME_TYPE_JSON
-                ]
-            }
+            'object': ExportFileRequestWrite
         }
     ],
     'responses': {
@@ -233,12 +221,19 @@ def generate_project_preview(proj: Project):
 })
 def export_project(proj: Project):
     # TODO error checking, move to a service
-    name_counts = request.json['rows_by_table_name']
-    file_driver = JsonOutputDriver()
+    name_counts = request.json['table_counts']['rows_by_table_name']
+    output_request = request.json['output_format']
+    if output_request == 'csv':
+        file_driver = ZippedCsvOutputDriver()
+    elif output_request == 'json':
+        file_driver = JsonOutputDriver()
+    else:
+        return bad_request('Unsupported format')
     controller = ProcedureController(proj, name_counts, file_driver)
     # TODO handle errors
     controller.run()
     file_name = file_driver.add_extension(secure_filename(proj.name))
+
     return Response(
         file_driver.dumps(),
         mimetype=file_driver.mime_type,
