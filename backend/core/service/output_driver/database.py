@@ -6,8 +6,8 @@ from sqlalchemy.engine import Connection
 from core.model.data_source import DataSource
 from core.model.meta_column import MetaColumn
 from core.model.meta_table import MetaTable
-from core.service.data_source.database_common import create_database_source_engine
-from core.service.generation_procedure.database import GeneratedRow
+from core.service.data_source.database_common import get_shared_connection
+from core.service.generation_procedure.database import GeneratedRow, GeneratedDatabase
 from core.service.output_driver import OutputDriver
 
 
@@ -17,18 +17,15 @@ class DatabaseOutputDriver(OutputDriver):
     def __init__(self, data_source: DataSource):
         super(DatabaseOutputDriver, self).__init__()
         self._data_source = data_source
-        self._engine = create_database_source_engine(data_source)
         self._conn: Union[Connection, None] = None
         self._current_table: Union[Table, None] = None
         self._primary_column: Union[MetaColumn, None] = None
 
     def start_run(self):
-        self._conn = self._engine.connect()
+        self._conn = get_shared_connection(self._data_source)
 
-    def end_run(self):
-        if self._conn is not None:
-            self._conn.close()
-            self._conn = None
+    def end_run(self, database: GeneratedDatabase):
+        self._conn = None
         self._primary_column = None
 
     def switch_table(self, table: Table, meta_table: MetaTable):

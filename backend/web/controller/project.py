@@ -1,15 +1,19 @@
 import functools
+import json
+import os
 
-from flask import Blueprint, g, request
+from flask import Blueprint, g, request, current_app, send_file, Response
 from sqlalchemy.orm import Session
 from flasgger import swag_from
 from sqlalchemy.orm.exc import NoResultFound
+from werkzeug.utils import secure_filename
 
 from core.model.project import Project
 from core.service.data_source import DataSourceConstants
 from core.service.deserializer import create_mock_meta
 from core.service.generation_procedure.controller import ProcedureController
 from core.service.output_driver import PreviewOutputDriver
+from core.service.output_driver.file_driver import JsonOutputDriver
 from web.controller.util import find_user_project, bad_request, PROJECT_NOT_FOUND, BAD_REQUEST_SCHEMA
 from web.view import ProjectListView, ProjectView, PreviewView, TableCountsWrite
 from web.controller.auth import login_required
@@ -230,8 +234,16 @@ def generate_project_preview(proj: Project):
 def export_project(proj: Project):
     # TODO error checking, move to a service
     name_counts = request.json['rows_by_table_name']
-    preview_driver = PreviewOutputDriver()
-    controller = ProcedureController(proj, name_counts, preview_driver)
+    file_driver = JsonOutputDriver()
+    controller = ProcedureController(proj, name_counts, file_driver)
     # TODO handle errors
-    preview = controller.run()
-    return PreviewView().dump({'tables': preview.get_dict()})
+    controller.run()
+    file_name = file_driver.add_extension(secure_filename(proj.name))
+    return Response(
+        file_driver.dumps(),
+        mimetype=file_driver.mime_type,
+        headers={
+            'Access-Control-Expose-Headers': 'Content-Disposition',
+            'Content-Disposition': 'attachment; filename={}'.format(file_name)
+        }
+    )

@@ -4,7 +4,7 @@ from core.model.meta_column import MetaColumn
 from core.model.meta_table import MetaTable
 from core.service.column_generator.base import ColumnGeneratorBase, OutputType
 
-from core.service.column_generator import datetime, number, special, string
+from core.service.column_generator import special, datetime, number, string
 from core.service.exception import ColumnGeneratorError
 
 

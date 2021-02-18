@@ -21,11 +21,19 @@ class DataProvider(ABC):
         return reduce(function, self.column_data(), initial)
 
     def estimate_min(self):
-        def safe_min(seq, elem):
-            return elem if seq is None else min(seq, elem)
+        def safe_min(elem, seq):
+            if elem is None:
+                return seq
+            if seq is None:
+                return elem
+            return min(seq, elem)
         return self.reduce(safe_min, None)
 
     def estimate_max(self):
-        def safe_max(seq, elem):
-            return elem if seq is None else max(seq, elem)
+        def safe_max(elem, seq):
+            if elem is None:
+                return seq
+            if seq is None:
+                return elem
+            return max(seq, elem)
         return self.reduce(safe_max, None)

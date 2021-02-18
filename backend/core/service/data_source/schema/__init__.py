@@ -1,4 +1,5 @@
 from core.model.data_source import DataSource
+from core.model.meta_column import MetaColumn
 from core.model.meta_table import MetaTable
 from core.model.project import Project
 from core.service.data_source import DataSourceConstants
@@ -19,14 +20,13 @@ class DataSourceSchemaImport:
     def import_schema(self, data_source: DataSource):
         provider = self._create_schema_provider(data_source)
         new_tables = provider.read_structure()
-        for new_table in new_tables:
-            if new_table.name in self._table_by_name:
-                self._add_missing_columns(
-                    self._table_by_name[new_table.name],
-                    new_table
-                )
+        for imported_table in new_tables:
+            if imported_table.name in self._table_by_name:
+                project_table = self._table_by_name[imported_table.name]
+                project_table.data_source = data_source
+                self._update_columns(project_table, imported_table)
             else:
-                new_table.project = self._project
+                imported_table.project = self._project
 
     @classmethod
     def _create_schema_provider(cls, data_source: DataSource) -> SchemaProvider:
@@ -37,11 +37,28 @@ class DataSourceSchemaImport:
         raise DataSourceError('no appropriate schema provider found', data_source)
 
     @classmethod
-    def _add_missing_columns(cls, project_table: MetaTable, imported_table: MetaTable):
+    def _update_columns(cls, project_table: MetaTable, imported_table: MetaTable):
         col_by_name = {
             col.name: col
             for col in project_table.columns
         }
-        for col in imported_table.columns:
-            if col.name not in col_by_name:
-                col.table = project_table
+        for imported_col in imported_table.columns:
+            if imported_col.name in col_by_name:
+                project_col: MetaColumn = col_by_name[imported_col.name]
+                cls._update_column(project_col, imported_col)
+            else:
+                imported_col.table = project_table
+
+    @classmethod
+    def _update_column(cls, project_col: MetaColumn, imported_col: MetaColumn):
+        overwrite_attrs = [
+            'col_type',
+            'nullable',
+            'generator_name',
+            'generator_params',
+            'data_source',
+            'reflected_column_idf'
+        ]
+        for attr in overwrite_attrs:
+            new_value = getattr(imported_col, attr)
+            setattr(project_col, attr, new_value)

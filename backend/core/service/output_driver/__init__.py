@@ -4,7 +4,7 @@ from typing import Union
 from sqlalchemy import Table
 
 from core.model.meta_table import MetaTable
-from core.service.generation_procedure.database import GeneratedRow
+from core.service.generation_procedure.database import GeneratedRow, GeneratedDatabase
 
 
 class OutputDriver(ABC):
@@ -15,7 +15,7 @@ class OutputDriver(ABC):
         pass
 
     @abstractmethod
-    def end_run(self):
+    def end_run(self, database: GeneratedDatabase):
         pass
 
     @abstractmethod
@@ -33,7 +33,7 @@ class PreviewOutputDriver(OutputDriver):
     def start_run(self):
         pass
 
-    def end_run(self):
+    def end_run(self, database: GeneratedDatabase):
         pass
 
     def switch_table(self, table: Table, meta_table: MetaTable):

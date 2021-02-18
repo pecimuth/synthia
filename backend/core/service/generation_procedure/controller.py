@@ -6,6 +6,7 @@ from core.model.meta_table import MetaTable
 from core.model.project import Project
 from core.service.column_generator import make_generator_instances_for_table, ColumnGeneratorPairs
 from core.service.deserializer import StructureDeserializer
+from core.service.exception import SomeError
 from core.service.generation_procedure.database import GeneratedRow, GeneratedDatabase
 from core.service.generation_procedure.requisition import TableCountRequisition
 from core.service.generation_procedure.statistics import ProcedureStatistics
@@ -28,8 +29,12 @@ class ProcedureController:
         self._output_driver.start_run()
         for table, meta_table in self._sorted_tables():
             self._output_driver.switch_table(table, meta_table)
-            self._table_loop(meta_table)
-        self._output_driver.end_run()
+            try:
+                self._table_loop(meta_table)
+            except SomeError:
+                # TODO log
+                pass
+        self._output_driver.end_run(self._database)
         return self._database
 
     def _sorted_tables(self) -> Iterable[Tuple[Table, MetaTable]]:

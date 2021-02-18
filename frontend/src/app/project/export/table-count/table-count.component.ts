@@ -3,7 +3,7 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
 import { ProjectView } from 'src/app/api/models/project-view';
 import { TableCountsWrite } from 'src/app/api/models/table-counts-write';
 
-const BASE_COUNT = 100;
+const BASE_COUNT = 10;
 type TableCount = {name: string, included: boolean, count: number};
 
 @Component({

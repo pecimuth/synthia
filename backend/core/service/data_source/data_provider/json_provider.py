@@ -8,7 +8,7 @@ from core.service.exception import DataSourceIdentifierError
 class JsonDataProvider(DataProvider):
     def column_data(self) -> Iterator:
         with open(self._data_source.file_path) as file:
-            obj = json.loads(file.read())
+            obj = json.load(file)
             table = obj
             if isinstance(obj, dict):
                 if self._idf.table not in obj:

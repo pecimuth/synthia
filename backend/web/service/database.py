@@ -4,6 +4,8 @@ from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import sessionmaker, Session
 from flask import current_app, g
 
+from core.service.data_source.database_common import database_connection_manager_instance
+
 
 def get_db_engine() -> Engine:
     if 'db_engine' not in g:
@@ -35,3 +37,4 @@ def close_db(e=None):
     session: Session = g.pop('db_session', None)
     if session is not None:
         session.close()
+    database_connection_manager_instance().clean_up()

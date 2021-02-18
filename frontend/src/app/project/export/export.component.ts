@@ -1,9 +1,13 @@
+import { HttpHeaders } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DataSourceView } from 'src/app/api/models/data-source-view';
 import { ProjectView } from 'src/app/api/models/project-view';
 import { TableCountsWrite } from 'src/app/api/models/table-counts-write';
+import { ProjectService } from 'src/app/api/services';
+import { Snack } from 'src/app/service/constants';
 import { ActiveProjectService } from '../service/active-project.service';
 
 @Component({
@@ -20,7 +24,9 @@ export class ExportComponent implements OnInit {
   private unsubscribe$ = new Subject();
 
   constructor(
-    private activeProject: ActiveProjectService
+    private activeProject: ActiveProjectService,
+    private projectService: ProjectService,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
@@ -40,5 +46,34 @@ export class ExportComponent implements OnInit {
 
   outputChoiceChanged(outputChoice: DataSourceView | string) {
     this.outputChoice = outputChoice;
+  }
+
+  generate() {
+    this.projectService.postApiProjectIdExportResponse({
+      tableCounts: this.tableCounts,
+      mimeType: 'application/json',
+      id: this.project.id
+    }).subscribe(
+      (response) => this.downloadBlob(response.body, this.fileName(response.headers)),
+      () => this.snackBar.open('Something went wrong', Snack.OK, Snack.CONFIG)
+    );
+  }
+
+  private fileName(headers: HttpHeaders): string {
+    const contentDisposition = headers.get('Content-Disposition');
+    const regex = /filename=([^;]+)/;
+    try {
+      return regex.exec(contentDisposition)[1];
+    } catch {
+      return 'export.txt';
+    }
+  }
+
+  private downloadBlob(blob: Blob, fileName: string) {
+    const anchor = document.createElement('a');
+    anchor.href = window.URL.createObjectURL(blob);
+    anchor.setAttribute('download', fileName);
+    document.body.appendChild(anchor);
+    anchor.click();
   }
 }
