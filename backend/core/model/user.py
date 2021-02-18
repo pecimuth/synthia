@@ -7,7 +7,8 @@ from core.model.project import Project
 class User(base):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
-    email = Column(String)
+    email = Column(String, nullable=True, unique=True)
+    pwd = Column(String, nullable=True)
     projects = relationship('Project', order_by=Project.id, back_populates='user')
 
     def __repr__(self):

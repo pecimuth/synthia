@@ -12,7 +12,8 @@ import { Snack } from 'src/app/service/constants';
 })
 export class RegisterFormComponent implements OnInit {
   registerForm = this.fb.group({
-    email: [null, Validators.required]
+    email: [null, Validators.required],
+    pwd: [null, Validators.required]
   });
 
   constructor(
@@ -26,7 +27,7 @@ export class RegisterFormComponent implements OnInit {
   
   onSubmit() {
     this.authFacade
-      .register(this.registerForm.value['email'])
+      .register(this.registerForm.value['email'], this.registerForm.value['pwd'])
       .subscribe(
         (user) => {
           this.snackBar.open(`Logged in as ${user.email}`, Snack.OK, Snack.CONFIG);

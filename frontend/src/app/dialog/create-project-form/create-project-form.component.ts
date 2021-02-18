@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { ProjectService } from 'src/app/api/services';
 import { ProjectFacadeService } from 'src/app/service/project-facade.service';
 import { MatDialogRef } from '@angular/material/dialog';
 import { FormBuilder, Validators } from '@angular/forms';
@@ -17,7 +16,6 @@ export class CreateProjectFormComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private projectService: ProjectService,
     private projectFacade: ProjectFacadeService,
     private dialogRef: MatDialogRef<CreateProjectFormComponent>,
     private snackBar: MatSnackBar
@@ -26,12 +24,11 @@ export class CreateProjectFormComponent implements OnInit {
   ngOnInit() {}
 
   onSubmit() {
-    this.projectService
-      .postApiProject(this.projectForm.value['name'])
+    this.projectFacade
+      .createProject(this.projectForm.value['name'])
       .subscribe(
         (project) => {
           this.snackBar.open(`Created project ${project.name}`, Snack.OK, Snack.CONFIG);
-          this.projectFacade.refreshList();
           this.dialogRef.close()
         },
         () => {

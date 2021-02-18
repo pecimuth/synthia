@@ -6,6 +6,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { LoginFormComponent } from 'src/app/dialog/login-form/login-form.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Snack } from 'src/app/service/constants';
+import { RegisterFormComponent } from 'src/app/dialog/register-form/register-form.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-user-menu',
@@ -20,7 +22,8 @@ export class UserMenuComponent implements OnInit, OnDestroy {
   constructor(
     private authFacade: AuthFacadeService,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -38,9 +41,17 @@ export class UserMenuComponent implements OnInit, OnDestroy {
     this.dialog.open(LoginFormComponent);
   }
 
+  openRegisterDialog() {
+    this.dialog.open(RegisterFormComponent);
+  }
+
   onLogout() {
     this.authFacade.logout()
-      .subscribe(() => this.snackBar.open('Logged out', Snack.OK, Snack.CONFIG));
+      .subscribe(
+        () => {
+          this.router.navigateByUrl('/');
+          this.snackBar.open('Logged out', Snack.OK, Snack.CONFIG);}
+        );
     ;
   }
 }

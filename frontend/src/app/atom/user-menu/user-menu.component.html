@@ -1,6 +1,6 @@
 <ng-container *ngIf="user">
   <button mat-button [matMenuTriggerFor]="menu">
-    <span>{{ user?.email }}</span>
+    <span>{{ user.email || 'anonymous' }} ({{ user.id }})</span>
     <mat-icon>expand_more</mat-icon>
   </button>
   <mat-menu #menu="matMenu">
@@ -11,6 +11,11 @@
   </mat-menu>
 </ng-container>
 
-<button *ngIf="!user" mat-icon-button (click)="openLoginDialog()">
-  <mat-icon>login</mat-icon>
-</button>
+<ng-container *ngIf="!user">
+  <button mat-button (click)="openLoginDialog()" class="margin-right">
+    Login
+  </button>
+  <button mat-button (click)="openRegisterDialog()">
+    Sign Up
+  </button>
+</ng-container>

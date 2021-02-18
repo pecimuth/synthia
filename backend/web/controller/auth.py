@@ -1,4 +1,6 @@
 from flask import Blueprint, request, session, g
+
+from web.controller.util import bad_request
 from web.service.database import get_db_session
 from core.model.user import User
 from sqlalchemy.orm.exc import NoResultFound
@@ -31,8 +33,15 @@ def load_logged_in_user():
         {
             'name': 'email',
             'in': 'formData',
-            'description': 'New user email',
-            'required': True,
+            'description': 'New user email. Empty for an anonymous user.',
+            'required': False,
+            'type': 'string'
+        },
+        {
+            'name': 'pwd',
+            'in': 'formData',
+            'description': 'Set a password. Required for a registered user.',
+            'required': False,
             'type': 'string'
         },
     ],
@@ -49,20 +58,8 @@ def load_logged_in_user():
 })
 def register():
     email = request.form['email']
-    if not email:
-        return {
-            'result': 'error',
-            'message': 'Email is required'
-        }, 400
-    
+    pwd = request.form['pwd']
     db_session = get_db_session()
-    count = db_session.query(User).filter(User.email == email).count()
-    if count:
-        return {
-            'result': 'error',
-            'message': 'User with this email already exists'
-        }, 400
-
     user = User(email=email)
     db_session.add(user)
     db_session.commit()
@@ -82,6 +79,13 @@ def register():
             'required': True,
             'type': 'string'
         },
+        {
+            'name': 'pwd',
+            'in': 'formData',
+            'description': 'Password',
+            'required': True,
+            'type': 'string'
+        },
     ],
     'responses': {
         200: {
@@ -96,20 +100,13 @@ def register():
 })
 def login():
     if 'email' not in request.form:
-        return {
-            'result': 'error',
-            'message': 'Email is required'
-        }, 400
+        return bad_request('Email is required')
     email = request.form['email']
     db_session = get_db_session()
     try:
         user: User = db_session.query(User).filter(User.email == email).one()
     except NoResultFound:
-        db_session.close()
-        return {
-            'result': 'error',
-            'message': 'No user found'
-        }, 400
+        return bad_request('No user found')
 
     session.clear()
     session['user_id'] = user.id
@@ -125,6 +122,7 @@ def login_required(view):
                 'message': 'Login is required'
             }), 400
         return view(**kwargs)
+
     return wrapped_view
 
 

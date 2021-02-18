@@ -1,12 +1,8 @@
 <form [formGroup]="loginForm" novalidate (ngSubmit)="onSubmit()">
   <h2>Login</h2>
-  
-  <mat-form-field>
-    <input matInput placeholder="Email" formControlName="email">
-    <mat-error *ngIf="loginForm.controls['email'].hasError('required')">
-      Email is <strong>required</strong>
-    </mat-error>
-  </mat-form-field>
+
+  <app-form-field [form]="loginForm" label="Email" name="email"></app-form-field>
+  <app-form-field [form]="loginForm" label="Password" name="pwd" type="password"></app-form-field>
 
   <div class="margin-bottom">
     <button mat-button

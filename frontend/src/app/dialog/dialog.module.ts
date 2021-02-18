@@ -12,10 +12,11 @@ import { CreateProjectFormComponent } from './create-project-form/create-project
 import { MatSelectModule } from '@angular/material/select';
 import { DatabaseSourceFormComponent } from './database-source-form/database-source-form.component';
 import { FileSourceFormComponent } from './file-source-form/file-source-form.component';
+import { FormFieldComponent } from './form-field/form-field.component';
 
 
 @NgModule({
-  declarations: [LoginFormComponent, RegisterFormComponent, CreateProjectFormComponent, DatabaseSourceFormComponent, FileSourceFormComponent],
+  declarations: [LoginFormComponent, RegisterFormComponent, CreateProjectFormComponent, DatabaseSourceFormComponent, FileSourceFormComponent, FormFieldComponent],
   imports: [
     CommonModule,
     MatInputModule,

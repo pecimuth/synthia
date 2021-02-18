@@ -1,6 +1,8 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { ProjectListView } from '../api/models/project-list-view';
+import { ProjectView } from '../api/models/project-view';
 import { ProjectService } from '../api/services';
 
 @Injectable({
@@ -25,6 +27,19 @@ export class ProjectFacadeService implements OnDestroy {
     this.projectService.getApiProjects()
       .subscribe(
         (list) => this.list$.next(list)
+      );
+  }
+
+  createProject(name: string): Observable<ProjectView> {
+    return this.projectService
+      .postApiProject(name)
+      .pipe(
+        tap((project) => {
+          const list = this._list$.value;
+          this._list$.next({
+            items: [...list.items, project]
+          });
+        })
       );
   }
 }

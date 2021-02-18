@@ -30,5 +30,6 @@ export class DatabaseSourceFormComponent implements OnInit {
 
   onSubmit() {
     this.resourceService.createDatabase(this.databaseForm.value);
+    this.dialogRef.close();
   }
 }
