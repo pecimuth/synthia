@@ -1,7 +1,7 @@
 <div class="row flex-wrap" *ngIf="project">
   <app-resource
-    *ngFor="let data_source of project.data_sources"
-    [data_source]="data_source"></app-resource>
+    *ngFor="let dataSource of project.data_sources"
+    [dataSource]="dataSource"></app-resource>
   <mat-card class="margin resource-card">
     <mat-card-header>
       <mat-card-title class="margin-top">Upload a file</mat-card-title>
@@ -24,6 +24,19 @@
     </mat-card-content>
     <div class="corner-button">
       <button mat-fab color="accent" aria-label="Add an existing database" (click)="createDatabase()">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+  </mat-card>
+  <mat-card class="margin resource-card">
+    <mat-card-header>
+      <mat-card-title class="margin-top">Mock SQLite database</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p>Create a fresh SQLite database with 3 tables.</p>
+    </mat-card-content>
+    <div class="corner-button">
+      <button mat-fab color="accent" aria-label="Mock database" (click)="mockDatabase()">
         <mat-icon>add</mat-icon>
       </button>
     </div>

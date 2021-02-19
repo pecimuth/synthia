@@ -8,8 +8,10 @@ from werkzeug.utils import secure_filename
 
 from core.model.data_source import DataSource
 from core.service.data_source import DataSourceConstants
+from core.service.data_source.database_common import database_connection_manager_instance, DatabaseConnectionManager
 from core.service.data_source.file_common import FileDataSourceFactory, is_file_allowed
 from core.service.data_source.schema import DataSourceSchemaImport
+from core.service.deserializer import create_mock_meta
 from core.service.generation_procedure.controller import ProcedureController
 from core.service.output_driver.database import DatabaseOutputDriver
 from web.controller.auth import login_required
@@ -61,6 +63,53 @@ def create_data_source_database():
         host=request.json['host'],
         port=request.json['port']
     )
+    db_session = get_db_session()
+    db_session.add(data_source)
+    db_session.commit()
+    return DataSourceView().dump(data_source)
+
+
+@source.route('/data-source-mock-database', methods=('POST',))
+@login_required
+@swag_from({
+    'tags': ['DataSource'],
+    'parameters': [
+        {
+            'name': 'project_id',
+            'in': 'formData',
+            'description': 'Which project should the mock database belong to',
+            'required': True,
+            'type': 'integer'
+        },
+    ],
+    'responses': {
+        200: {
+            'description': 'Created new mock database',
+            'schema': DataSourceView
+        },
+        400: BAD_REQUEST_SCHEMA
+    }
+})
+def create_data_source_mock_database():
+    try:
+        proj = find_user_project(request.form['project_id'])
+    except NoResultFound:
+        return bad_request(PROJECT_NOT_FOUND)
+
+    file_name = 'cookies.db'
+    factory = FileDataSourceFactory(proj, file_name, current_app.config['PROJECT_STORAGE'])
+    try:
+        data_source = factory.create_data_source()
+        with open(factory.file_path, 'w'):
+            pass
+    except OSError:
+        return bad_request('The file could not be saved')
+
+    engine = DatabaseConnectionManager.create_database_source_engine(data_source)
+    mock_meta = create_mock_meta()
+    mock_meta.bind = engine
+    mock_meta.create_all()
+
     db_session = get_db_session()
     db_session.add(data_source)
     db_session.commit()

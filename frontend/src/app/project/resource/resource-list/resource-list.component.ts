@@ -6,6 +6,7 @@ import { ProjectView } from 'src/app/api/models/project-view';
 import { DatabaseSourceFormComponent } from 'src/app/dialog/database-source-form/database-source-form.component';
 import { FileSourceFormComponent } from 'src/app/dialog/file-source-form/file-source-form.component';
 import { ActiveProjectService } from '../../service/active-project.service';
+import { ResourceService } from '../../service/resource.service';
 
 @Component({
   selector: 'app-resource-list',
@@ -19,7 +20,8 @@ export class ResourceListComponent implements OnInit {
 
   constructor(
     private activeProject: ActiveProjectService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private resourceService: ResourceService
   ) { }
 
   ngOnInit(): void {
@@ -39,5 +41,9 @@ export class ResourceListComponent implements OnInit {
 
   createFileSource() {
     this.dialog.open(FileSourceFormComponent);
+  }
+
+  mockDatabase() {
+    this.resourceService.mockDatabase();
   }
 }

@@ -32,15 +32,6 @@ export class ResourceService {
       );
   }
 
-  export(data_source_id: number) {
-    // TODO add counts
-    // this.dataSourceService.postApiDataSourceDatabaseIdExport(data_source_id)
-    //   .subscribe(
-    //     (message) => this.snack(message.message),
-    //     () => this.snack('Export failed')
-    //   );
-  }
-
   delete(data_source_id: number) {
     this.dataSourceService.deleteApiDataSourceId(data_source_id)
       .subscribe(
@@ -88,6 +79,18 @@ export class ResourceService {
           this.addDataSource(dataSource);
         },
         () => this.snack('Failed to create a file resource')
+      );
+  }
+
+  mockDatabase() {
+    const project = this.activeProject.project$.value;
+    this.dataSourceService.postApiDataSourceMockDatabase(project.id)
+      .subscribe(
+        (dataSource) => {
+          this.snack('Database created');     
+          this.addDataSource(dataSource);
+        },
+        () => this.snack('Failed to create a mock database')
       );
   }
 

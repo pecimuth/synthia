@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { DataSourceView } from 'src/app/api/models/data-source-view';
-import { ResourceService } from 'src/app/project/service/resource.service';
+import { ResourceService } from '../service/resource.service';
 
 @Component({
   selector: 'app-resource',
@@ -9,10 +9,14 @@ import { ResourceService } from 'src/app/project/service/resource.service';
 })
 export class ResourceComponent implements OnInit {
 
-  @Input() data_source: DataSourceView;
+  @Input() dataSource: DataSourceView;
   
-  constructor(public resourceService: ResourceService) { }
+  constructor(private resourceService: ResourceService) { }
 
   ngOnInit(): void {
+  }
+
+  import() {
+    this.resourceService.import(this.dataSource.id);
   }
 }

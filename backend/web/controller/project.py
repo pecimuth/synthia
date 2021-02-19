@@ -1,9 +1,6 @@
 import functools
-import io
-import json
-import os
 
-from flask import Blueprint, g, request, current_app, send_file, Response, make_response, jsonify
+from flask import Blueprint, g, request, Response
 from sqlalchemy.orm import Session
 from flasgger import swag_from
 from sqlalchemy.orm.exc import NoResultFound
@@ -110,43 +107,6 @@ def delete_schema_from_project(proj: Project, session: Session):
         for col in table.columns:
             session.delete(col)
         session.delete(table)
-
-'''
-@project.route('/project/<id>/create-mock-database', methods=('POST',))
-@login_required
-@with_project_by_id
-@swag_from({
-    'tags': ['Project'],
-    'parameters': [
-        {
-            'name': 'id',
-            'in': 'path',
-            'description': 'Project ID',
-            'required': True,
-            'type': 'integer'
-        },
-    ],
-    'responses': {
-        200: {
-            'description': 'Created a mock database and returned the project with refreshed schema',
-            'schema': ProjectView
-        },
-        400: BAD_REQUEST_SCHEMA
-    }
-})
-def create_mock_database(proj: Project):
-    db_session = get_db_session()
-
-    extern_db = ExternDb(proj)
-    meta = create_mock_meta()
-    meta.create_all(bind=extern_db.engine)
-    delete_schema_from_project(proj, db_session)
-    serializer = StructureSerializer(bind=extern_db.engine)
-    serializer.add_schema_to_project(proj)
-    db_session.commit()
-
-    return ProjectView().dump(proj)
-'''
 
 
 @project.route('/project/<id>/preview', methods=('POST',))

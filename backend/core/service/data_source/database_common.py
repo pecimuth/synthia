@@ -13,7 +13,7 @@ class DatabaseConnectionManager:
         self._connection: Dict[int, Connection] = {}
 
     @classmethod
-    def _create_database_source_engine(cls, data_source: DataSource) -> Engine:
+    def create_database_source_engine(cls, data_source: DataSource) -> Engine:
         url = URL(
             drivername=data_source.driver,
             username=data_source.usr,
@@ -27,7 +27,7 @@ class DatabaseConnectionManager:
     def get_engine(self, data_source: DataSource) -> Engine:
         if data_source.id in self._engine:
             return self._engine[data_source.id]
-        engine = self._create_database_source_engine(data_source)
+        engine = self.create_database_source_engine(data_source)
         self._engine[data_source.id] = engine
         return engine
 

@@ -1,6 +1,7 @@
 from flask import Blueprint, request, session, g
 
-from web.controller.util import bad_request
+from core.service.password import PasswordService
+from web.controller.util import bad_request, ok_request
 from web.service.database import get_db_session
 from core.model.user import User
 from sqlalchemy.orm.exc import NoResultFound
@@ -57,10 +58,17 @@ def load_logged_in_user():
     }
 })
 def register():
-    email = request.form['email']
-    pwd = request.form['pwd']
-    db_session = get_db_session()
+    email = request.form.get('email')
     user = User(email=email)
+
+    if email is not None:
+        pwd = request.form.get('pwd')
+        password_service = PasswordService(user)
+        if not password_service.is_valid(pwd):
+            return bad_request('Please choose a different password')
+        password_service.set_password(pwd)
+
+    db_session = get_db_session()
     db_session.add(user)
     db_session.commit()
     session['user_id'] = user.id
@@ -99,14 +107,16 @@ def register():
     }
 })
 def login():
-    if 'email' not in request.form:
-        return bad_request('Email is required')
     email = request.form['email']
     db_session = get_db_session()
     try:
         user: User = db_session.query(User).filter(User.email == email).one()
     except NoResultFound:
         return bad_request('No user found')
+
+    password_service = PasswordService(user)
+    if not password_service.check_password(request.form['pwd']):
+        return bad_request('Wrong password')
 
     session.clear()
     session['user_id'] = user.id
@@ -143,10 +153,7 @@ def login_required(view):
 })
 def logout():
     session.clear()
-    return {
-        'result': 'ok',
-        'message': 'Logged out'
-    }
+    return ok_request('Logged out')
 
 
 @auth.route('/user')

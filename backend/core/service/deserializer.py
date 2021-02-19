@@ -43,20 +43,26 @@ class StructureDeserializer:
 
 def create_mock_meta() -> MetaData:
     meta = MetaData()
-    Table('cookie', meta,
-          Column('id', Integer, primary_key=True),
-          Column('name', String, nullable=False),
-          Column('price', Integer)
-          )
-    Table('order', meta,
-          Column('id', Integer, primary_key=True),
-          Column('place', String),
-          Column('created_at', DateTime)
-          )
-    Table('order_item', meta,
-          Column('id', Integer, primary_key=True),
-          Column('order_id', Integer, ForeignKey('order.id'), nullable=False),
-          Column('cookie_id', Integer, ForeignKey('cookie.id'), nullable=False),
-          Column('quantity', Integer, nullable=False)
-          )
+    Table(
+        'cookie',
+        meta,
+        Column('id', Integer, primary_key=True),
+        Column('name', String, nullable=False),
+        Column('price', Integer)
+    )
+    Table(
+        'order',
+        meta,
+        Column('id', Integer, primary_key=True),
+        Column('place', String),
+        Column('created_at', DateTime)
+    )
+    Table(
+        'order_item',
+        meta,
+        Column('id', Integer, primary_key=True),
+        Column('order_id', Integer, ForeignKey('order.id'), nullable=False),
+        Column('cookie_id', Integer, ForeignKey('cookie.id'), nullable=False),
+        Column('quantity', Integer, nullable=False)
+    )
     return meta

@@ -101,6 +101,6 @@ export class ParamFormComponent implements OnInit, OnDestroy {
   }
 
   getInputType(param: {name?: string, value_type?: string}): string {
-    return (param.value_type === 'number') ? 'number' : 'text';
+    return (param.value_type === 'integer') ? 'number' : 'text';
   }
 }

@@ -9,7 +9,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { AtomModule } from '../atom/atom.module';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
-import { OverviewComponent } from './overview/overview.component';
 import { TableComponent } from './table/table.component';
 import { MatTabsModule } from '@angular/material/tabs';
 import { TablePreviewComponent } from './preview/table-preview/table-preview.component';
@@ -36,7 +35,7 @@ import { MatRadioModule } from '@angular/material/radio';
 
 
 @NgModule({
-  declarations: [ProjectComponent, ProjectListComponent, OverviewComponent, TableComponent, TablePreviewComponent, ParamFormComponent, GeneratorSelectComponent, TableListComponent, ResourceListComponent, PreviewComponent, ExportComponent, ResourceComponent, TableCountComponent, OutputChoiceComponent],
+  declarations: [ProjectComponent, ProjectListComponent, TableComponent, TablePreviewComponent, ParamFormComponent, GeneratorSelectComponent, TableListComponent, ResourceListComponent, PreviewComponent, ExportComponent, ResourceComponent, TableCountComponent, OutputChoiceComponent],
   imports: [
     CommonModule,
     ProjectRoutingModule,

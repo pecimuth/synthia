@@ -46,7 +46,7 @@ class JsonOutputDriver(FileOutputDriver):
     mime_type = 'application/json'
 
     def dumps(self):
-        return json.dumps(self._database.get_dict())
+        return json.dumps(self._database.get_dict(), indent=2, sort_keys=True, default=str)
 
     @classmethod
     def add_extension(cls, file_name_base: str) -> str:

@@ -11,8 +11,8 @@
     </mat-radio-button>
     <ng-container *ngFor="let dataSource of project.data_sources">
       <mat-radio-button *ngIf="dataSource.driver" [value]="dataSource" class="flex-col-margin">
-        {{ dataSource.driver }}<br>
-        <small>{{ dataSource.usr }}@{{ dataSource.host }}/{{ dataSource.db }}</small>
+        {{ dataSource.file_name || dataSource.db }}<br>
+        <small>{{ dataSource.driver }}</small>
       </mat-radio-button>
     </ng-container>
   </mat-radio-group>

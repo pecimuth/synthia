@@ -1,5 +1,4 @@
 <mat-form-field *ngIf="(generators$ | async) as generators">
-  <!-- <mat-label>Generator</mat-label> -->
   <mat-select [value]="column.generator_name" (selectionChange)="onSelectionChange($event)">
     <mat-option *ngFor="let generator of generators.items" [value]="generator.name">
       {{ generator.name }}

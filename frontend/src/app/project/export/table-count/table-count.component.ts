@@ -67,7 +67,9 @@ export class TableCountComponent implements OnInit {
     const tableCounts: TableCountsWrite = {
       rows_by_table_name: {}
     };
-    this.tableCountsFlat.forEach(
+    this.tableCountsFlat
+      .filter((count) => count.included)
+      .forEach(
       (item) => tableCounts.rows_by_table_name[item.name] = item.count
     );
     this.tableCountsChanged.emit(tableCounts);

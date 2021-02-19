@@ -79,6 +79,19 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   width: 400px;
 }
 
+.action-buttons {
+  position: absolute;
+  bottom: 16px
+}
+
+.action-buttons button {
+  margin-right: 10px;
+}
+
+.action-buttons button:last-child {
+  margin-right: 0;
+}
+
 // margins
 .margin {
   margin: 10px;

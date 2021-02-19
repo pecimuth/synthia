@@ -1,4 +1,3 @@
-import { HttpHeaders } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
@@ -6,9 +5,9 @@ import { takeUntil } from 'rxjs/operators';
 import { DataSourceView } from 'src/app/api/models/data-source-view';
 import { ProjectView } from 'src/app/api/models/project-view';
 import { TableCountsWrite } from 'src/app/api/models/table-counts-write';
-import { ProjectService } from 'src/app/api/services';
 import { Snack } from 'src/app/service/constants';
 import { ActiveProjectService } from '../service/active-project.service';
+import { ExportService } from '../service/export.service';
 
 @Component({
   selector: 'app-export',
@@ -25,7 +24,7 @@ export class ExportComponent implements OnInit {
 
   constructor(
     private activeProject: ActiveProjectService,
-    private projectService: ProjectService,
+    private exportService: ExportService,
     private snackBar: MatSnackBar
   ) { }
 
@@ -49,36 +48,10 @@ export class ExportComponent implements OnInit {
   }
 
   generate() {
-    console.log(this.outputChoice);
-    if (typeof this.outputChoice === 'string') {
-      this.projectService.postApiProjectIdExportResponse({
-        id: this.project.id,
-        exportRequest: {
-          table_counts: this.tableCounts,
-          output_format: this.outputChoice as any
-        }
-      }).subscribe(
-        (response) => this.downloadBlob(response.body, this.fileName(response.headers)),
+    this.exportService.export(this.outputChoice, this.tableCounts)
+      .subscribe(
+        () => this.snackBar.open('Export completed', Snack.OK, Snack.CONFIG),
         () => this.snackBar.open('Something went wrong', Snack.OK, Snack.CONFIG)
       );
-    }
-  }
-
-  private fileName(headers: HttpHeaders): string {
-    const contentDisposition = headers.get('Content-Disposition');
-    const regex = /filename=([^;]+)/;
-    try {
-      return regex.exec(contentDisposition)[1];
-    } catch {
-      return 'export';
-    }
-  }
-
-  private downloadBlob(blob: Blob, fileName: string) {
-    const anchor = document.createElement('a');
-    anchor.href = window.URL.createObjectURL(blob);
-    anchor.setAttribute('download', fileName);
-    document.body.appendChild(anchor);
-    anchor.click();
   }
 }

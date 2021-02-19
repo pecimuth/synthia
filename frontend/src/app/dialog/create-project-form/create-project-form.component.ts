@@ -4,6 +4,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Snack } from 'src/app/service/constants';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-create-project-form',
   templateUrl: './create-project-form.component.html',
@@ -18,7 +19,8 @@ export class CreateProjectFormComponent implements OnInit {
     private fb: FormBuilder,
     private projectFacade: ProjectFacadeService,
     private dialogRef: MatDialogRef<CreateProjectFormComponent>,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private router: Router
   ) {}
 
   ngOnInit() {}
@@ -29,7 +31,8 @@ export class CreateProjectFormComponent implements OnInit {
       .subscribe(
         (project) => {
           this.snackBar.open(`Created project ${project.name}`, Snack.OK, Snack.CONFIG);
-          this.dialogRef.close()
+          this.dialogRef.close();
+          this.router.navigate(['project', project.id]);
         },
         () => {
           this.snackBar.open('Could not create a project', Snack.OK, Snack.CONFIG);

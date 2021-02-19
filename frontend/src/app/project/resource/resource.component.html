@@ -1,38 +1,39 @@
-<mat-card class="margin resource-card" *ngIf="data_source">
+<mat-card class="margin resource-card" *ngIf="dataSource">
   <mat-card-header class="row justify-space-between">
-    <mat-card-title *ngIf="data_source.driver" class="margin-top">
-      {{ data_source.driver }}
+    <mat-card-title class="margin-top">
+      {{ dataSource.file_name || dataSource.db }}
     </mat-card-title>
-    <mat-card-title *ngIf="!data_source.driver" class="margin-top">
-      {{ data_source.file_name }}
-    </mat-card-title>
+    <mat-card-subtitle>
+      {{ dataSource.driver || dataSource.mime_type }}
+    </mat-card-subtitle>
     <div class="margin-right">
-      <button *ngIf="data_source.driver" mat-icon-button aria-label="Edit database login">
+      <button *ngIf="dataSource.driver && !dataSource.file_name" mat-icon-button aria-label="Edit database login">
         <mat-icon>edit</mat-icon>
       </button>
-      <button *ngIf="!data_source.driver" mat-icon-button aria-label="Download file">
+      <button *ngIf="dataSource.file_name" mat-icon-button aria-label="Download file">
         <mat-icon>download</mat-icon>
       </button>
-      <button mat-icon-button aria-label="Delete resource" (click)="resourceService.delete(data_source.id)">
+      <button mat-icon-button aria-label="Delete resource" (click)="resourceService.delete(dataSource.id)">
         <mat-icon>delete</mat-icon>
       </button>
     </div>
   </mat-card-header>
 
-  <mat-card-content *ngIf="data_source.driver">
-    <p>{{ data_source.usr }}@{{ data_source.host }}</p>
-    <p>{{ data_source.db }}</p>
-  </mat-card-content>
-
-  <mat-card-content *ngIf="!data_source.driver">
-    <p>{{ data_source.mime_type }}</p>
+  <mat-card-content *ngIf="dataSource.driver && !dataSource.file_name">
+    <p>
+      <small>User</small>
+      {{ dataSource.usr }}
+      <br>
+      <small>Host</small>
+      {{ dataSource.host }}<ng-container *ngIf="dataSource.port">:{{ dataSource.port }}</ng-container>
+    </p>
   </mat-card-content>
 
   <div class="action-buttons">
-    <button mat-button (click)="resourceService.import(data_source.id)">
+    <button mat-button (click)="import()">
       Import schema
     </button>
-    <button mat-button *ngIf="data_source.driver" (click)="resourceService.export(data_source.id)">
+    <button mat-button *ngIf="dataSource.driver" routerLink="../export">
       Fill with data
     </button>
   </div>

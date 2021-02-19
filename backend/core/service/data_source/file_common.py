@@ -72,7 +72,7 @@ class FileDataSourceFactory:
             mime_type=file_extension_to_mime_type(ext),
             project=self._proj
         )
-        if ext == DataSourceConstants.EXT_SQLITE:
+        if ext in DataSourceConstants.EXT_SQLITE:
             data_source.driver = DataSourceConstants.DRIVER_SQLITE
             data_source.db = self._file_path
         return data_source
