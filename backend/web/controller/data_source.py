@@ -8,7 +8,7 @@ from werkzeug.utils import secure_filename
 
 from core.model.data_source import DataSource
 from core.service.data_source import DataSourceConstants
-from core.service.data_source.database_common import database_connection_manager_instance, DatabaseConnectionManager
+from core.service.data_source.database_common import DatabaseConnectionManager
 from core.service.data_source.file_common import FileDataSourceFactory, is_file_allowed
 from core.service.data_source.schema import DataSourceSchemaImport
 from core.service.deserializer import create_mock_meta
@@ -16,7 +16,7 @@ from core.service.generation_procedure.controller import ProcedureController
 from core.service.output_driver.database import DatabaseOutputDriver
 from web.controller.auth import login_required
 from web.controller.util import BAD_REQUEST_SCHEMA, bad_request, find_user_project, PROJECT_NOT_FOUND, INVALID_INPUT, \
-    DATA_SOURCE_NOT_FOUND, ok_request, find_user_data_source, OK_REQUEST_SCHEMA, error_into_message
+    DATA_SOURCE_NOT_FOUND, ok_request, find_user_data_source, OK_REQUEST_SCHEMA, error_into_message, TOKEN_SECURITY
 from web.service.database import get_db_session
 from web.view import DataSourceView, DataSourceDatabaseWrite, ProjectView, TableCountsWrite
 
@@ -27,6 +27,7 @@ source = Blueprint('data_source', __name__, url_prefix='/api')
 @login_required
 @swag_from({
     'tags': ['DataSource'],
+    'security': TOKEN_SECURITY,
     'parameters': [
         {
             'name': 'data_source_database',
@@ -73,6 +74,7 @@ def create_data_source_database():
 @login_required
 @swag_from({
     'tags': ['DataSource'],
+    'security': TOKEN_SECURITY,
     'parameters': [
         {
             'name': 'project_id',
@@ -120,6 +122,7 @@ def create_data_source_mock_database():
 @login_required
 @swag_from({
     'tags': ['DataSource'],
+    'security': TOKEN_SECURITY,
     'parameters': [
         {
             'name': 'project_id',
@@ -187,6 +190,7 @@ def with_data_source_by_id(view):
 @with_data_source_by_id
 @swag_from({
     'tags': ['DataSource'],
+    'security': TOKEN_SECURITY,
     'parameters': [
         {
             'name': 'id',
@@ -221,6 +225,7 @@ def delete_data_source(data_source: DataSource):
 @error_into_message
 @swag_from({
     'tags': ['DataSource'],
+    'security': TOKEN_SECURITY,
     'parameters': [
         {
             'name': 'id',
@@ -251,6 +256,7 @@ def import_data_source_schema(data_source: DataSource):
 @error_into_message
 @swag_from({
     'tags': ['DataSource'],
+    'security': TOKEN_SECURITY,
     'parameters': [
         {
             'name': 'id',

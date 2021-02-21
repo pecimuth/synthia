@@ -4,8 +4,9 @@ from flask import Blueprint, g, request
 from web.controller.auth import login_required
 from core.model.meta_table import MetaTable
 from core.model.project import Project
+from web.controller.util import TOKEN_SECURITY, BAD_REQUEST_SCHEMA
 from web.service.database import get_db_session
-from web.view import MessageView, TableWrite, TableView
+from web.view import TableWrite, TableView
 
 table = Blueprint('table', __name__, url_prefix='/api')
 
@@ -14,6 +15,7 @@ table = Blueprint('table', __name__, url_prefix='/api')
 @login_required
 @swag_from({
     'tags': ['Table'],
+    'security': TOKEN_SECURITY,
     'parameters': [
         {
             'name': 'id',
@@ -35,10 +37,7 @@ table = Blueprint('table', __name__, url_prefix='/api')
             'description': 'Returned patched table',
             'schema': TableView
         },
-        400: {
-            'description': 'Bad request',
-            'schema': MessageView
-        }
+        400: BAD_REQUEST_SCHEMA
     }
 })
 def patch_table(id):

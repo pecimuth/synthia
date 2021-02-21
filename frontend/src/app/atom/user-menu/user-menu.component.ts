@@ -46,12 +46,8 @@ export class UserMenuComponent implements OnInit, OnDestroy {
   }
 
   onLogout() {
-    this.authFacade.logout()
-      .subscribe(
-        () => {
-          this.router.navigateByUrl('/');
-          this.snackBar.open('Logged out', Snack.OK, Snack.CONFIG);}
-        );
-    ;
+    this.authFacade.logout();
+    this.router.navigateByUrl('/');
+    this.snackBar.open('Logged out', Snack.OK, Snack.CONFIG);
   }
 }

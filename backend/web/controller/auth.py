@@ -1,30 +1,19 @@
-from flask import Blueprint, request, session, g
+from flask import Blueprint, request, g, current_app
+from jwt import ExpiredSignatureError, InvalidTokenError
+from sqlalchemy.exc import IntegrityError
 
 from core.service.password import PasswordService
-from web.controller.util import bad_request, ok_request
+from web.controller.util import bad_request, TOKEN_SECURITY, BAD_REQUEST_SCHEMA
 from web.service.database import get_db_session
 from core.model.user import User
 from sqlalchemy.orm.exc import NoResultFound
 from flasgger import swag_from
-from web.view import UserView, MessageView
+
+from web.service.token import TokenService
+from web.view import UserView, UserAndTokenView
 import functools
 
 auth = Blueprint('auth', __name__, url_prefix='/api/auth')
-
-
-@auth.before_app_request
-def load_logged_in_user():
-    user_id = session.get('user_id')
-
-    if user_id is None:
-        g.user = None
-    else:
-        db_session = get_db_session()
-        try:
-            g.user = db_session.query(User).filter(User.id == user_id).one()
-        except NoResultFound:
-            session.pop('user_id')
-            g.user = None
 
 
 @auth.route('/register', methods=('POST',))
@@ -49,12 +38,9 @@ def load_logged_in_user():
     'responses': {
         200: {
             'description': 'Successfully registered',
-            'schema': UserView
+            'schema': UserAndTokenView
         },
-        400: {
-            'description': 'Bad request',
-            'schema': MessageView
-        }
+        400: BAD_REQUEST_SCHEMA
     }
 })
 def register():
@@ -70,10 +56,15 @@ def register():
 
     db_session = get_db_session()
     db_session.add(user)
-    db_session.commit()
-    session['user_id'] = user.id
+    try:
+        db_session.commit()
+    except IntegrityError:
+        return bad_request('This email is already registered')
 
-    return UserView().dump(user)
+    token_service = TokenService(current_app.config['SECRET_KEY'], user)
+    token = token_service.create_token()
+
+    return UserAndTokenView().dump({'user': user, 'token': token})
 
 
 @auth.route('/login', methods=('POST',))
@@ -97,13 +88,10 @@ def register():
     ],
     'responses': {
         200: {
-            'description': 'Successfully logged int',
-            'schema': UserView
+            'description': 'Successfully logged in',
+            'schema': UserAndTokenView
         },
-        400: {
-            'description': 'Bad request',
-            'schema': MessageView
-        }
+        400: BAD_REQUEST_SCHEMA
     }
 })
 def login():
@@ -118,57 +106,46 @@ def login():
     if not password_service.check_password(request.form['pwd']):
         return bad_request('Wrong password')
 
-    session.clear()
-    session['user_id'] = user.id
-    return UserView().dump(user)
+    token_service = TokenService(current_app.config['SECRET_KEY'], user)
+    token = token_service.create_token()
+
+    return UserAndTokenView().dump({'user': user, 'token': token})
 
 
 def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
-        if g.user is None:
-            return MessageView().dump({
-                'result': 'error',
-                'message': 'Login is required'
-            }), 400
+        auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            return bad_request('No authorization header')
+        try:
+            token = auth_header.split(' ')[1]
+        except IndexError:
+            return bad_request('Bad bearer token format')
+        token_service = TokenService(current_app.config['SECRET_KEY'])
+        try:
+            g.user = token_service.decode_token(token)
+        except NoResultFound:
+            return bad_request('User not found')
+        except ExpiredSignatureError:
+            return bad_request('Token expired')
+        except InvalidTokenError:
+            return bad_request('Invalid token')
         return view(**kwargs)
-
     return wrapped_view
-
-
-@auth.route('/logout', methods=('POST',))
-@login_required
-@swag_from({
-    'tags': ['Auth'],
-    'responses': {
-        200: {
-            'description': 'Successfully logged out',
-            'schema': MessageView
-        },
-        400: {
-            'description': 'Bad request',
-            'schema': MessageView
-        }
-    }
-})
-def logout():
-    session.clear()
-    return ok_request('Logged out')
 
 
 @auth.route('/user')
 @login_required
 @swag_from({
     'tags': ['Auth'],
+    'security': TOKEN_SECURITY,
     'responses': {
         200: {
             'description': 'Return logged in user',
             'schema': UserView
         },
-        400: {
-            'description': 'Bad request',
-            'schema': MessageView
-        }
+        400: BAD_REQUEST_SCHEMA
     }
 })
 def get_user():

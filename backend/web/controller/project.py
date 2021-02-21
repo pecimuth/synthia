@@ -7,12 +7,10 @@ from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.utils import secure_filename
 
 from core.model.project import Project
-from core.service.data_source import DataSourceConstants
-from core.service.deserializer import create_mock_meta
 from core.service.generation_procedure.controller import ProcedureController
 from core.service.output_driver import PreviewOutputDriver
 from core.service.output_driver.file_driver import JsonOutputDriver, ZippedCsvOutputDriver
-from web.controller.util import find_user_project, bad_request, PROJECT_NOT_FOUND, BAD_REQUEST_SCHEMA
+from web.controller.util import find_user_project, bad_request, PROJECT_NOT_FOUND, BAD_REQUEST_SCHEMA, TOKEN_SECURITY
 from web.view import ProjectListView, ProjectView, PreviewView, TableCountsWrite, ExportFileRequestWrite
 from web.controller.auth import login_required
 from web.service.database import get_db_session
@@ -24,6 +22,7 @@ project = Blueprint('project', __name__, url_prefix='/api')
 @login_required
 @swag_from({
     'tags': ['Project'],
+    'security': TOKEN_SECURITY,
     'responses': {
         200: {
             'description': 'Return users projects',
@@ -40,6 +39,7 @@ def get_projects():
 @login_required
 @swag_from({
     'tags': ['Project'],
+    'security': TOKEN_SECURITY,
     'parameters': [
         {
             'name': 'name',
@@ -81,6 +81,7 @@ def with_project_by_id(view):
 @with_project_by_id
 @swag_from({
     'tags': ['Project'],
+    'security': TOKEN_SECURITY,
     'parameters': [
         {
             'name': 'id',
@@ -114,6 +115,7 @@ def delete_schema_from_project(proj: Project, session: Session):
 @with_project_by_id
 @swag_from({
     'tags': ['Project'],
+    'security': TOKEN_SECURITY,
     'parameters': [
         {
             'name': 'id',
@@ -153,6 +155,7 @@ def generate_project_preview(proj: Project):
 @with_project_by_id
 @swag_from({
     'tags': ['Project'],
+    'security': TOKEN_SECURITY,
     'parameters': [
         {
             'name': 'id',

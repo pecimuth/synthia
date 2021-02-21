@@ -6,9 +6,9 @@ from web.controller.auth import login_required
 from core.model.meta_column import MetaColumn
 from core.model.meta_table import MetaTable
 from core.model.project import Project
-from web.controller.util import bad_request, INVALID_INPUT
+from web.controller.util import bad_request, INVALID_INPUT, TOKEN_SECURITY, BAD_REQUEST_SCHEMA
 from web.service.database import get_db_session
-from web.view import MessageView, ColumnWrite, ColumnView
+from web.view import ColumnWrite, ColumnView
 
 column = Blueprint('column', __name__, url_prefix='/api')
 
@@ -17,6 +17,7 @@ column = Blueprint('column', __name__, url_prefix='/api')
 @login_required
 @swag_from({
     'tags': ['Column'],
+    'security': TOKEN_SECURITY,
     'parameters': [
         {
             'name': 'id',
@@ -38,10 +39,7 @@ column = Blueprint('column', __name__, url_prefix='/api')
             'description': 'Returned patched column',
             'schema': ColumnView
         },
-        400: {
-            'description': 'Bad request',
-            'schema': MessageView
-        }
+        400: BAD_REQUEST_SCHEMA
     }
 })
 def patch_column(id):

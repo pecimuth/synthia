@@ -33,6 +33,14 @@ BAD_REQUEST_SCHEMA = {
     'schema': MessageView
 }
 
+TOKEN_SECURITY = [
+    {
+        'APIKeyHeader': [
+            'Authorization'
+        ]
+    }
+]
+
 
 def error_into_message(view):
     @functools.wraps(view)

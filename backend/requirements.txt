@@ -1,4 +1,4 @@
-apispec==4.2.0
+apispec==4.3.0
 attrs==20.3.0
 click==7.1.2
 flasgger==0.9.5
@@ -11,6 +11,7 @@ MarkupSafe==1.1.1
 marshmallow==3.10.0
 mistune==0.8.4
 psycopg2-binary==2.8.6
+PyJWT==2.0.1
 pyrsistent==0.17.3
 PyYAML==5.4.1
 six==1.15.0

@@ -6,3 +6,7 @@ export namespace Snack {
     };
     export const OK = 'OK';
 }
+
+export namespace Constants {
+    export const TOKEN_KEY = 'token';
+}

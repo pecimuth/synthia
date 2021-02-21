@@ -14,7 +14,14 @@ def create_app() -> Flask:
     )
     app.config.from_mapping(
         SWAGGER={
-            'title': 'Synthia'
+            'title': 'Synthia',
+            'securityDefinitions': {
+                'APIKeyHeader': {
+                    'type': 'apiKey',
+                    'name': 'Authorization',
+                    'in': 'header'
+                }
+            }
         },
         SECRET_KEY=os.environ.get('SECRET_KEY'),
         PROJECT_STORAGE=os.path.join(app.instance_path, 'project'),
@@ -27,10 +34,6 @@ def create_app() -> Flask:
         ORIGIN=os.environ.get('ORIGIN'),
     )
 
-    if app.config['ENV'] == 'production':
-        app.config['SESSION_COOKIE_SAMESITE'] = 'None'
-        app.config['SESSION_COOKIE_SECURE'] = True
-
     Swagger(app)
     CORS(app, origins=app.config['ORIGIN'], supports_credentials=True)
 
@@ -40,7 +43,6 @@ def create_app() -> Flask:
     try:
         os.makedirs(app.instance_path)
         os.makedirs(app.config['PROJECT_STORAGE'])
-        os.makedirs(app.config['EXTERN_DB_PATH'])
     except OSError:
         pass
 

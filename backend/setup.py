@@ -13,6 +13,7 @@ setup(
         'flasgger',
         'marshmallow',
         'apispec',
-        'flask_cors'
+        'flask_cors',
+        'pyjwt'
     ],
 )

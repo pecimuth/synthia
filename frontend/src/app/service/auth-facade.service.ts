@@ -2,8 +2,9 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { Observable, ReplaySubject } from 'rxjs';
 import { UserView } from '../api/models/user-view';
 import { AuthService } from '../api/services';
-import { tap } from 'rxjs/operators';
-import { MessageView } from '../api/models/message-view';
+import { map, tap } from 'rxjs/operators';
+import { UserAndTokenView } from '../api/models/user-and-token-view';
+import { Constants } from './constants';
 
 @Injectable({
   providedIn: 'root'
@@ -33,12 +34,18 @@ export class AuthFacadeService implements OnDestroy {
     this._user$.next(user);
   }
 
+  private nextUserAndToken(userAndToken: UserAndTokenView) {
+    localStorage.setItem(Constants.TOKEN_KEY, userAndToken.token);
+    this.nextUser(userAndToken.user);
+  }
+
   login(email: string, password: string): Observable<UserView> {
     return this.authService.postApiAuthLogin({
       email: email,
       pwd: password
     }).pipe(
-        tap((user) => this.nextUser(user))
+        tap((userAndToken) => this.nextUserAndToken(userAndToken)),
+        map((userAndToken) => userAndToken.user)
       );
   }
 
@@ -47,15 +54,14 @@ export class AuthFacadeService implements OnDestroy {
       email: email,
       pwd: password
     }).pipe(
-        tap((user) => this.nextUser(user))
+        tap((userAndToken) => this.nextUserAndToken(userAndToken)),
+        map((userAndToken) => userAndToken.user)
       );
   }
 
-  logout(): Observable<MessageView> {
-    return this.authService.postApiAuthLogout()
-      .pipe(
-        tap(() => this.nextUser(null))
-      );
+  logout() {
+    localStorage.removeItem(Constants.TOKEN_KEY);
+    this.nextUser(null);
   }
 
   refresh() {

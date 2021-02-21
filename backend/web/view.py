@@ -44,6 +44,11 @@ class UserView(Schema):
     email = Str()
 
 
+class UserAndTokenView(Schema):
+    user = Nested(UserView())
+    token = Str()
+
+
 class PreviewView(Schema):
     tables = Dict(keys=Str(), values=List(Dict(keys=Str())))
 
