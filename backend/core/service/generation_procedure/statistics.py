@@ -6,13 +6,17 @@ class ProcedureTableStatistics:
         self._table_name = table_name
         self._requested_count = requested_count
         self._success_count = 0
-        self._failure_count = 0
+        self._insert_failure_count = 0
+        self._check_failure_count = 0
 
     def succeed_insert(self):
         self._success_count += 1
 
     def fail_insert(self):
-        self._failure_count += 1
+        self._insert_failure_count += 1
+
+    def fail_check(self):
+        self._check_failure_count += 1
 
     @property
     def satisfied(self) -> bool:
@@ -20,7 +24,7 @@ class ProcedureTableStatistics:
 
     @property
     def attempt_count(self) -> int:
-        return self._success_count + self._failure_count
+        return self._success_count + self._insert_failure_count + self._check_failure_count
 
     @property
     def requested_count(self) -> int:

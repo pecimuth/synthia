@@ -7,6 +7,7 @@ from core.model.project import Project
 from core.service.column_generator import make_generator_instances_for_table, ColumnGeneratorPairs
 from core.service.deserializer import StructureDeserializer
 from core.service.exception import SomeError
+from core.service.generation_procedure.constraint_checker import ConstraintChecker
 from core.service.generation_procedure.database import GeneratedRow, GeneratedDatabase
 from core.service.generation_procedure.requisition import TableCountRequisition
 from core.service.generation_procedure.statistics import ProcedureStatistics
@@ -53,14 +54,19 @@ class ProcedureController:
         table_db = self._database.add_table(meta_table.name)
         stats = self._statistics.get_table_statistics(meta_table.name)
         generators = make_generator_instances_for_table(meta_table)
+        checker = ConstraintChecker(meta_table, self._database)
         while stats.expects_next_row:
             row = self._make_row(generators)
+            if not checker.check_row(row):
+                stats.fail_check()
+                continue
             insertion_result = self._output_driver.insert_row(row)
             if insertion_result is None:
                 stats.fail_insert()
-            else:
-                stats.succeed_insert()
-                table_db.append(row)
+                continue
+            stats.succeed_insert()
+            table_db.append(row)
+            checker.register_row(row)
 
     def _make_row(self, generators: ColumnGeneratorPairs) -> GeneratedRow:
         row: GeneratedRow = {}
