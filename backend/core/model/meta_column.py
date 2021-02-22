@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, JSON, Index
 from sqlalchemy.orm import relationship
 from . import base
+from .column_constraint import ColumnConstraint
 
 
 class MetaColumn(base):
@@ -8,12 +9,12 @@ class MetaColumn(base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     col_type = Column(String)
-    primary_key = Column(Boolean)
     nullable = Column(Boolean)
-    foreign_key = Column(String, nullable=True)
 
     table_id = Column(Integer, ForeignKey('metatable.id', ondelete='CASCADE'))
     table = relationship('MetaTable', back_populates='columns')
+
+    constraints = relationship('MetaConstraint', secondary=ColumnConstraint.__table__, back_populates='constrained_columns')
 
     generator_name = Column(String, nullable=True)
     generator_params = Column(JSON, nullable=True)

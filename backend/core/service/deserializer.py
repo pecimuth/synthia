@@ -23,15 +23,10 @@ class StructureDeserializer:
 
     @classmethod
     def _deserialize_column(cls, column: MetaColumn) -> Column:
-        constraints = []
-        if column.foreign_key is not None:
-            constraints.append(ForeignKey(column.foreign_key))
         return Column(
             column.name,
             get_sql_alchemy_type(column.col_type),
-            primary_key=column.primary_key,
-            nullable=column.nullable,
-            *constraints
+            nullable=column.nullable
         )
 
     def deserialize(self) -> MetaData:

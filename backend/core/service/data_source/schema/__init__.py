@@ -1,3 +1,5 @@
+from typing import List, Dict
+
 from core.model.data_source import DataSource
 from core.model.meta_column import MetaColumn
 from core.model.meta_table import MetaTable
@@ -10,6 +12,8 @@ from core.service.exception import DataSourceError
 
 
 class DataSourceSchemaImport:
+    ColumnDict = Dict[str, Dict[str, MetaColumn]]
+
     def __init__(self, project: Project):
         self._project = project
         self._table_by_name = {
@@ -24,9 +28,43 @@ class DataSourceSchemaImport:
             if imported_table.name in self._table_by_name:
                 project_table = self._table_by_name[imported_table.name]
                 project_table.data_source = data_source
+                project_table.constraints = imported_table.constraints
                 self._update_columns(project_table, imported_table)
             else:
                 imported_table.project = self._project
+        self._fix_constraint_column_references()
+
+    def _fix_constraint_column_references(self):
+        column_dict = self._make_column_dict()
+        for project_table in self._project.tables:
+            for constraint in project_table.constraints:
+                constraint.constrained_columns = self._collect_column_references(
+                    constraint.constrained_columns,
+                    column_dict
+                )
+                constraint.referenced_columns = self._collect_column_references(
+                    constraint.referenced_columns,
+                    column_dict
+                )
+
+    def _make_column_dict(self) -> ColumnDict:
+        column_dict: DataSourceSchemaImport.ColumnDict = {}
+        for project_table in self._project.tables:
+            column_dict[project_table.name] = {}
+            table_dict = column_dict[project_table.name]
+            for table_column in project_table.columns:
+                table_dict[table_column.name] = table_column
+        return column_dict
+
+    @classmethod
+    def _collect_column_references(cls,
+                                   old_columns: List[MetaColumn],
+                                   column_dict: ColumnDict) -> List[MetaColumn]:
+        new_columns = []
+        for column in old_columns:
+            new_column = column_dict[column.table.name][column.name]
+            new_columns.append(new_column)
+        return new_columns
 
     @classmethod
     def _create_schema_provider(cls, data_source: DataSource) -> SchemaProvider:

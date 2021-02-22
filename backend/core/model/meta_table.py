@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Index
 from sqlalchemy.orm import relationship
 from . import base
 from core.model.meta_column import MetaColumn
+from .meta_constraint import MetaConstraint
 
 
 class MetaTable(base):
@@ -16,6 +17,8 @@ class MetaTable(base):
 
     data_source_id = Column(Integer, ForeignKey('datasource.id', ondelete='SET NULL'))
     data_source = relationship('DataSource')
+
+    constraints = relationship('MetaConstraint', order_by=MetaConstraint.id, back_populates='table')
 
     __table_args__ = (
         Index('ix_metatable_project_name', project_id, name, unique=True),

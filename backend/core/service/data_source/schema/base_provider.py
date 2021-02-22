@@ -27,3 +27,9 @@ class SchemaProvider(ABC):
         meta_column.generator_name = generator_factory.name
         generator = generator_factory(meta_column)
         generator.estimate_params()
+
+    @classmethod
+    def _set_recommended_generators_for_list(cls, table_list: List[MetaTable]):
+        for table in table_list:
+            for column in table.columns:
+                cls._set_recommended_generator(column)

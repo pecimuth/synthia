@@ -8,13 +8,22 @@ class MessageView(Schema):
     message = Str()
 
 
+class ColumnBriefView(Schema):
+    id = Integer()
+    name = Str()
+
+
+class ColumnTableBriefView(Schema):
+    id = Integer()
+    table_id = Integer()
+    name = Str()
+
+
 class ColumnView(Schema):
     id = Integer()
     name = Str()
     col_type = Str()
-    primary_key = Bool()
     nullable = Bool()
-    foreign_key = Str()
     generator_name = Str()
     generator_params = Dict(keys=Str())
 
@@ -24,11 +33,20 @@ class ColumnWrite(Schema):
     generator_params = Dict(keys=Str(), allow_none=True)
 
 
+class ConstraintView(Schema):
+    id = Integer()
+    name = Str()
+    constraint_type = Str()
+    constrained_columns = List(Nested(ColumnBriefView()))
+    referenced_columns = List(Nested(ColumnTableBriefView()))
+    check_expression = Str()
+
+
 class TableView(Schema):
     id = Integer()
     name = Str()
     columns = List(Nested(ColumnView()))
-    row_count = Integer()
+    constraints = List(Nested(ConstraintView()))
 
 
 class TableWrite(Schema):
