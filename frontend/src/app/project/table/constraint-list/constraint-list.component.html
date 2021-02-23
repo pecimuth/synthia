@@ -1,0 +1,19 @@
+<mat-list role="list" dense>
+  <mat-list-item role="listitem" *ngFor="let constraint of table.constraints">
+    {{ constraint.name }}
+    {{ constraint.constraint_type | uppercase }}
+  
+    <ng-container *ngFor="let column of constraint.constrained_columns">
+      {{ column.name }}
+    </ng-container>
+  
+    {{ constraint.check_expression }}
+
+    <ng-container *ngIf="constraint.referenced_columns?.length">
+      REFERENCES
+      <ng-container *ngFor="let column of constraint.referenced_columns">
+        {{ column.name }}
+      </ng-container>
+    </ng-container>
+  </mat-list-item>
+</mat-list>

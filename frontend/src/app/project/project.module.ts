@@ -33,6 +33,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatDialogModule } from '@angular/material/dialog';
 import { GeneratorChoiceComponent } from './table/generator-choice/generator-choice.component';
+import { ConstraintListComponent } from './table/constraint-list/constraint-list.component';
 
 
 @NgModule({
@@ -49,7 +50,8 @@ import { GeneratorChoiceComponent } from './table/generator-choice/generator-cho
     ResourceComponent,
     TableCountComponent,
     OutputChoiceComponent,
-    GeneratorChoiceComponent
+    GeneratorChoiceComponent,
+    ConstraintListComponent
   ],
   imports: [
     CommonModule,
