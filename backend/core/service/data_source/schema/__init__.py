@@ -34,6 +34,7 @@ class DataSourceSchemaImport:
             else:
                 imported_table.project = self._project
         self._fix_constraint_column_references()
+        self._fix_generator_setting_references()
 
     def _fix_constraint_column_references(self):
         column_dict = self._make_column_dict()
@@ -66,6 +67,14 @@ class DataSourceSchemaImport:
             new_column = column_dict[column.table.name][column.name]
             new_columns.append(new_column)
         return new_columns
+
+    def _fix_generator_setting_references(self):
+        for meta_table in self._project.tables:
+            for meta_column in meta_table.columns:
+                setting = meta_column.generator_setting
+                if not setting:
+                    continue
+                setting.table = meta_table
 
     @classmethod
     def _create_schema_provider(cls, data_source: DataSource) -> SchemaProvider:

@@ -19,7 +19,6 @@ import { ParamFormComponent } from './table/param-form/param-form.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatDividerModule } from '@angular/material/divider';
-import { GeneratorSelectComponent } from './table/generator-select/generator-select.component';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -32,10 +31,26 @@ import { TableCountComponent } from './export/table-count/table-count.component'
 import { OutputChoiceComponent } from './export/output-choice/output-choice.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatDialogModule } from '@angular/material/dialog';
+import { GeneratorChoiceComponent } from './table/generator-choice/generator-choice.component';
 
 
 @NgModule({
-  declarations: [ProjectComponent, ProjectListComponent, TableComponent, TablePreviewComponent, ParamFormComponent, GeneratorSelectComponent, TableListComponent, ResourceListComponent, PreviewComponent, ExportComponent, ResourceComponent, TableCountComponent, OutputChoiceComponent],
+  declarations: [
+    ProjectComponent,
+    ProjectListComponent,
+    TableComponent,
+    TablePreviewComponent,
+    ParamFormComponent,
+    TableListComponent,
+    ResourceListComponent,
+    PreviewComponent,
+    ExportComponent,
+    ResourceComponent,
+    TableCountComponent,
+    OutputChoiceComponent,
+    GeneratorChoiceComponent
+  ],
   imports: [
     CommonModule,
     ProjectRoutingModule,
@@ -55,7 +70,9 @@ import { MatRadioModule } from '@angular/material/radio';
     MatSnackBarModule,
     MatExpansionModule,
     MatCheckboxModule,
-    MatRadioModule
+    MatRadioModule,
+    MatDialogModule,
+    MatButtonModule
   ]
 })
 export class ProjectModule { }

@@ -1,9 +1,8 @@
 import { Component, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { filter, distinctUntilChanged } from 'rxjs/operators';
 import { AuthFacadeService } from './service/auth-facade.service';
 import { ProjectFacadeService } from './service/project-facade.service';
-import { GeneratorFacadeService } from './service/generator-facade.service';
+import { GeneratorFacadeService } from './project/service/generator-facade.service';
 
 @Component({
   selector: 'app-root',

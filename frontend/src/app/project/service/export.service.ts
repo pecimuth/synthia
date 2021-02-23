@@ -1,7 +1,7 @@
 import { HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { DataSourceView } from 'src/app/api/models/data-source-view';
 import { MessageView } from 'src/app/api/models/message-view';
 import { TableCountsWrite } from 'src/app/api/models/table-counts-write';
@@ -19,7 +19,8 @@ export class ExportService {
     private activeProject: ActiveProjectService
   ) { }
 
-  export(outputChoice: DataSourceView | string, tableCounts: TableCountsWrite): Observable<Blob | MessageView> {
+  export(outputChoice: DataSourceView | string,
+         tableCounts: TableCountsWrite): Observable<Blob | MessageView> {
     if (typeof outputChoice === 'string') {
       return this.exportAsFile(outputChoice, tableCounts);
     } else {
@@ -46,7 +47,8 @@ export class ExportService {
       );
   }
 
-  private exportToDataSource(outputChoice: DataSourceView, tableCounts: TableCountsWrite): Observable<MessageView>{
+  private exportToDataSource(outputChoice: DataSourceView,
+                             tableCounts: TableCountsWrite): Observable<MessageView> {
     const params = {
       id: outputChoice.id,
       tableCounts: tableCounts

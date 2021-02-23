@@ -4,7 +4,6 @@ import { DataSourceService } from 'src/app/api/services';
 import { ActiveProjectService } from './active-project.service';
 import { Snack } from 'src/app/service/constants';
 import { DataSourceDatabaseWrite } from 'src/app/api/models/data-source-database-write';
-import { DataSourceView } from 'src/app/api/models/data-source-view';
 
 @Injectable({
   providedIn: 'root'
@@ -21,8 +20,8 @@ export class ResourceService {
     this.snackBar.open(message, Snack.OK, Snack.CONFIG);
   }
 
-  import(data_source_id: number) {
-    this.dataSourceService.postApiDataSourceIdImport(data_source_id)
+  import(dataSourceId: number) {
+    this.dataSourceService.postApiDataSourceIdImport(dataSourceId)
       .subscribe(
         (project) => {
           this.snack('Successfully imported the schema')
@@ -32,20 +31,12 @@ export class ResourceService {
       );
   }
 
-  delete(data_source_id: number) {
-    this.dataSourceService.deleteApiDataSourceId(data_source_id)
+  delete(dataSourceId: number) {
+    this.dataSourceService.deleteApiDataSourceId(dataSourceId)
       .subscribe(
         (message) => {
           this.snack(message.message);
-          const project = this.activeProject.project$.value;
-          if (project === null) {
-            return;
-          }
-          const newProject = {
-            ...project,
-            data_sources: project.data_sources.filter((data_source) => data_source.id !== data_source_id)
-          };
-          this.activeProject.project$.next(newProject);
+          this.activeProject.deleteDataSource(dataSourceId);
         },
         () => this.snack('Failed to delete the resource')
       );
@@ -59,7 +50,7 @@ export class ResourceService {
       .subscribe(
         (dataSource) => {
           this.snack('Database added');  
-          this.addDataSource(dataSource);
+          this.activeProject.addDataSource(dataSource);
         },
         () => this.snack('Failed to create a database resource')
       );
@@ -76,7 +67,7 @@ export class ResourceService {
       .subscribe(
         (dataSource) => {
           this.snack('File uploaded');     
-          this.addDataSource(dataSource);
+          this.activeProject.addDataSource(dataSource);
         },
         () => this.snack('Failed to create a file resource')
       );
@@ -88,21 +79,9 @@ export class ResourceService {
       .subscribe(
         (dataSource) => {
           this.snack('Database created');     
-          this.addDataSource(dataSource);
+          this.activeProject.addDataSource(dataSource);
         },
         () => this.snack('Failed to create a mock database')
       );
-  }
-
-  private addDataSource(dataSource: DataSourceView) {
-    const project = this.activeProject.project$.value;
-    if (project === null) {
-      return;
-    }  
-    const newProject = {
-      ...project,
-      data_sources: [...project.data_sources, dataSource]
-    };
-    this.activeProject.project$.next(newProject);
   }
 }

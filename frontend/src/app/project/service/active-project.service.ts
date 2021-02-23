@@ -1,7 +1,15 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { ProjectView } from 'src/app/api/models/project-view';
-import { ProjectFacadeService } from 'src/app/service/project-facade.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
+import { ProjectService } from 'src/app/api/services';
+import { DataSourceView } from 'src/app/api/models/data-source-view';
+import { ColumnView } from 'src/app/api/models/column-view';
+import { TableView } from 'src/app/api/models/table-view';
+import { GeneratorSettingView } from 'src/app/api/models/generator-setting-view';
+
+type Transformer = (project: ProjectView) => ProjectView;
+type TableTransformer = (table: TableView) => TableView;
+type ColumnTransformer = (column: ColumnView) => ColumnView;
 
 @Injectable({
   providedIn: 'root'
@@ -9,22 +17,18 @@ import { BehaviorSubject, Subscription } from 'rxjs';
 export class ActiveProjectService implements OnDestroy {
 
   project$ = new BehaviorSubject<ProjectView>(null);
-  private listSub: Subscription;
+  private apiSubscription: Subscription;
   set projectId(newProjectId: number) {
     this.unsubscribe();
-    // active table may not be from this project
-    // therefore we invalidate it
-    this.listSub = this.projectFacade.list$
+    this.apiSubscription = this.projectService
+      .getApiProjectId(newProjectId)
       .subscribe(
-        (list) => {
-          const found = list.items.find((item) => item.id === newProjectId);
-          this.project$.next(found);
-        }
+        (project) => this.project$.next(project)
       );
   }
 
   constructor(
-    private projectFacade: ProjectFacadeService
+    private projectService: ProjectService
   ) { }
 
   ngOnDestroy() {
@@ -32,8 +36,106 @@ export class ActiveProjectService implements OnDestroy {
   }
 
   private unsubscribe() {
-    if (this.listSub) {
-      this.listSub.unsubscribe();
+    if (this.apiSubscription) {
+      this.apiSubscription.unsubscribe();
     }
+  }
+
+  private transform(transformer: Transformer) {
+    const project = this.project$.value;
+    if (project === null) {
+      return;
+    }
+    const newProject = transformer(project);
+    this.project$.next(newProject);
+  }
+
+  private transformTable(tableId: number, transformer: TableTransformer) {
+    const projectTransformer: Transformer = (project) => {
+      const newTables = project.tables
+        .map((table) => {
+          if (table.id !== tableId) {
+            return table;
+          }
+          return transformer(table);
+        });
+      return {
+        ...project,
+        tables: newTables
+      };
+    }
+    this.transform(projectTransformer);
+  }
+
+  private transformColumn(tableId: number, columnId: number, transformer: ColumnTransformer) {
+    const tableTransformer: TableTransformer = (table) => {
+      const newColumns = table.columns
+        .map((column) => {
+          if (column.id !== columnId) {
+            return column;
+          }
+          return transformer(column);
+        })
+      return {
+        ...table,
+        columns: newColumns
+      };
+    };
+    this.transformTable(tableId, tableTransformer);
+  }
+
+  addDataSource(dataSource: DataSourceView) {
+    this.transform(
+      (project) => {
+        return {
+          ...project,
+          data_sources: [...project.data_sources, dataSource]
+        };
+      }
+    );
+  }
+
+  deleteDataSource(dataSourceId: number) {
+    this.transform(
+      (project) => {
+        return {
+          ...project,
+          data_sources: project.data_sources
+            .filter((data_source) => data_source.id !== dataSourceId)
+        };
+      }
+    );
+  }
+
+  patchColumn(tableId: number, column: ColumnView) {
+    const transform: ColumnTransformer = () => column;
+    this.transformColumn(tableId, column.id, transform);
+  }
+
+  patchGeneratorSetting(tableId: number, setting: GeneratorSettingView) {
+    const transformColumn: ColumnTransformer = (column) => {
+      if (column.generator_setting?.id !== setting.id) {
+        return column;
+      }
+      return {
+        ...column,
+        generator_setting: setting
+      }
+    };
+    const transformTable: TableTransformer = (table) => {
+      const newSettings = table.generator_settings
+        .map((other) => {
+          if (other.id !== setting.id) {
+            return other;
+          }
+          return setting;
+        });
+      return {
+        ...table,
+        columns: table.columns.map(transformColumn),
+        generator_settings: newSettings
+      }
+    };
+    this.transformTable(tableId, transformTable);
   }
 }

@@ -5,9 +5,6 @@
       <button mat-icon-button aria-label="New column">
         <mat-icon>add</mat-icon>
       </button>
-      <button mat-icon-button aria-label="Refresh">
-        <mat-icon>refresh</mat-icon>
-      </button>
       <button mat-icon-button aria-label="Delete">
         <mat-icon>delete</mat-icon>
       </button>
@@ -18,14 +15,12 @@
     <ng-container matColumnDef="column">
       <th mat-header-cell *matHeaderCellDef>Column</th>
       <td mat-cell *matCellDef="let column">
-        <div class="row margin-top margin-bottom margin-right">
-          <mat-chip-list>
-            <div class="margin-top margin-bottom margin-right">{{ column.name }}</div>
-            <mat-chip class="mat-chip-small">{{ column.col_type | lowercase }}</mat-chip>
-            <mat-chip class="mat-chip-small" *ngIf="column.primary_key">primary</mat-chip>
-            <mat-chip class="mat-chip-small" *ngIf="column.foreign_key">fk: {{ column.foreign_key }}</mat-chip>
-            <mat-chip class="mat-chip-small" *ngIf="column.nullable">null</mat-chip>
-          </mat-chip-list>
+        <div class="margin-top margin-bottom margin-right">
+          <div>{{ column.name }}</div>
+          <small>
+            {{ column.col_type | lowercase }}
+            <span *ngIf="column.nullable">nullable</span>
+          </small>
         </div>
       </td>
     </ng-container>
@@ -34,7 +29,16 @@
       <th mat-header-cell *matHeaderCellDef>Generator</th>
       <td mat-cell *matCellDef="let column">
         <div class="margin-right">
-          <app-generator-select [column]="column"></app-generator-select>
+          <button mat-button
+            *ngIf="column.generator_setting as setting"
+            (click)="chooseGenerator(column)">
+            {{ setting.name }} ({{ setting.id }})
+          </button>
+          <button *ngIf="!column.generator_setting "
+            mat-button
+            (click)="chooseGenerator(column)">
+            Choose a generator
+          </button>
         </div>
       </td>
     </ng-container>
@@ -43,7 +47,7 @@
       <th mat-header-cell *matHeaderCellDef>Parameters</th>
       <td mat-cell *matCellDef="let column">
         <div class="margin-right">
-          <app-param-form [column]="column"></app-param-form>
+          <app-param-form [table]="table" [column]="column"></app-param-form>
         </div>
       </td>
     </ng-container>

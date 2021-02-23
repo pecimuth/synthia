@@ -25,6 +25,11 @@ class GeneratorSettingView(Schema):
     params = Dict(keys=Str())
 
 
+class GeneratorSettingWrite(Schema):
+    name = Str()
+    params = Dict(keys=Str(), allow_none=True)
+
+
 class ColumnView(Schema):
     id = Integer()
     name = Str()
@@ -34,8 +39,14 @@ class ColumnView(Schema):
 
 
 class ColumnWrite(Schema):
-    generator_name = Str()
-    generator_params = Dict(keys=Str(), allow_none=True)
+    name = Str()
+    col_type = Str()
+    nullable = Bool()
+    generator_setting_id = Integer(allow_none=True)
+
+
+class ColumnCreate(ColumnWrite):
+    table_id = Integer()
 
 
 class ConstraintView(Schema):
@@ -52,10 +63,15 @@ class TableView(Schema):
     name = Str()
     columns = List(Nested(ColumnView()))
     constraints = List(Nested(ConstraintView()))
+    generator_settings = List(Nested(GeneratorSettingView()))
 
 
 class TableWrite(Schema):
-    row_count = Integer()
+    name = Str()
+
+
+class TableCreate(TableWrite):
+    project_id = Integer()
 
 
 class TableListView(Schema):

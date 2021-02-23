@@ -1,12 +1,11 @@
 import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import { ColumnView } from 'src/app/api/models/column-view';
-import { GeneratorFacadeService } from 'src/app/service/generator-facade.service';
+import { GeneratorFacadeService } from 'src/app/project/service/generator-facade.service';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { GeneratorListView } from 'src/app/api/models/generator-list-view';
 import { switchMap, debounceTime } from 'rxjs/operators';
-import { ColumnService } from 'src/app/api/services';
-import { ProjectFacadeService } from 'src/app/service/project-facade.service';
+import { TableView } from 'src/app/api/models/table-view';
 
 @Component({
   selector: 'app-param-form',
@@ -14,40 +13,9 @@ import { ProjectFacadeService } from 'src/app/service/project-facade.service';
   styleUrls: ['./param-form.component.scss']
 })
 export class ParamFormComponent implements OnInit, OnDestroy {
-
-  private _column: ColumnView;
   
-  get column(): ColumnView {
-    return this._column;
-  }
-
-  @Input() set column(newColumn: ColumnView) {
-    this._column = newColumn;
-    if (!this.column.generator_name) {
-      this.generator = undefined;
-      this.form = undefined;
-    }
-    this.unsubscribe();
-    this.genSub = this.generatorFacade.generators$
-      .subscribe((generators) => this.createForm(generators));
-    this.formSub = this.form.valueChanges
-      .pipe(
-        debounceTime(500),
-        switchMap(
-          (values) => this.columnService.patchApiColumnId(
-            {
-              id: this.column.id,
-              column: {
-                generator_name: this.column.generator_name,
-                generator_params: values
-              }
-            }
-          )
-        )
-      ).subscribe(
-        (column) => this.projectFacade.refreshList() // TODO
-      );
-  }
+  @Input() table: TableView;
+  @Input() column: ColumnView;
 
   form: FormGroup;
   generator: {
@@ -62,12 +30,16 @@ export class ParamFormComponent implements OnInit, OnDestroy {
 
   constructor(
     private generatorFacade: GeneratorFacadeService,
-    private columnService: ColumnService,
-    private fb: FormBuilder,
-    private projectFacade: ProjectFacadeService
+    private fb: FormBuilder
   ) { }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.genSub = this.generatorFacade.generators$
+      .subscribe((generators) => {
+        this.createForm(generators)
+        this.subscribeFormChanges();
+      });
+  }
 
   ngOnDestroy() {
     this.unsubscribe();
@@ -84,13 +56,13 @@ export class ParamFormComponent implements OnInit, OnDestroy {
 
   private createForm(generators: GeneratorListView) {
     this.generator = generators.items
-      .find((item) => item.name === this.column.generator_name);
+      .find((item) => item.name === this.column.generator_setting.name);
     const options = {};
     this.generator.param_list.forEach((param) => {
       options[param.name] = [null];
     });
-    if (this.column.generator_params) {
-      Object.entries(this.column.generator_params)
+    if (this.column.generator_setting.params) {
+      Object.entries(this.column.generator_setting.params)
         .forEach(([key, value]) => {
           if (options.hasOwnProperty(key)) {
             options[key] = [value];
@@ -98,6 +70,25 @@ export class ParamFormComponent implements OnInit, OnDestroy {
         });
     }
     this.form = this.fb.group(options);
+  }
+
+  private subscribeFormChanges() {
+    if (this.formSub) {
+      this.formSub.unsubscribe();
+    }
+    this.formSub = this.form.valueChanges
+      .pipe(
+        debounceTime(500),
+        switchMap(
+          (params) => this.generatorFacade
+            .patchParams(
+              this.table.id,
+              this.column.generator_setting,
+              {params: params}
+            )
+        )
+      )
+      .subscribe();
   }
 
   getInputType(param: {name?: string, value_type?: string}): string {
