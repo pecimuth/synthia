@@ -4,8 +4,9 @@ from typing import List, Iterable
 from core.model.data_source import DataSource
 from core.model.meta_column import MetaColumn
 from core.model.meta_table import MetaTable
-from core.service.column_generator import find_recommended_generator
+from core.service.column_generator import make_generator_instance_for_meta_column
 from core.service.data_source.identifier import Identifier, structure_to_identifiers
+from core.service.exception import SomeError
 
 
 class SchemaProvider(ABC):
@@ -21,12 +22,11 @@ class SchemaProvider(ABC):
 
     @classmethod
     def _set_recommended_generator(cls, meta_column: MetaColumn):
-        generator_factory = find_recommended_generator(meta_column)
-        if generator_factory is None:
-            return
-        meta_column.generator_name = generator_factory.name
-        generator = generator_factory(meta_column)
-        generator.estimate_params()
+        try:
+            generator_instance = make_generator_instance_for_meta_column(meta_column)
+            generator_instance.estimate_params()
+        except SomeError:
+            pass
 
     @classmethod
     def _set_recommended_generators_for_list(cls, table_list: List[MetaTable]):

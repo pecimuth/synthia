@@ -1,24 +1,28 @@
 from abc import ABC, abstractmethod
 from functools import reduce
 
-from typing import Iterator, Callable, Any
+from typing import Iterator, Callable, Any, Tuple
 
 from core.model.data_source import DataSource
-from core.service.data_source.identifier import Identifier
+from core.service.data_source.identifier import Identifiers
 
 
 class DataProvider(ABC):
-    def __init__(self, data_source: DataSource, idf: Identifier):
+    def __init__(self, data_source: DataSource, identifiers: Identifiers):
         self._data_source = data_source
-        self._idf = idf
+        self._identifiers = identifiers
 
     @abstractmethod
-    def column_data(self) -> Iterator:
+    def scalar_data(self) -> Iterator[Any]:
+        pass
+
+    @abstractmethod
+    def vector_data(self) -> Iterator[Tuple]:
         pass
 
     def reduce(self, function: Callable, initial: Any) -> Any:
         # TODO generic types
-        return reduce(function, self.column_data(), initial)
+        return reduce(function, self.scalar_data(), initial)
 
     def estimate_min(self):
         def safe_min(elem, seq):

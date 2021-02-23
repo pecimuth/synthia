@@ -29,7 +29,7 @@ class IntegerGenerator(ColumnGeneratorBase[int]):
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
         return meta_column.col_type == Types.INTEGER
 
-    def make_value(self, generated_database: GeneratedDatabase) -> int:
+    def make_scalar(self, generated_database: GeneratedDatabase) -> int:
         return random.randint(self._params['min'], self._params['max'])
 
     def _estimate_params_with_provider(self, provider: DataProvider):

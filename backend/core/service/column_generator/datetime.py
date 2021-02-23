@@ -14,5 +14,5 @@ class DatetimeGenerator(ColumnGeneratorBase[datetime.datetime]):
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
         return meta_column.col_type == Types.DATETIME
 
-    def make_value(self, generated_database: GeneratedDatabase) -> datetime.datetime:
+    def make_scalar(self, generated_database: GeneratedDatabase) -> datetime.datetime:
         return datetime.datetime.now()

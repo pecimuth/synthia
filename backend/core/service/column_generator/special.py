@@ -1,6 +1,7 @@
 import random
-from typing import Union
+from typing import Union, Any
 
+from core.model.generator_setting import GeneratorSetting
 from core.model.meta_column import MetaColumn
 from core.model.meta_constraint import MetaConstraint
 from core.service.column_generator.base import ColumnGeneratorBase
@@ -14,8 +15,8 @@ class PrimaryKeyGenerator(ColumnGeneratorBase[int]):
     only_for_type = Types.INTEGER
     is_database_generated = True
 
-    def __init__(self, meta_column: MetaColumn):
-        super().__init__(meta_column)
+    def __init__(self, generator_setting: GeneratorSetting):
+        super().__init__(generator_setting)
         self._counter = 0
 
     @classmethod
@@ -27,20 +28,20 @@ class PrimaryKeyGenerator(ColumnGeneratorBase[int]):
                 return True
         return False
 
-    def make_value(self,generated_database: GeneratedDatabase) -> int:
+    def make_scalar(self, generated_database: GeneratedDatabase) -> int:
         self._counter += 1
-        return  self._counter
+        return self._counter
 
 
-class ForeignKeyGenerator(ColumnGeneratorBase[int]):
+class ForeignKeyGenerator(ColumnGeneratorBase[Any]):
     name = 'foreign_key'
 
-    def __init__(self, meta_column: MetaColumn):
-        super().__init__(meta_column)
+    def __init__(self, generator_setting: GeneratorSetting):
+        super().__init__(generator_setting)
         self._fk_column: Union[MetaColumn, None] = None
-        for constraint in meta_column.constraints:
+        for constraint in self._meta_column.constraints:
             if constraint.constraint_type == MetaConstraint.FOREIGN:
-                index = constraint.constrained_columns.index(meta_column)
+                index = constraint.constrained_columns.index(self._meta_column)
                 self._fk_column = constraint.referenced_columns[index]
                 break
 
@@ -53,7 +54,7 @@ class ForeignKeyGenerator(ColumnGeneratorBase[int]):
                 return True
         return False
 
-    def make_value(self, generated_database: GeneratedDatabase) -> int:
+    def make_scalar(self, generated_database: GeneratedDatabase) -> Any:
         if generated_database.get_table_row_count(self._fk_column.table.name) <= 0:
             raise ColumnGeneratorError('impossible foreign key', self._meta_column)
         rows = generated_database.get_table(self._fk_column.table.name)

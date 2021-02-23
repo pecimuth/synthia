@@ -1,4 +1,4 @@
-from typing import List, Iterable
+from typing import List, Iterable, Tuple
 
 from core.model.meta_column import MetaColumn
 from core.model.meta_table import MetaTable
@@ -19,6 +19,9 @@ class Identifier:
 
     def __repr__(self):
         return '{}.{}'.format(self.table, self.column)
+
+
+Identifiers = List[Identifier]
 
 
 def identifier_from_string(idf: str):

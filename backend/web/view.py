@@ -19,13 +19,18 @@ class ColumnTableBriefView(Schema):
     name = Str()
 
 
+class GeneratorSettingView(Schema):
+    id = Integer()
+    name = Str()
+    params = Dict(keys=Str())
+
+
 class ColumnView(Schema):
     id = Integer()
     name = Str()
     col_type = Str()
     nullable = Bool()
-    generator_name = Str()
-    generator_params = Dict(keys=Str())
+    generator_setting = Nested(GeneratorSettingView())
 
 
 class ColumnWrite(Schema):

@@ -28,6 +28,7 @@ class DataSourceSchemaImport:
             if imported_table.name in self._table_by_name:
                 project_table = self._table_by_name[imported_table.name]
                 project_table.data_source = data_source
+                project_table.generator_settings = imported_table.generator_settings
                 project_table.constraints = imported_table.constraints
                 self._update_columns(project_table, imported_table)
             else:
@@ -92,8 +93,7 @@ class DataSourceSchemaImport:
         overwrite_attrs = [
             'col_type',
             'nullable',
-            'generator_name',
-            'generator_params',
+            'generator_setting',
             'data_source',
             'reflected_column_idf'
         ]

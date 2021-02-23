@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Index
 from sqlalchemy.orm import relationship
 from . import base
 from core.model.meta_column import MetaColumn
+from .generator_setting import GeneratorSetting
 from .meta_constraint import MetaConstraint
 
 
@@ -14,6 +15,8 @@ class MetaTable(base):
     project = relationship('Project', back_populates='tables')
 
     columns = relationship('MetaColumn', order_by=MetaColumn.id, back_populates='table')
+
+    generator_settings = relationship('GeneratorSetting', order_by=GeneratorSetting.id, back_populates='table')
 
     data_source_id = Column(Integer, ForeignKey('datasource.id', ondelete='SET NULL'))
     data_source = relationship('DataSource')

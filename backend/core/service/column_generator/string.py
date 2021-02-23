@@ -31,7 +31,7 @@ class StringGenerator(ColumnGeneratorBase[str]):
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
         return meta_column.col_type == Types.STRING
 
-    def make_value(self, generated_database: GeneratedDatabase) -> str:
+    def make_scalar(self, generated_database: GeneratedDatabase) -> str:
         length = random.randint(self._params['min_length'], self._params['max_length'])
         return self._random_string_of_length(length)
 

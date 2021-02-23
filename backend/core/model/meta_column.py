@@ -14,10 +14,14 @@ class MetaColumn(base):
     table_id = Column(Integer, ForeignKey('metatable.id', ondelete='CASCADE'))
     table = relationship('MetaTable', back_populates='columns')
 
-    constraints = relationship('MetaConstraint', secondary=ColumnConstraint.__table__, back_populates='constrained_columns')
+    constraints = relationship(
+        'MetaConstraint',
+        secondary=ColumnConstraint.__table__,
+        back_populates='constrained_columns'
+    )
 
-    generator_name = Column(String, nullable=True)
-    generator_params = Column(JSON, nullable=True)
+    generator_setting_id = Column(Integer, ForeignKey('generatorsetting.id', ondelete='SET NULL'))
+    generator_setting = relationship('GeneratorSetting', back_populates='columns')
 
     data_source_id = Column(Integer, ForeignKey('datasource.id', ondelete='SET NULL'))
     data_source = relationship('DataSource')

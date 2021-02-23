@@ -1,16 +1,17 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TypeVar, Generic, Union
+from typing import Union, List, Dict, Generic, TypeVar
 
+from core.model.generator_setting import GeneratorSetting
 from core.model.meta_column import MetaColumn
 from core.service.column_generator.params import normalized_params, ParamDict, ColumnGeneratorParamList
-from core.service.data_source.data_provider import create_data_provider
+from core.service.data_source.data_provider import DataProviderFactory
 from core.service.data_source.data_provider.base_provider import DataProvider
-from core.service.exception import SomeError
 from core.service.generation_procedure.database import GeneratedDatabase
 
 OutputType = TypeVar('OutputType')
+OutputDict = Dict[str, OutputType]
 
 
 class ColumnGeneratorBase(Generic[OutputType], ABC):
@@ -19,28 +20,45 @@ class ColumnGeneratorBase(Generic[OutputType], ABC):
     only_for_type: Union[str, None] = None
     param_list: ColumnGeneratorParamList = []
 
-    def __init__(self, meta_column: MetaColumn):
-        self._meta_column: MetaColumn = meta_column
-        self._meta_column.generator_params = \
-            normalized_params(self.param_list, self._meta_column.generator_params)
+    def __init__(self, generator_setting: GeneratorSetting):
+        assert generator_setting.name == self.name
+        self._generator_setting = generator_setting
+        self._generator_setting.params = \
+            normalized_params(self.param_list, self._generator_setting.params)
+
+    @classmethod
+    def create_setting_instance(cls) -> GeneratorSetting:
+        return GeneratorSetting(name=cls.name)
+
+    @property
+    def _meta_column(self) -> MetaColumn:
+        return self._generator_setting.columns[0]
 
     @property
     def _params(self) -> ParamDict:
-        return self._meta_column.generator_params
+        return self._generator_setting.params
+
+    @property
+    def _meta_columns(self) -> List[MetaColumn]:
+        return self._generator_setting.columns
 
     @classmethod
     @abstractmethod
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
         return False
 
-    def make_value(self, generated_database: GeneratedDatabase) -> OutputType:
-        pass
+    def make_scalar(self, generated_database: GeneratedDatabase) -> OutputType:
+        raise NotImplemented()
+
+    def make_dict(self, generated_database: GeneratedDatabase) -> OutputDict:
+        return {
+            meta_column.name: self.make_scalar(generated_database)
+            for meta_column in self._meta_columns
+        }
 
     def estimate_params(self):
-        data_source = self._meta_column.data_source
-        if data_source is None:
-            raise SomeError('cannot estimate parameters without a data source')
-        provider = create_data_provider(self._meta_column)
+        factory = DataProviderFactory(self._meta_columns)
+        provider = factory.find_provider()
         self._estimate_params_with_provider(provider)
 
     def _estimate_params_with_provider(self, provider: DataProvider):

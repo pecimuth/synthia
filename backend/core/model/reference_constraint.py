@@ -1,6 +1,4 @@
 from sqlalchemy import Column, ForeignKey, Integer, PrimaryKeyConstraint
-from sqlalchemy.orm import relationship
-
 from core.model import base
 
 
