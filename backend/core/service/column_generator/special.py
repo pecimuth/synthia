@@ -36,7 +36,6 @@ class PrimaryKeyGenerator(ColumnGeneratorBase[int]):
 
 class ForeignKeyGenerator(ColumnGeneratorBase[Any]):
     name = 'foreign_key'
-    supports_null = False
 
     def __init__(self, generator_setting: GeneratorSetting):
         super().__init__(generator_setting)
@@ -57,7 +56,10 @@ class ForeignKeyGenerator(ColumnGeneratorBase[Any]):
         return False
 
     def make_scalar(self, generated_database: GeneratedDatabase) -> Any:
-        if generated_database.get_table_row_count(self._fk_column.table.name) <= 0:
+        row_count = generated_database.get_table_row_count(self._fk_column.table.name)
+        if row_count <= 0:
+            if self._meta_column.nullable:
+                return None
             raise ColumnGeneratorError('impossible foreign key', self._meta_column)
         rows = generated_database.get_table(self._fk_column.table.name)
         row = random.choice(rows)

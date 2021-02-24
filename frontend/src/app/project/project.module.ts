@@ -35,6 +35,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { GeneratorChoiceComponent } from './table/generator-choice/generator-choice.component';
 import { ConstraintListComponent } from './table/constraint-list/constraint-list.component';
 import { NullFrequencyFieldComponent } from './table/null-frequency-field/null-frequency-field.component';
+import { MatMenuModule } from '@angular/material/menu';
 
 
 @NgModule({
@@ -76,7 +77,8 @@ import { NullFrequencyFieldComponent } from './table/null-frequency-field/null-f
     MatCheckboxModule,
     MatRadioModule,
     MatDialogModule,
-    MatButtonModule
+    MatButtonModule,
+    MatMenuModule
   ]
 })
 export class ProjectModule { }

@@ -11,14 +11,13 @@ class ConstraintChecker:
         self._database = database
         self._meta_table = meta_table
         self._unique_constraints: Tuple[MetaConstraint] = tuple(self._get_unique_constraints())
+        self._self_references: Tuple[MetaConstraint] = tuple(self._get_self_references())
         self._unique_tuples: Dict[int, Set[Tuple]] = {}
         self._prepare_unique_tuples()
         self._prepare_foreign_keys()
 
     def _get_unique_constraints(self) -> Iterable[MetaConstraint]:
-        for constraint in self._meta_table.constraints:
-            if constraint.constraint_type in (MetaConstraint.UNIQUE, MetaConstraint.PRIMARY):
-                yield constraint
+        return filter(self._is_unique_constraint, self._meta_table.constraints)
 
     def _prepare_unique_tuples(self):
         for constraint in self._unique_constraints:
@@ -34,6 +33,21 @@ class ConstraintChecker:
                 self._insert_tuple(row, constraint.id, constraint.referenced_columns)
 
     @classmethod
+    def _is_unique_constraint(cls, constraint: MetaConstraint) -> bool:
+        return constraint.constraint_type in (MetaConstraint.UNIQUE, MetaConstraint.PRIMARY)
+
+    def _is_self_reference(self, constraint: MetaConstraint) -> bool:
+        if constraint.constraint_type != MetaConstraint.FOREIGN:
+            return False
+        for ref_column in constraint.referenced_columns:
+            if ref_column.table_id != self._meta_table.id:
+                return False
+        return True
+
+    def _get_self_references(self) -> Iterable[MetaConstraint]:
+        return filter(self._is_self_reference, self._meta_table.constraints)
+
+    @classmethod
     def _collect_tuple(cls, row: GeneratedRow, columns: Iterable[MetaColumn]) -> Tuple:
         return tuple(row[column.name] for column in columns)
 
@@ -47,12 +61,18 @@ class ConstraintChecker:
         row_tuple = self._collect_tuple(row, columns)
         return row_tuple in unique_tuples
 
+    def _tuple_is_none(self, row: GeneratedRow, columns: Iterable[MetaColumn]) -> bool:
+        row_tuple = self._collect_tuple(row, columns)
+        return all(map(lambda elem: elem is None, row_tuple))
+
     def check_row(self, row: GeneratedRow) -> bool:
         for constraint in self._meta_table.constraints:
             if constraint.constraint_type == MetaConstraint.FOREIGN:
-                return self._tuple_exists(row, constraint.id, constraint.constrained_columns)
-            elif constraint.constraint_type in (MetaConstraint.UNIQUE, MetaConstraint.PRIMARY):
-                return not self._tuple_exists(row, constraint.id, constraint.constrained_columns)
+                return self._tuple_is_none(row, constraint.constrained_columns) or \
+                       self._tuple_exists(row, constraint.id, constraint.constrained_columns)
+            elif self._is_unique_constraint(constraint):
+                return self._tuple_is_none(row, constraint.constrained_columns) \
+                    or not self._tuple_exists(row, constraint.id, constraint.constrained_columns)
         for meta_column in self._meta_table.columns:
             if not meta_column.nullable and row[meta_column.name] is None:
                 return False
@@ -61,3 +81,5 @@ class ConstraintChecker:
     def register_row(self, row: GeneratedRow):
         for constraint in self._unique_constraints:
             self._insert_tuple(row, constraint.id, constraint.constrained_columns)
+        for constraint in self._self_references:
+            self._insert_tuple(row, constraint.id, constraint.referenced_columns)

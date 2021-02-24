@@ -70,6 +70,10 @@ class ColumnGeneratorBase(Generic[OutputType], ABC):
     def estimate_params(self):
         factory = DataProviderFactory(self._meta_columns)
         provider = factory.find_provider()
+        if self.supports_null:
+            estimate = provider.estimate_null_frequency()
+            if estimate is not None:
+                self._generator_setting.null_frequency = estimate
         self._estimate_params_with_provider(provider)
 
     def _estimate_params_with_provider(self, provider: DataProvider):

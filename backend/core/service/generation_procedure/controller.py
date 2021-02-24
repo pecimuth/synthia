@@ -4,7 +4,7 @@ from sqlalchemy import Table
 
 from core.model.meta_table import MetaTable
 from core.model.project import Project
-from core.service.column_generator import make_generator_instances_for_table, ColumnGeneratorPairs
+from core.service.column_generator import make_generator_instances_for_table, GeneratorList
 from core.service.deserializer import StructureDeserializer
 from core.service.exception import SomeError
 from core.service.generation_procedure.constraint_checker import ConstraintChecker
@@ -68,9 +68,10 @@ class ProcedureController:
             table_db.append(row)
             checker.register_row(row)
 
-    def _make_row(self, generators: ColumnGeneratorPairs) -> GeneratedRow:
+    def _make_row(self, generators: GeneratorList) -> GeneratedRow:
         row: GeneratedRow = {}
-        for meta_column, generator in generators:
+        for generator in generators:
             if not generator.is_database_generated or not self._output_driver.is_interactive:
-                row[meta_column.name] = generator.make_scalar_or_null(self._database)
+                generated = generator.make_dict(self._database)
+                row.update(generated)
         return row

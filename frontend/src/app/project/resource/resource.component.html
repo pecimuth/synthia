@@ -1,21 +1,29 @@
 <mat-card class="margin resource-card" *ngIf="dataSource">
   <mat-card-header class="row justify-space-between">
-    <mat-card-title class="margin-top">
+    <mat-card-title class="margin-top text-width-limit">
       {{ dataSource.file_name || dataSource.db }}
     </mat-card-title>
     <mat-card-subtitle>
       {{ dataSource.driver || dataSource.mime_type }}
     </mat-card-subtitle>
-    <div class="margin-right">
-      <button *ngIf="dataSource.driver && !dataSource.file_name" mat-icon-button aria-label="Edit database login">
-        <mat-icon>edit</mat-icon>
+    <div>
+      <button mat-icon-button [matMenuTriggerFor]="resourceContext">
+        <mat-icon>more_vert</mat-icon>
       </button>
-      <button *ngIf="dataSource.file_name" mat-icon-button aria-label="Download file">
-        <mat-icon>download</mat-icon>
-      </button>
-      <button mat-icon-button aria-label="Delete resource" (click)="resourceService.delete(dataSource.id)">
-        <mat-icon>delete</mat-icon>
-      </button>
+      <mat-menu #resourceContext="matMenu">
+        <button *ngIf="dataSource.driver && !dataSource.file_name" mat-menu-item>
+          <mat-icon>edit</mat-icon>
+          Edit
+        </button>
+        <button *ngIf="dataSource.file_name" mat-menu-item>
+          <mat-icon>download</mat-icon>
+          Download
+        </button>
+        <button mat-menu-item (click)="resourceService.delete(dataSource.id)">
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
+      </mat-menu>
     </div>
   </mat-card-header>
 

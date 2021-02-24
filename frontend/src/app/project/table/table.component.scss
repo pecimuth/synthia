@@ -10,7 +10,6 @@
   width: 150px;
   display: flex;
   flex-direction: row;
-  //justify-content: space-between;
   margin-top: 10px;
   margin-bottom: 10px;
   cursor: pointer;
@@ -22,4 +21,8 @@
 
 .first-column:hover button {
   display: block;
+}
+
+.mat-card-content {
+  overflow-x: auto;
 }

@@ -93,9 +93,10 @@ def patch_generator_setting(generator_setting: GeneratorSetting):
     # TODO normalize params
     generator_setting.params = new_params
     null_frequency = request.json.get('null_frequency')
-    if null_frequency is None or null_frequency < 0 or null_frequency > 1:
-        null_frequency = 0
-    generator_setting.null_frequency = null_frequency
+    if null_frequency is not None:
+        if null_frequency < 0 or null_frequency > 1:
+            null_frequency = 0
+        generator_setting.null_frequency = null_frequency
 
     if generator_setting.columns:
         # TODO support several columns

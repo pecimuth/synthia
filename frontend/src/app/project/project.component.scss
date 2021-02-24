@@ -3,5 +3,9 @@
 }
 
 .sidenav-container {
-  min-height: 100%;
+  position: absolute;
+  top: 164px;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
