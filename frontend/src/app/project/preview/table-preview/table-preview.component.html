@@ -1,11 +1,15 @@
-<mat-card class="margin table-card" *ngIf="table && preview">
+<mat-card class="margin" *ngIf="table && preview">
   <mat-card-header>
     <mat-card-title>{{ table.name }}</mat-card-title>
   </mat-card-header>
-  <table mat-table [dataSource]="preview" class="full-width">
+  <table mat-table [dataSource]="preview">
     <ng-container *ngFor="let column of table.columns" [matColumnDef]="column.name">
-      <th mat-header-cell *matHeaderCellDef>{{ column.name }}</th>
-      <td mat-cell *matCellDef="let row">{{ row[column.name] }}</td>
+      <th mat-header-cell *matHeaderCellDef>
+        <div class="margin-right">{{ column.name }}</div>
+      </th>
+      <td mat-cell *matCellDef="let row">
+        <div class="text-width-limit margin-right">{{ row[column.name] }}</div>
+      </td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

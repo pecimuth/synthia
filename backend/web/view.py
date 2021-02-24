@@ -1,5 +1,5 @@
 from marshmallow import Schema
-from marshmallow.fields import Integer, Str, Nested, List, Bool, Dict, Raw
+from marshmallow.fields import Integer, Str, Nested, List, Bool, Dict, Raw, Float
 from marshmallow.validate import OneOf
 
 
@@ -23,11 +23,13 @@ class GeneratorSettingView(Schema):
     id = Integer()
     name = Str()
     params = Dict(keys=Str())
+    null_frequency = Float()
 
 
 class GeneratorSettingWrite(Schema):
     name = Str()
     params = Dict(keys=Str(), allow_none=True)
+    null_frequency = Float(allow_none=True)
 
 
 class ColumnView(Schema):
@@ -104,6 +106,7 @@ class GeneratorParam(Schema):
 class GeneratorView(Schema):
     name = Str()
     only_for_type = Str()
+    supports_null = Bool()
     param_list = List(Nested(GeneratorParam()))
 
 

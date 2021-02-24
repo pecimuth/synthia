@@ -53,6 +53,9 @@ class ConstraintChecker:
                 return self._tuple_exists(row, constraint.id, constraint.constrained_columns)
             elif constraint.constraint_type in (MetaConstraint.UNIQUE, MetaConstraint.PRIMARY):
                 return not self._tuple_exists(row, constraint.id, constraint.constrained_columns)
+        for meta_column in self._meta_table.columns:
+            if not meta_column.nullable and row[meta_column.name] is None:
+                return False
         return True
 
     def register_row(self, row: GeneratedRow):

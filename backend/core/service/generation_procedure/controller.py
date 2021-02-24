@@ -72,5 +72,5 @@ class ProcedureController:
         row: GeneratedRow = {}
         for meta_column, generator in generators:
             if not generator.is_database_generated or not self._output_driver.is_interactive:
-                row[meta_column.name] = generator.make_scalar(self._database)
+                row[meta_column.name] = generator.make_scalar_or_null(self._database)
         return row

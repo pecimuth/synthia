@@ -1,5 +1,5 @@
 <ng-container *ngIf="project">
-  <app-table *ngFor="let table of project.tables" [table]="table"></app-table>
+  <app-table *ngFor="let table of project.tables; trackBy: trackById" [table]="table"></app-table>
 </ng-container>
 
 <mat-card class="margin table-card">

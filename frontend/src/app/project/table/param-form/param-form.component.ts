@@ -55,6 +55,9 @@ export class ParamFormComponent implements OnInit, OnDestroy {
   }
 
   private createForm(generators: GeneratorListView) {
+    if (!this.column.generator_setting) {
+      this.form = undefined;
+    }
     this.generator = generators.items
       .find((item) => item.name === this.column.generator_setting.name);
     const options = {};
@@ -78,7 +81,7 @@ export class ParamFormComponent implements OnInit, OnDestroy {
     }
     this.formSub = this.form.valueChanges
       .pipe(
-        debounceTime(500),
+        debounceTime(3000),
         switchMap(
           (params) => this.generatorFacade
             .patchParams(
@@ -92,6 +95,9 @@ export class ParamFormComponent implements OnInit, OnDestroy {
   }
 
   getInputType(param: {name?: string, value_type?: string}): string {
-    return (param.value_type === 'integer') ? 'number' : 'text';
+    if (param.value_type === 'integer' || param.value_type == 'float') {
+      return 'number';
+    }
+    return 'text';
   }
 }

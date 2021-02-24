@@ -34,6 +34,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatDialogModule } from '@angular/material/dialog';
 import { GeneratorChoiceComponent } from './table/generator-choice/generator-choice.component';
 import { ConstraintListComponent } from './table/constraint-list/constraint-list.component';
+import { NullFrequencyFieldComponent } from './table/null-frequency-field/null-frequency-field.component';
 
 
 @NgModule({
@@ -51,7 +52,8 @@ import { ConstraintListComponent } from './table/constraint-list/constraint-list
     TableCountComponent,
     OutputChoiceComponent,
     GeneratorChoiceComponent,
-    ConstraintListComponent
+    ConstraintListComponent,
+    NullFrequencyFieldComponent
   ],
   imports: [
     CommonModule,

@@ -12,7 +12,7 @@ import { GeneratorChoiceComponent } from './generator-choice/generator-choice.co
 export class TableComponent implements OnInit {
 
   @Input() table: TableView;
-  displayedColumns = ['column', 'generator', 'parameters', 'action'];
+  displayedColumns = ['column', 'generator', 'parameters', 'null_frequency'];
 
   constructor(
     private dialog: MatDialog,
@@ -29,6 +29,4 @@ export class TableComponent implements OnInit {
       }
     });
   }
-
-  trackById = (index: number, item: ColumnView) => item.id;
 }

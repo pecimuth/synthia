@@ -6,6 +6,7 @@ from core.model.meta_column import MetaColumn
 from core.model.meta_constraint import MetaConstraint
 from core.model.meta_table import MetaTable
 from core.model.project import Project
+from core.service.data_source.identifier import Identifier
 from core.service.types import get_sql_alchemy_type
 
 
@@ -46,7 +47,7 @@ class StructureDeserializer:
                 for meta_column in meta_constraint.constrained_columns
             ]
             referenced_columns = [
-                '{}.{}'.format(meta_column.table.name, meta_column.name)
+                repr(Identifier(meta_column.table.name, meta_column.name))
                 for meta_column in meta_constraint.referenced_columns
             ]
             constraint = ForeignKeyConstraint(

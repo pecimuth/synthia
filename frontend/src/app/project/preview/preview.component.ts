@@ -7,7 +7,7 @@ import { TableCountsWrite } from 'src/app/api/models/table-counts-write';
 import { ProjectService } from 'src/app/api/services';
 import { ActiveProjectService } from '../service/active-project.service';
 
-const N_PREVIEW_ROWS = 10;
+const N_PREVIEW_ROWS = 5;
 @Component({
   selector: 'app-preview',
   templateUrl: './preview.component.html',

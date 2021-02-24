@@ -12,6 +12,7 @@ from core.service.types import Types
 
 class PrimaryKeyGenerator(ColumnGeneratorBase[int]):
     name = 'primary_key'
+    supports_null = False
     only_for_type = Types.INTEGER
     is_database_generated = True
 
@@ -35,6 +36,7 @@ class PrimaryKeyGenerator(ColumnGeneratorBase[int]):
 
 class ForeignKeyGenerator(ColumnGeneratorBase[Any]):
     name = 'foreign_key'
+    supports_null = False
 
     def __init__(self, generator_setting: GeneratorSetting):
         super().__init__(generator_setting)

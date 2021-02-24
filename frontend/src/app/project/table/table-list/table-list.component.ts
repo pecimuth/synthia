@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ProjectView } from 'src/app/api/models/project-view';
+import { TableView } from 'src/app/api/models/table-view';
 import { ActiveProjectService } from '../../service/active-project.service';
 
 @Component({
@@ -28,4 +29,6 @@ export class TableListComponent implements OnInit, OnDestroy {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
   }
+
+  trackById = (index: number, item: TableView) => item.id;
 }

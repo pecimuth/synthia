@@ -1,0 +1,8 @@
+<mat-form-field class="mini-input" *ngIf="show">
+  <input
+    matInput
+    type="number"
+    [value]="column.generator_setting.null_frequency * 100"
+    (keyup)="nextValue($event.target.value)">
+  <span matSuffix>%</span>
+</mat-form-field>

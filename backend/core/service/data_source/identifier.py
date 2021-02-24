@@ -1,4 +1,4 @@
-from typing import List, Iterable, Tuple
+from typing import List, Iterable
 
 from core.model.meta_column import MetaColumn
 from core.model.meta_table import MetaTable

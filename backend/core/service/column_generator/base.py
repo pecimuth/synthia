@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 from abc import ABC, abstractmethod
 from typing import Union, List, Dict, Generic, TypeVar
 
@@ -11,13 +12,14 @@ from core.service.data_source.data_provider.base_provider import DataProvider
 from core.service.generation_procedure.database import GeneratedDatabase
 
 OutputType = TypeVar('OutputType')
-OutputDict = Dict[str, OutputType]
+OutputDict = Dict[str, Union[OutputType, None]]
 
 
 class ColumnGeneratorBase(Generic[OutputType], ABC):
     name: str
     is_database_generated = False
     only_for_type: Union[str, None] = None
+    supports_null = True
     param_list: ColumnGeneratorParamList = []
 
     def __init__(self, generator_setting: GeneratorSetting):
@@ -42,17 +44,26 @@ class ColumnGeneratorBase(Generic[OutputType], ABC):
     def _meta_columns(self) -> List[MetaColumn]:
         return self._generator_setting.columns
 
+    @property
+    def _null_frequency(self) -> float:
+        return self._generator_setting.null_frequency
+
     @classmethod
     @abstractmethod
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
         return False
+
+    def make_scalar_or_null(self, generated_database: GeneratedDatabase) -> Union[OutputType, None]:
+        if self.supports_null and random.random() < self._null_frequency:
+            return None
+        return self.make_scalar(generated_database)
 
     def make_scalar(self, generated_database: GeneratedDatabase) -> OutputType:
         raise NotImplemented()
 
     def make_dict(self, generated_database: GeneratedDatabase) -> OutputDict:
         return {
-            meta_column.name: self.make_scalar(generated_database)
+            meta_column.name: self.make_scalar_or_null(generated_database)
             for meta_column in self._meta_columns
         }
 

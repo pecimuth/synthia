@@ -1,4 +1,25 @@
-.mat-chip-small {
-    padding: 4px 9px !important;
-    font-size: 12px !important;
+.narrow-column {
+  width: 150px;
+}
+
+.wide-column {
+  width: 380px;
+}
+
+.first-column {
+  width: 150px;
+  display: flex;
+  flex-direction: row;
+  //justify-content: space-between;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.first-column button {
+  display: none;
+}
+
+.first-column:hover button {
+  display: block;
 }

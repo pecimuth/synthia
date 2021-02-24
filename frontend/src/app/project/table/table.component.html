@@ -15,12 +15,17 @@
     <ng-container matColumnDef="column">
       <th mat-header-cell *matHeaderCellDef>Column</th>
       <td mat-cell *matCellDef="let column">
-        <div class="margin-top margin-bottom margin-right">
-          <div>{{ column.name }}</div>
-          <small>
-            {{ column.col_type | lowercase }}
-            <span *ngIf="column.nullable">nullable</span>
-          </small>
+        <div class="first-column">
+          <button mat-icon-button aria-label="Delete column">
+            <mat-icon>close</mat-icon>
+          </button>
+          <div class="margin-right">
+            <div>{{ column.name }}</div>
+            <small>
+              {{ column.col_type | lowercase }}
+              <span *ngIf="column.nullable">nullable</span>
+            </small>
+          </div>
         </div>
       </td>
     </ng-container>
@@ -28,7 +33,7 @@
     <ng-container matColumnDef="generator">
       <th mat-header-cell *matHeaderCellDef>Generator</th>
       <td mat-cell *matCellDef="let column">
-        <div class="margin-right">
+        <div class="margin-right narrow-column">
           <button mat-button
             *ngIf="column.generator_setting as setting"
             (click)="chooseGenerator(column)">
@@ -46,18 +51,18 @@
     <ng-container matColumnDef="parameters">
       <th mat-header-cell *matHeaderCellDef>Parameters</th>
       <td mat-cell *matCellDef="let column">
-        <div class="margin-right">
+        <div class="margin-right wide-column">
           <app-param-form [table]="table" [column]="column"></app-param-form>
         </div>
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="action">
-      <th mat-header-cell *matHeaderCellDef class="text-right">Action</th>
-      <td mat-cell *matCellDef="let column" class="text-right">
-        <button mat-icon-button aria-label="Delete column">
-          <mat-icon>remove</mat-icon>
-        </button>
+    <ng-container matColumnDef="null_frequency">
+      <th mat-header-cell *matHeaderCellDef>Null Frequency</th>
+      <td mat-cell *matCellDef="let column">
+        <div class="mini-input" *ngIf="column.generator_setting">
+          <app-null-frequency-field [table]="table" [column]="column"></app-null-frequency-field>
+        </div>
       </td>
     </ng-container>
 

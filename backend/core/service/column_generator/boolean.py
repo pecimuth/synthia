@@ -31,6 +31,8 @@ class BernoulliGenerator(ColumnGeneratorBase[bool]):
         samples = 2
         successes = 1
         for sample in provider.scalar_data():
+            if sample is None:
+                continue
             samples += 1
             successes += bool(sample)
         self._params['success_probability'] = successes / samples
