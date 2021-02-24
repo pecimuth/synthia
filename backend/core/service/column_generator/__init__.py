@@ -27,12 +27,15 @@ def find_recommended_generator(meta_column: MetaColumn) -> Union[Type[ColumnGene
 def make_generator_instance_for_meta_column(meta_column: MetaColumn) -> ColumnGeneratorBase:
     if meta_column.generator_setting is None:
         generator_factory = find_recommended_generator(meta_column)
-        meta_column.generator_setting = generator_factory.create_setting_instance()
+        if generator_factory is None:
+            raise ColumnGeneratorError('no suitable generator found', meta_column)
+        generator_setting = generator_factory.create_setting_instance()
+        meta_column.generator_setting = generator_setting
+        generator_setting.table = meta_column.table
     else:
         generator_factory = get_generator_by_name(meta_column.generator_setting.name)
-
-    if generator_factory is None:
-        raise ColumnGeneratorError('no suitable generator found', meta_column)
+        if generator_factory is None:
+            raise ColumnGeneratorError('invalid generator name', meta_column)
     return generator_factory(meta_column.generator_setting)
 
 

@@ -245,8 +245,9 @@ def delete_data_source(data_source: DataSource):
 })
 def import_data_source_schema(data_source: DataSource):
     schema_import = DataSourceSchemaImport(data_source.project)
-    schema_import.import_schema(data_source)
-    get_db_session().commit()
+    db_session = get_db_session()
+    schema_import.import_schema(data_source, db_session)
+    db_session.commit()
     return ProjectView().dump(data_source.project)
 
 

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Index, JSON
+from sqlalchemy import Column, Integer, String, ForeignKey, Index
 from sqlalchemy.orm import relationship
 
 from core.model import base
@@ -23,13 +23,13 @@ class MetaConstraint(base):
     constrained_columns = relationship(
         'MetaColumn',
         secondary=ColumnConstraint.__table__,
-        order_by=ColumnConstraint.__table__.c.column_order,
+        order_by=ColumnConstraint.__table__.c.id,
         back_populates='constraints'
     )
     referenced_columns = relationship(
         'MetaColumn',
         secondary=ReferenceConstraint.__table__,
-        order_by=ReferenceConstraint.__table__.c.column_order
+        order_by=ReferenceConstraint.__table__.c.id
     )
     check_expression = Column(String, nullable=True)
 

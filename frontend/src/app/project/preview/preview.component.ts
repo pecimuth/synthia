@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
-import { switchMap, takeUntil } from 'rxjs/operators';
+import { filter, switchMap, takeUntil } from 'rxjs/operators';
 import { PreviewView } from 'src/app/api/models/preview-view';
 import { ProjectView } from 'src/app/api/models/project-view';
 import { TableCountsWrite } from 'src/app/api/models/table-counts-write';
@@ -29,6 +29,7 @@ export class PreviewComponent implements OnInit {
     this.activeProject.project$
       .pipe(
         takeUntil(this.unsubscribe$),
+        filter((project) => !!project),
         switchMap((project) => {
           this.project = project;
           return this.projectService.postApiProjectIdPreview({
