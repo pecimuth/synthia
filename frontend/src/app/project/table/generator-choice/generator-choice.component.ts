@@ -1,17 +1,17 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
+import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { ColumnView } from 'src/app/api/models/column-view';
-import { GeneratorListView } from 'src/app/api/models/generator-list-view';
 import { GeneratorSettingView } from 'src/app/api/models/generator-setting-view';
 import { TableView } from 'src/app/api/models/table-view';
-import { GeneratorFacadeService } from 'src/app/project/service/generator-facade.service';
+import { GeneratorFacadeService, GeneratorView } from 'src/app/project/service/generator-facade.service';
+import { ActiveProjectService } from '../../service/active-project.service';
 import { ColumnFacadeService } from '../../service/column-facade.service';
 
-
 export interface GeneratorChoiceInput {
-  column: ColumnView,
-  table: TableView
+  columnId: number,
+  tableId: number
 }
 
 @Component({
@@ -21,52 +21,70 @@ export interface GeneratorChoiceInput {
 })
 export class GeneratorChoiceComponent implements OnInit, OnDestroy {
 
-  generators: GeneratorListView;
-  private generatorSubscription: Subscription;
+  column: ColumnView;
+  table: TableView;
+  generators: GeneratorView[];
+  private unsubscribe$ = new Subject();
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: GeneratorChoiceInput,
     private dialogRef: MatDialogRef<GeneratorChoiceComponent>,
     private generatorFacade: GeneratorFacadeService,
-    private columnFacade: ColumnFacadeService
+    private columnFacade: ColumnFacadeService,
+    private activeProject: ActiveProjectService
   ) { }
 
   ngOnInit(): void {
-    this.generatorSubscription = this.generatorFacade.generators$
+    this.activeProject.getTableColumn(this.data.tableId, this.data.columnId)
+      .pipe(
+        takeUntil(this.unsubscribe$),
+        tap(([table, column]) => {
+          this.table = table;
+          this.column = column;
+        }),
+        switchMap(([table, column]) => {
+          return this.generatorFacade.getGeneratorsForColumn(column);
+        })
+      )
       .subscribe(
-        (generators) => this.filterGenerators(generators)
+        (generators) => this.generators = generators
       );
   }
 
   ngOnDestroy() {
-    this.unsubscribe();
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   selectSetting(setting: GeneratorSettingView) {
-    this.columnFacade.setColumnGeneratorSetting(
-      this.data.table,
-      this.data.column,
-      setting
-    ).subscribe(() => this.dialogRef.close());
+    this.columnFacade
+      .setColumnGeneratorSetting(
+        this.table.id,
+        this.column,
+        setting
+      )
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe(() => this.dialogRef.close());
   }
 
-  private unsubscribe() {
-    if (this.generatorSubscription) {
-      this.generatorSubscription.unsubscribe();
-    }
+  deleteSetting(setting: GeneratorSettingView) {
+    this.generatorFacade
+      .deleteSetting(
+        this.table.id,
+        setting
+      )
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe();
   }
 
-  private filterGenerators(generators: GeneratorListView) {
-    const filteredItems = generators.items.filter(
-      (generator) => {
-        if (!this.data.column?.col_type || !generator.only_for_type) {
-          return true;
-        }
-        return this.data.column.col_type === generator.only_for_type;
-      }
-    );
-    this.generators = {
-      items: filteredItems
-    };
+  createSetting(generator: GeneratorView) {
+    this.generatorFacade
+      .createSetting(
+        this.table.id,
+        this.column.id,
+        generator
+      )
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe();
   }
 }

@@ -1,13 +1,14 @@
-<h2>{{ data.table.name }}.{{ data.column.name }}</h2>
+<h2 *ngIf="table && column">{{ table.name }}.{{ column.name }}</h2>
 
-<div *ngIf="data.table.generator_settings as settings" class="margin-bottom">
+<div *ngIf="table?.generator_settings as settings" class="margin-bottom">
   <h3>Existing generator</h3>
   <mat-chip-list>
     <mat-chip *ngFor="let setting of settings"
       removable
-      [selected]="setting.id === data.column?.generator_setting?.id"
+      [selected]="setting.id === column?.generator_setting?.id"
       (click)="selectSetting(setting)"
-      style="cursor: pointer;">
+      (removed)="deleteSetting(setting)"
+      class="cursor-pointer">
       {{ setting.name }} ({{ setting.id }})
       <mat-icon matChipRemove>cancel</mat-icon>
     </mat-chip>
@@ -17,7 +18,10 @@
 <div *ngIf="generators" class="margin-bottom">
   <h3>New generator</h3>
   <mat-chip-list>
-    <mat-chip selectable *ngFor="let generator of generators.items" style="cursor: pointer;">
+    <mat-chip *ngFor="let generator of generators"
+      selectable 
+      (click)="createSetting(generator)"
+      class="cursor-pointer">
       {{ generator.name }}
     </mat-chip>
   </mat-chip-list>

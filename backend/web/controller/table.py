@@ -9,7 +9,7 @@ from web.controller.auth import login_required
 from web.controller.util import TOKEN_SECURITY, BAD_REQUEST_SCHEMA, find_user_meta_table, TABLE_NOT_FOUND, \
     bad_request, OK_REQUEST_SCHEMA, ok_request, find_user_project, PROJECT_NOT_FOUND, validate_json
 from web.service.database import get_db_session
-from web.view import TableWrite, TableView, TableCreate
+from web.view.table import TableWrite, TableView, TableCreate
 
 table = Blueprint('table', __name__, url_prefix='/api')
 

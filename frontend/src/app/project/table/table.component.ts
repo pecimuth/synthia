@@ -24,8 +24,8 @@ export class TableComponent implements OnInit {
   chooseGenerator(column: ColumnView) {
     this.dialog.open(GeneratorChoiceComponent, {
       data: {
-        column: column,
-        table: this.table
+        columnId: column.id,
+        tableId: this.table.id
       }
     });
   }

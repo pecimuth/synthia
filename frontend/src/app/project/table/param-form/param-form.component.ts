@@ -1,11 +1,13 @@
 import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import { ColumnView } from 'src/app/api/models/column-view';
-import { GeneratorFacadeService } from 'src/app/project/service/generator-facade.service';
+import { GeneratorFacadeService, GeneratorView } from 'src/app/project/service/generator-facade.service';
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { Subscription } from 'rxjs';
-import { GeneratorListView } from 'src/app/api/models/generator-list-view';
-import { switchMap, debounceTime } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { switchMap, debounceTime, takeUntil, tap } from 'rxjs/operators';
 import { TableView } from 'src/app/api/models/table-view';
+import { GeneratorSettingView } from 'src/app/api/models/generator-setting-view';
+
+const TYPE_DEBOUNCE_MS = 3000;
 
 @Component({
   selector: 'app-param-form',
@@ -18,15 +20,8 @@ export class ParamFormComponent implements OnInit, OnDestroy {
   @Input() column: ColumnView;
 
   form: FormGroup;
-  generator: {
-    name?: string;
-    param_list?: {
-      name?: string;
-      value_type?: string;
-    }[];
-  };
-  private genSub: Subscription;
-  private formSub: Subscription;
+  generator: GeneratorView;
+  private unsubscribe$ = new Subject();
 
   constructor(
     private generatorFacade: GeneratorFacadeService,
@@ -34,37 +29,38 @@ export class ParamFormComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.genSub = this.generatorFacade.generators$
-      .subscribe((generators) => {
-        this.createForm(generators)
-        this.subscribeFormChanges();
-      });
+    const generatorName = this.column?.generator_setting?.name;
+    if (!generatorName) {
+      return;
+    }
+    this.generatorFacade.getGeneratorByName(generatorName)
+      .pipe(
+        takeUntil(this.unsubscribe$),
+        tap((generator) => {
+          this.generator = generator;
+          this.createForm();
+        }),
+        switchMap(() => this.handleFormChanges())
+      )
+      .subscribe();
   }
 
   ngOnDestroy() {
-    this.unsubscribe();
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
-  private unsubscribe() {
-    if (this.genSub) {
-      this.genSub.unsubscribe();
-    }
-    if (this.formSub) {
-      this.formSub.unsubscribe();
-    }
-  }
 
-  private createForm(generators: GeneratorListView) {
-    if (!this.column.generator_setting) {
+  private createForm() {
+    if (!this.generator) {
       this.form = undefined;
+      return;
     }
-    this.generator = generators.items
-      .find((item) => item.name === this.column.generator_setting.name);
     const options = {};
     this.generator.param_list.forEach((param) => {
       options[param.name] = [null];
     });
-    if (this.column.generator_setting.params) {
+    if (this.column?.generator_setting?.params) {
       Object.entries(this.column.generator_setting.params)
         .forEach(([key, value]) => {
           if (options.hasOwnProperty(key)) {
@@ -75,13 +71,10 @@ export class ParamFormComponent implements OnInit, OnDestroy {
     this.form = this.fb.group(options);
   }
 
-  private subscribeFormChanges() {
-    if (this.formSub) {
-      this.formSub.unsubscribe();
-    }
-    this.formSub = this.form.valueChanges
+  private handleFormChanges(): Observable<GeneratorSettingView> {
+    return this.form.valueChanges
       .pipe(
-        debounceTime(3000),
+        debounceTime(TYPE_DEBOUNCE_MS),
         switchMap(
           (params) => this.generatorFacade
             .patchParams(
@@ -90,8 +83,7 @@ export class ParamFormComponent implements OnInit, OnDestroy {
               {params: params}
             )
         )
-      )
-      .subscribe();
+      );
   }
 
   getInputType(param: {name?: string, value_type?: string}): string {

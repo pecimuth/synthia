@@ -11,38 +11,33 @@ from core.model.meta_column import MetaColumn
 from core.model.meta_table import MetaTable
 from core.model.project import Project
 from web.controller.util import bad_request, INVALID_INPUT, TOKEN_SECURITY, BAD_REQUEST_SCHEMA, COLUMN_NOT_FOUND, \
-    find_user_meta_table, TABLE_NOT_FOUND, OK_REQUEST_SCHEMA, ok_request, validate_json
+    find_user_meta_table, TABLE_NOT_FOUND, OK_REQUEST_SCHEMA, ok_request, validate_json, patch_all_from_json, \
+    patch_from_json
 from web.service.database import get_db_session
-from web.view import ColumnWrite, ColumnView, ColumnCreate
+from web.view.column import ColumnWrite, ColumnView, ColumnCreate
 
 column = Blueprint('column', __name__, url_prefix='/api')
 
 
-def validate_setting_id(meta_table: MetaTable, generator_setting_id: int) -> bool:
+def validate_setting_id(meta_column: MetaColumn) -> bool:
     # make sure that the generator setting points to the correct table
-    # could be handled by the database too
     db_session = get_db_session()
     try:
         db_session.query(GeneratorSetting).\
             filter(
-                GeneratorSetting.id == generator_setting_id,
-                GeneratorSetting.table == meta_table
+                GeneratorSetting.id == meta_column.generator_setting_id,
+                GeneratorSetting.table == meta_column.table
             ).one()
     except NoResultFound:
         return False
     return True
 
 
-def try_patch_column(meta_column: MetaColumn, request_json) -> bool:
-    generator_setting_id = request_json.get('generator_setting_id')
-    if generator_setting_id is not None and \
-       not validate_setting_id(meta_column.table, generator_setting_id):
+def try_patch_column(meta_column: MetaColumn) -> bool:
+    if patch_from_json(meta_column, 'generator_setting_id') and \
+       not validate_setting_id(meta_column):
         return False
-
-    meta_column.generator_setting_id = generator_setting_id
-    meta_column.name = request_json['name']
-    meta_column.col_type = request_json['col_type']
-    meta_column.nullable = request_json['nullable']
+    patch_all_from_json(meta_column, ['name', 'col_type', 'nullable'])
 
     generator_instance = make_generator_instance_for_meta_column(meta_column)
     if meta_column.data_source is not None:
@@ -80,7 +75,7 @@ def create_column():
         return bad_request(TABLE_NOT_FOUND)
 
     meta_column = MetaColumn(table=meta_table)
-    if not try_patch_column(meta_column, request.json):
+    if not try_patch_column(meta_column):
         return bad_request(INVALID_INPUT)
 
     db_session = get_db_session()
@@ -140,7 +135,7 @@ def with_column_by_id(view):
     }
 })
 def patch_column(meta_column: MetaColumn):
-    if not try_patch_column(meta_column, request.json):
+    if not try_patch_column(meta_column):
         return bad_request(INVALID_INPUT)
     db_session = get_db_session()
     db_session.commit()

@@ -1,9 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Subject, Subscription } from 'rxjs';
-import { debounceTime, switchMap } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { debounceTime, switchMap, takeUntil } from 'rxjs/operators';
 import { ColumnView } from 'src/app/api/models/column-view';
 import { TableView } from 'src/app/api/models/table-view';
 import { GeneratorFacadeService } from '../../service/generator-facade.service';
+
+const TYPE_DEBOUNCE_MS = 2000;
 
 @Component({
   selector: 'app-null-frequency-field',
@@ -17,8 +19,7 @@ export class NullFrequencyFieldComponent implements OnInit {
 
   show = false;
 
-  private genSub: Subscription;
-  private fieldSub: Subscription;
+  private unsubscribe$ = new Subject();
   private valueChanges = new Subject<number>();
 
   constructor(
@@ -26,18 +27,20 @@ export class NullFrequencyFieldComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.genSub = this.generatorFacade.generators$
-      .subscribe((generators) => {
-        if (!this.column.generator_setting) {
-          this.show = false;
-        }
-        const generator = generators.items
-          .find((item) => item.name === this.column.generator_setting.name);
-        this.show = generator.supports_null;
+    const generatorName = this.column?.generator_setting?.name;
+    if (!generatorName) {
+      return;
+    }
+
+    this.generatorFacade.getGeneratorByName(generatorName)
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((generator) => {
+        this.show = !!generator?.supports_null;
       });
-    this.fieldSub = this.valueChanges
+    
+    this.valueChanges
       .pipe(
-        debounceTime(2000),
+        debounceTime(TYPE_DEBOUNCE_MS),
         switchMap(
           (value) => this.generatorFacade
             .patchParams(
@@ -51,23 +54,23 @@ export class NullFrequencyFieldComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    this.unsubscribe();
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
     this.valueChanges.complete();
   }
 
   nextValue(value: string) {
     const parsed = parseFloat(value);
     if (!isNaN(parsed)) {
-      this.valueChanges.next(parsed / 100);
+      this.valueChanges.next(this.fromPercent(parsed));
     }
   }
 
-  private unsubscribe() {
-    if (this.genSub) {
-      this.genSub.unsubscribe();
-    }
-    if (this.fieldSub) {
-      this.fieldSub.unsubscribe();
-    }
+  toPercent(value: number): number {
+    return value * 100;
+  }
+
+  fromPercent(value: number): number {
+    return value / 100;
   }
 }

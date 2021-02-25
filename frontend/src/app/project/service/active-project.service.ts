@@ -1,11 +1,12 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { ProjectView } from 'src/app/api/models/project-view';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { ProjectService } from 'src/app/api/services';
 import { DataSourceView } from 'src/app/api/models/data-source-view';
 import { ColumnView } from 'src/app/api/models/column-view';
 import { TableView } from 'src/app/api/models/table-view';
 import { GeneratorSettingView } from 'src/app/api/models/generator-setting-view';
+import { filter, map } from 'rxjs/operators';
 
 type Transformer = (project: ProjectView) => ProjectView;
 type TableTransformer = (table: TableView) => TableView;
@@ -33,6 +34,22 @@ export class ActiveProjectService implements OnDestroy {
 
   ngOnDestroy() {
     this.unsubscribe();
+  }
+
+  getTable(tableId: number): Observable<TableView> {
+    return this.project$.pipe(
+      filter((project) => !!project),
+      map((project) => project.tables.find((other) => other.id === tableId))
+    );
+  }
+
+  getTableColumn(tableId: number, columnId: number): Observable<[TableView, ColumnView]> {
+    return this.getTable(tableId).pipe(
+      map((table) => [
+        table, 
+        table.columns.find((other) => other.id === columnId)
+      ])
+    );
   }
 
   private unsubscribe() {
@@ -130,6 +147,48 @@ export class ActiveProjectService implements OnDestroy {
           }
           return setting;
         });
+      return {
+        ...table,
+        columns: table.columns.map(transformColumn),
+        generator_settings: newSettings
+      }
+    };
+    this.transformTable(tableId, transformTable);
+  }
+
+  addGeneratorSetting(tableId: number, columnId: number, setting: GeneratorSettingView) {
+    const transformColumn: ColumnTransformer = (column) => {
+      if (column.id !== columnId) {
+        return column;
+      }
+      return {
+        ...column,
+        generator_setting: setting
+      }
+    };
+    const transformTable: TableTransformer = (table) => {
+      return {
+        ...table,
+        columns: table.columns.map(transformColumn),
+        generator_settings: [...table.generator_settings, setting]
+      }
+    };
+    this.transformTable(tableId, transformTable);
+  }
+
+  deleteGeneratorSetting(tableId: number, settingId: number) {
+    const transformColumn: ColumnTransformer = (column) => {
+      if (column.generator_setting?.id !== settingId) {
+        return column;
+      }
+      return {
+        ...column,
+        generator_setting: null
+      }
+    };
+    const transformTable: TableTransformer = (table) => {
+      const newSettings = table.generator_settings
+        .filter((other) => other.id !== settingId);
       return {
         ...table,
         columns: table.columns.map(transformColumn),

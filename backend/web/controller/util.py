@@ -1,10 +1,11 @@
 import functools
-from typing import Type
+from typing import Type, Any, List
 
 from flask import g, request
 from marshmallow import Schema
 
 from core.model.data_source import DataSource
+from core.model.meta_column import MetaColumn
 from core.model.meta_table import MetaTable
 from core.model.project import Project
 from core.service.exception import SomeError
@@ -53,6 +54,18 @@ def error_into_message(view):
         except SomeError as e:
             return bad_request(e.message)
     return wrapped_view
+
+
+def patch_from_json(entity: Any, attr: str) -> bool:
+    if attr in request.json:
+        setattr(entity, attr, request.json[attr])
+        return True
+    return False
+
+
+def patch_all_from_json(entity: Any, attrs: List[str]):
+    for attr in attrs:
+        patch_from_json(entity, attr)
 
 
 # common error messages
@@ -105,5 +118,16 @@ def find_user_meta_table(meta_table_id: int) -> MetaTable:
         filter(
             MetaTable.id == meta_table_id,
             Project.user_id == g.user.id
+        ).\
+        one()
+
+
+def find_column_in_table(meta_table: MetaTable, meta_column_id: int) -> MetaColumn:
+    db_session = get_db_session()
+    return db_session.query(MetaColumn).\
+        join(MetaTable.project).\
+        filter(
+            MetaColumn.id == meta_column_id,
+            MetaColumn.table == meta_table
         ).\
         one()

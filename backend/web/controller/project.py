@@ -11,7 +11,7 @@ from core.service.generation_procedure.controller import ProcedureController
 from core.service.output_driver import PreviewOutputDriver
 from core.service.output_driver.file_driver import JsonOutputDriver, ZippedCsvOutputDriver
 from web.controller.util import find_user_project, bad_request, PROJECT_NOT_FOUND, BAD_REQUEST_SCHEMA, TOKEN_SECURITY
-from web.view import ProjectListView, ProjectView, PreviewView, TableCountsWrite, ExportFileRequestWrite
+from web.view.project import ProjectListView, ProjectView, PreviewView, TableCountsWrite, ExportFileRequestWrite
 from web.controller.auth import login_required
 from web.service.database import get_db_session
 

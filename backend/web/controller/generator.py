@@ -2,6 +2,7 @@ import functools
 
 from flasgger import swag_from
 from flask import Blueprint, g, request
+from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.orm.exc import NoResultFound
 
 from core.model.generator_setting import GeneratorSetting
@@ -11,9 +12,10 @@ from core.service.column_generator import make_generator_instance_for_meta_colum
 from core.service.column_generator.base import ColumnGeneratorBase
 from web.controller.auth import login_required
 from web.controller.util import TOKEN_SECURITY, BAD_REQUEST_SCHEMA, bad_request, \
-    GENERATOR_SETTING_NOT_FOUND, OK_REQUEST_SCHEMA, ok_request, validate_json
+    GENERATOR_SETTING_NOT_FOUND, OK_REQUEST_SCHEMA, ok_request, validate_json, find_user_meta_table, \
+    patch_all_from_json, INVALID_INPUT, find_column_in_table
 from web.service.database import get_db_session
-from web.view import GeneratorListView, GeneratorSettingWrite, GeneratorSettingView
+from web.view.generator import GeneratorListView, GeneratorSettingWrite, GeneratorSettingView, GeneratorSettingCreate
 
 generator = Blueprint('generator', __name__, url_prefix='/api')
 
@@ -53,6 +55,59 @@ def with_generator_setting_by_id(view):
     return wrapped_view
 
 
+@generator.route('/generator-setting', methods=('POST',))
+@login_required
+@validate_json(GeneratorSettingCreate)
+@swag_from({
+    'tags': ['Generator'],
+    'security': TOKEN_SECURITY,
+    'parameters': [
+        {
+            'name': 'generator_setting',
+            'in': 'body',
+            'description': 'Generator setting content',
+            'required': True,
+            'schema': GeneratorSettingCreate
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'Created generator setting',
+            'schema': GeneratorSettingView
+        },
+        400: BAD_REQUEST_SCHEMA
+    }
+})
+def create_generator_setting():
+    meta_column = None
+    try:
+        meta_table = find_user_meta_table(request.json['table_id'])
+        if 'column_id' in request.json:
+            meta_column = find_column_in_table(
+                meta_table,
+                request.json['column_id']
+            )
+    except NoResultFound:
+        return bad_request(INVALID_INPUT)
+
+    generator_setting = GeneratorSetting(
+        table=meta_table,
+        name=request.json['name'],
+        params=request.json['params'],
+        null_frequency=request.json['null_frequency']
+    )
+    db_session = get_db_session()
+    db_session.add(generator_setting)
+    if meta_column is not None:
+        meta_column.generator_setting = generator_setting
+        # TODO multi column
+        gen_instance = make_generator_instance_for_meta_column(meta_column)
+        gen_instance.estimate_params()
+        flag_modified(generator_setting, 'params')  # register the param change
+    db_session.commit()
+    return GeneratorSettingView().dump(generator_setting)
+
+
 @generator.route('/generator-setting/<id>', methods=('PATCH',))
 @login_required
 @with_generator_setting_by_id
@@ -85,26 +140,13 @@ def with_generator_setting_by_id(view):
     }
 })
 def patch_generator_setting(generator_setting: GeneratorSetting):
-    # TODO check generator existence
-    old_name = generator_setting.name
-    new_name = request.json['name']
-    generator_setting.name = new_name
-    new_params = request.json['params']
-    # TODO normalize params
-    generator_setting.params = new_params
-    null_frequency = request.json.get('null_frequency')
-    if null_frequency is not None:
-        if null_frequency < 0 or null_frequency > 1:
-            null_frequency = 0
-        generator_setting.null_frequency = null_frequency
-
-    if generator_setting.columns:
+    patch_all_from_json(generator_setting, ['name', 'params', 'null_frequency'])
+    estimate_params = request.json.get('estimate_params')
+    if estimate_params and generator_setting.columns:
         # TODO support several columns
         meta_column = generator_setting.columns[0]
         gen_instance = make_generator_instance_for_meta_column(meta_column)
-        if new_name != old_name and new_params is None \
-           and meta_column.data_source is not None:
-            gen_instance.estimate_params()
+        gen_instance.estimate_params()
 
     db_session = get_db_session()
     db_session.commit()

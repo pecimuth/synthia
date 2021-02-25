@@ -18,7 +18,8 @@ from web.controller.auth import login_required
 from web.controller.util import BAD_REQUEST_SCHEMA, bad_request, find_user_project, PROJECT_NOT_FOUND, INVALID_INPUT, \
     DATA_SOURCE_NOT_FOUND, ok_request, find_user_data_source, OK_REQUEST_SCHEMA, error_into_message, TOKEN_SECURITY
 from web.service.database import get_db_session
-from web.view import DataSourceView, DataSourceDatabaseWrite, ProjectView, TableCountsWrite
+from web.view.data_source import DataSourceView, DataSourceDatabaseWrite
+from web.view.project import ProjectView, TableCountsWrite
 
 source = Blueprint('data_source', __name__, url_prefix='/api')
 
