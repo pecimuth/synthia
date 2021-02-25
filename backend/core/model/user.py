@@ -10,7 +10,7 @@ class User(base):
     email = Column(String, nullable=True, unique=True)
     pwd = Column(LargeBinary, nullable=True)
     salt = Column(LargeBinary, nullable=True)
-    projects = relationship('Project', order_by=Project.id, back_populates='user')
+    projects = relationship('Project', order_by=Project.id, back_populates='user', cascade='all, delete, delete-orphan')
 
     def __repr__(self):
         return '<User(id={},email={})>'.format(self.id, self.email)

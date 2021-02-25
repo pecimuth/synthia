@@ -2,9 +2,11 @@ import functools
 
 from flasgger import swag_from
 from flask import Blueprint, g, request
+from sqlalchemy import or_
 from sqlalchemy.orm.exc import NoResultFound
 
 from core.model.generator_setting import GeneratorSetting
+from core.model.meta_constraint import MetaConstraint
 from core.service.column_generator import make_generator_instance_for_meta_column
 from web.controller.auth import login_required
 from core.model.meta_column import MetaColumn
@@ -39,9 +41,10 @@ def try_patch_column(meta_column: MetaColumn) -> bool:
         return False
     patch_all_from_json(meta_column, ['name', 'col_type', 'nullable'])
 
-    generator_instance = make_generator_instance_for_meta_column(meta_column)
-    if meta_column.data_source is not None:
-        generator_instance.estimate_params()
+    if meta_column.generator_setting_id is not None:
+        generator_instance = make_generator_instance_for_meta_column(meta_column)
+        if meta_column.data_source is not None:
+            generator_instance.estimate_params()
     return True
 
 
@@ -164,6 +167,26 @@ def patch_column(meta_column: MetaColumn):
 })
 def delete_column(meta_column: MetaColumn):
     db_session = get_db_session()
+
+    column_constraints =\
+        db_session.query(MetaConstraint.id).\
+        join(MetaConstraint.constrained_columns).\
+        filter(MetaColumn.id == meta_column.id)
+
+    referencing_constraints =\
+        db_session.query(MetaConstraint.id).\
+        join(MetaConstraint.referenced_columns).\
+        filter(MetaColumn.id == meta_column.id)
+
+    db_session.query(MetaConstraint).\
+        filter(
+            or_(
+                MetaConstraint.id.in_(referencing_constraints.subquery()),
+                MetaConstraint.id.in_(column_constraints.subquery())
+            )
+        ).\
+        delete(synchronize_session=False)
+
     db_session.delete(meta_column)
     db_session.commit()
     return ok_request('Column deleted')

@@ -2,10 +2,10 @@
   <mat-card-header class="row justify-space-between">
     <mat-card-title class="margin-top">{{ table.name }}</mat-card-title>
     <div class="margin-right">
-      <button mat-icon-button aria-label="New column">
+      <button mat-icon-button aria-label="New column" (click)="createColumn()">
         <mat-icon>add</mat-icon>
       </button>
-      <button mat-icon-button aria-label="Delete">
+      <button mat-icon-button aria-label="Delete" (click)="deleteTable()">
         <mat-icon>delete</mat-icon>
       </button>
     </div>
@@ -17,7 +17,7 @@
       <th mat-header-cell *matHeaderCellDef>Column</th>
       <td mat-cell *matCellDef="let column">
         <div class="first-column">
-          <button mat-icon-button aria-label="Delete column">
+          <button mat-icon-button aria-label="Delete column" (click)="deleteColumn(column)">
             <mat-icon>close</mat-icon>
           </button>
           <div class="margin-right">

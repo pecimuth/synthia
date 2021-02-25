@@ -112,21 +112,79 @@ export class ActiveProjectService implements OnDestroy {
     );
   }
 
+  patchDataSource(dataSource: DataSourceView) {
+    const transformDataSource = (other: DataSourceView) => {
+      if (other.id !== dataSource.id) {
+        return other;
+      }
+      return dataSource;
+    };
+    const transformer: Transformer = (project) => {
+      return {
+        ...project,
+        data_sources: project.data_sources.map(transformDataSource)
+      };
+    };
+    this.transform(transformer);
+  }
+
   deleteDataSource(dataSourceId: number) {
     this.transform(
       (project) => {
         return {
           ...project,
           data_sources: project.data_sources
-            .filter((data_source) => data_source.id !== dataSourceId)
+            .filter((other) => other.id !== dataSourceId)
         };
       }
     );
   }
 
+  addTable(table: TableView) {
+    this.transform(
+      (project) => {
+        return {
+          ...project,
+          tables: [...project.tables, table]
+        };
+      }
+    );
+  }
+
+  deleteTable(tableId: number) {
+    this.transform(
+      (project) => {
+        return {
+          ...project,
+          tables: project.tables.filter((other) => other.id !== tableId)
+        };
+      }
+    );
+  }
+
+  addColumn(tableId: number, column: ColumnView) {
+    const transformTable: TableTransformer = (table) => {
+      return {
+        ...table,
+        columns: [...table.columns, column]
+      };
+    };
+    this.transformTable(tableId, transformTable);
+  }
+
   patchColumn(tableId: number, column: ColumnView) {
     const transform: ColumnTransformer = () => column;
     this.transformColumn(tableId, column.id, transform);
+  }
+
+  deleteColumn(tableId: number, columnId: number) {
+    const transformTable: TableTransformer = (table) => {
+      return {
+        ...table,
+        columns: table.columns.filter((other) => other.id != columnId)
+      };
+    };
+    this.transformTable(tableId, transformTable);
   }
 
   patchGeneratorSetting(tableId: number, setting: GeneratorSettingView) {
@@ -137,7 +195,7 @@ export class ActiveProjectService implements OnDestroy {
       return {
         ...column,
         generator_setting: setting
-      }
+      };
     };
     const transformTable: TableTransformer = (table) => {
       const newSettings = table.generator_settings
@@ -151,7 +209,7 @@ export class ActiveProjectService implements OnDestroy {
         ...table,
         columns: table.columns.map(transformColumn),
         generator_settings: newSettings
-      }
+      };
     };
     this.transformTable(tableId, transformTable);
   }
@@ -164,14 +222,14 @@ export class ActiveProjectService implements OnDestroy {
       return {
         ...column,
         generator_setting: setting
-      }
+      };
     };
     const transformTable: TableTransformer = (table) => {
       return {
         ...table,
         columns: table.columns.map(transformColumn),
         generator_settings: [...table.generator_settings, setting]
-      }
+      };
     };
     this.transformTable(tableId, transformTable);
   }
@@ -184,7 +242,7 @@ export class ActiveProjectService implements OnDestroy {
       return {
         ...column,
         generator_setting: null
-      }
+      };
     };
     const transformTable: TableTransformer = (table) => {
       const newSettings = table.generator_settings
@@ -193,7 +251,7 @@ export class ActiveProjectService implements OnDestroy {
         ...table,
         columns: table.columns.map(transformColumn),
         generator_settings: newSettings
-      }
+      };
     };
     this.transformTable(tableId, transformTable);
   }

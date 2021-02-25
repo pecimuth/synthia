@@ -33,6 +33,9 @@ import { FormFieldComponent } from './form-field/form-field.component';
     CreateProjectFormComponent,
     DatabaseSourceFormComponent,
     FileSourceFormComponent
+  ],
+  exports: [
+    FormFieldComponent
   ]
 })
 export class DialogModule { }

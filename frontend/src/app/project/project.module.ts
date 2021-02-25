@@ -36,6 +36,10 @@ import { GeneratorChoiceComponent } from './table/generator-choice/generator-cho
 import { ConstraintListComponent } from './table/constraint-list/constraint-list.component';
 import { NullFrequencyFieldComponent } from './table/null-frequency-field/null-frequency-field.component';
 import { MatMenuModule } from '@angular/material/menu';
+import { CreateColumnFormComponent } from './table/create-column-form/create-column-form.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { DialogModule } from '../dialog/dialog.module';
+import { CreateTableFormComponent } from './table/create-table-form/create-table-form.component';
 
 
 @NgModule({
@@ -54,7 +58,9 @@ import { MatMenuModule } from '@angular/material/menu';
     OutputChoiceComponent,
     GeneratorChoiceComponent,
     ConstraintListComponent,
-    NullFrequencyFieldComponent
+    NullFrequencyFieldComponent,
+    CreateColumnFormComponent,
+    CreateTableFormComponent
   ],
   imports: [
     CommonModule,
@@ -78,7 +84,9 @@ import { MatMenuModule } from '@angular/material/menu';
     MatRadioModule,
     MatDialogModule,
     MatButtonModule,
-    MatMenuModule
+    MatMenuModule,
+    MatFormFieldModule,
+    DialogModule
   ]
 })
 export class ProjectModule { }

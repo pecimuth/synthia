@@ -14,7 +14,7 @@ class GeneratorSetting(base):
     params = Column(JSON)
     null_frequency = Column(Float)
 
-    table_id = Column(Integer, ForeignKey('metatable.id', ondelete='CASCADE'))
+    table_id = Column(Integer, ForeignKey('metatable.id'))
     table = relationship('MetaTable', back_populates='generator_settings')
 
     columns = relationship('MetaColumn', order_by=MetaColumn.id, back_populates='generator_setting')

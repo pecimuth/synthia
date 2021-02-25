@@ -12,7 +12,7 @@ import { CreateProjectFormComponent } from '../create-project-form/create-projec
 export class DatabaseSourceFormComponent implements OnInit {
 
   databaseForm = this.fb.group({
-    driver: [{value: 'postgresql'}, Validators.required],
+    driver: ['postgresql', Validators.required],
     usr: [null, Validators.required],
     pwd: [null, Validators.required],
     host: [null, Validators.required],

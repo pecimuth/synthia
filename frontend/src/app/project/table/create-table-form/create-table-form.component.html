@@ -1,0 +1,12 @@
+<form [formGroup]="tableForm" novalidate (ngSubmit)="onSubmit()">
+  <h2>New table</h2>
+
+  <app-form-field [form]="tableForm" label="Name" name="name" placeholder="my_table"></app-form-field>
+
+  <div class="margin-between">
+    <button mat-flat-button mat-dialog-close type="button">Cancel</button>
+  </div>
+  <div class="margin-between">
+    <button mat-raised-button color="primary" type="submit">Save</button>
+  </div>
+</form>

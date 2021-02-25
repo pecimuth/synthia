@@ -11,13 +11,14 @@ class MetaColumn(base):
     col_type = Column(String)
     nullable = Column(Boolean)
 
-    table_id = Column(Integer, ForeignKey('metatable.id', ondelete='CASCADE'))
+    table_id = Column(Integer, ForeignKey('metatable.id'))
     table = relationship('MetaTable', back_populates='columns')
 
     constraints = relationship(
         'MetaConstraint',
         secondary=ColumnConstraint.__table__,
-        back_populates='constrained_columns'
+        back_populates='constrained_columns',
+        passive_deletes=True
     )
 
     generator_setting_id = Column(Integer, ForeignKey('generatorsetting.id', ondelete='SET NULL'))

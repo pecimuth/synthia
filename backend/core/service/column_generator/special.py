@@ -56,6 +56,8 @@ class ForeignKeyGenerator(ColumnGeneratorBase[Any]):
         return False
 
     def make_scalar(self, generated_database: GeneratedDatabase) -> Any:
+        if self._fk_column is None:
+            return None
         row_count = generated_database.get_table_row_count(self._fk_column.table.name)
         if row_count <= 0:
             if self._meta_column.nullable:

@@ -35,3 +35,4 @@ class ColumnCreate(ColumnWrite):
     col_type = Str()
     nullable = Bool()
     generator_setting_id = Integer(allow_none=True)
+    table_id = Integer()

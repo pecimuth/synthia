@@ -1,0 +1,23 @@
+<form [formGroup]="columnForm" novalidate (ngSubmit)="onSubmit()">
+  <h2>New column</h2>
+
+  <app-form-field [form]="columnForm" label="Name" name="name" placeholder="my_column"></app-form-field>
+
+  <mat-form-field class="margin-top">
+    <mat-label>Type</mat-label>
+    <mat-select formControlName="col_type">
+      <mat-option *ngFor="let type of types" [value]="type">
+        {{ type }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-checkbox formControlName="nullable" class="margin-bottom">Nullable</mat-checkbox>
+
+  <div class="margin-between">
+    <button mat-flat-button mat-dialog-close type="button">Cancel</button>
+  </div>
+  <div class="margin-between">
+    <button mat-raised-button color="primary" type="submit">Save</button>
+  </div>
+</form>

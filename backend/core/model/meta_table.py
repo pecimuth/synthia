@@ -14,9 +14,9 @@ class MetaTable(base):
     project_id = Column(Integer, ForeignKey('project.id'))
     project = relationship('Project', back_populates='tables')
 
-    columns = relationship('MetaColumn', order_by=MetaColumn.id, back_populates='table')
+    columns = relationship('MetaColumn', order_by=MetaColumn.id, back_populates='table', cascade='all, delete, delete-orphan')
 
-    generator_settings = relationship('GeneratorSetting', order_by=GeneratorSetting.id, back_populates='table')
+    generator_settings = relationship('GeneratorSetting', order_by=GeneratorSetting.id, back_populates='table', cascade='all, delete, delete-orphan')
 
     data_source_id = Column(Integer, ForeignKey('datasource.id', ondelete='SET NULL'))
     data_source = relationship('DataSource')

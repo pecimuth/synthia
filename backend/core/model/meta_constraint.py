@@ -16,7 +16,7 @@ class MetaConstraint(base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=True)
 
-    table_id = Column(Integer, ForeignKey('metatable.id', ondelete='CASCADE'))
+    table_id = Column(Integer, ForeignKey('metatable.id'))
     table = relationship('MetaTable', back_populates='constraints')
 
     constraint_type = Column(String)  # PRIMARY | FOREIGN | UNIQUE | CHECK
@@ -24,12 +24,14 @@ class MetaConstraint(base):
         'MetaColumn',
         secondary=ColumnConstraint.__table__,
         order_by=ColumnConstraint.__table__.c.id,
-        back_populates='constraints'
+        back_populates='constraints',
+        passive_deletes=True
     )
     referenced_columns = relationship(
         'MetaColumn',
         secondary=ReferenceConstraint.__table__,
-        order_by=ReferenceConstraint.__table__.c.id
+        order_by=ReferenceConstraint.__table__.c.id,
+        passive_deletes=True
     )
     check_expression = Column(String, nullable=True)
 

@@ -102,7 +102,8 @@ def create_generator_setting():
         meta_column.generator_setting = generator_setting
         # TODO multi column
         gen_instance = make_generator_instance_for_meta_column(meta_column)
-        gen_instance.estimate_params()
+        if meta_column.data_source is not None:
+            gen_instance.estimate_params()
         flag_modified(generator_setting, 'params')  # register the param change
     db_session.commit()
     return GeneratorSettingView().dump(generator_setting)
@@ -146,7 +147,8 @@ def patch_generator_setting(generator_setting: GeneratorSetting):
         # TODO support several columns
         meta_column = generator_setting.columns[0]
         gen_instance = make_generator_instance_for_meta_column(meta_column)
-        gen_instance.estimate_params()
+        if meta_column.data_source is not None:
+            gen_instance.estimate_params()
 
     db_session = get_db_session()
     db_session.commit()

@@ -4,6 +4,8 @@ from flasgger import swag_from
 from flask import Blueprint, request
 from sqlalchemy.orm.exc import NoResultFound
 
+from core.model.meta_column import MetaColumn
+from core.model.meta_constraint import MetaConstraint
 from core.model.meta_table import MetaTable
 from web.controller.auth import login_required
 from web.controller.util import TOKEN_SECURITY, BAD_REQUEST_SCHEMA, find_user_meta_table, TABLE_NOT_FOUND, \
@@ -125,6 +127,16 @@ def patch_table(meta_table: MetaTable):
 })
 def delete_table(meta_table: MetaTable):
     db_session = get_db_session()
+    # delete constraints referencing this table
+    referencing_constraints =\
+        db_session.query(MetaConstraint.id).\
+        join(MetaConstraint.referenced_columns).\
+        filter(MetaColumn.table == meta_table)
+    db_session.query(MetaConstraint).\
+        filter(
+            MetaConstraint.id.in_(referencing_constraints.subquery())
+        ).\
+        delete(synchronize_session=False)
     db_session.delete(meta_table)
     db_session.commit()
     return ok_request('Deleted the table')

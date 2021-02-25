@@ -60,7 +60,7 @@ export class GeneratorChoiceComponent implements OnInit, OnDestroy {
     this.columnFacade
       .setColumnGeneratorSetting(
         this.table.id,
-        this.column,
+        this.column.id,
         setting
       )
       .pipe(takeUntil(this.unsubscribe$))

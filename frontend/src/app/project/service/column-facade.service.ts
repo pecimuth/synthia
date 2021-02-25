@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { ColumnCreate } from 'src/app/api/models/column-create';
 import { ColumnView } from 'src/app/api/models/column-view';
 import { GeneratorSettingView } from 'src/app/api/models/generator-setting-view';
+import { MessageView } from 'src/app/api/models/message-view';
 import { ColumnService } from 'src/app/api/services';
 import { ActiveProjectService } from './active-project.service';
 
@@ -17,20 +19,32 @@ export class ColumnFacadeService {
   ) { }
 
   setColumnGeneratorSetting(tableId: number,
-                            column: ColumnView,
+                            columnId: number,
                             setting: GeneratorSettingView): Observable<ColumnView> {
     const params = {
-      id: column.id,
+      id: columnId,
       column: {
-        ...column,
         generator_setting_id: setting.id
       }
     };
-    delete params.column.id;
-    delete params.column.generator_setting;
     return this.columnService.patchApiColumnId(params)
       .pipe(
-        tap((column) => this.activeProject.patchColumn(tableId, column))
+        tap((newColumn) => this.activeProject.patchColumn(tableId, newColumn))
+      );
+  }
+
+  createColumn(column: ColumnCreate): Observable<ColumnView> {
+    return this.columnService.postApiColumn(column)
+      .pipe(
+        tap((newColumn) => this.activeProject
+          .addColumn(column.table_id, newColumn))
+      );
+  }
+
+  deleteColumn(tableId: number, columnId: number): Observable<MessageView> {
+    return this.columnService.deleteApiColumnId(columnId)
+      .pipe(
+        tap(() => this.activeProject.deleteColumn(tableId, columnId))
       );
   }
 }
