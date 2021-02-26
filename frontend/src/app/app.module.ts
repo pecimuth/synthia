@@ -13,7 +13,8 @@ import { AtomModule } from './atom/atom.module';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptorService } from './service/auth-interceptor.service';
 import { DialogModule } from './dialog/dialog.module';
-import { MatNativeDateModule, MAT_DATE_LOCALE } from '@angular/material/core';
+import { MatMomentDateModule, MAT_MOMENT_DATE_ADAPTER_OPTIONS } from '@angular/material-moment-adapter';
+import { MAT_DATE_LOCALE } from '@angular/material/core';
 
 
 @NgModule({
@@ -31,7 +32,7 @@ import { MatNativeDateModule, MAT_DATE_LOCALE } from '@angular/material/core';
     ApiModule.forRoot({rootUrl: environment.apiUrl}),
     AtomModule,
     DialogModule,
-    MatNativeDateModule
+    MatMomentDateModule
   ],
   providers: [
     {
@@ -42,6 +43,12 @@ import { MatNativeDateModule, MAT_DATE_LOCALE } from '@angular/material/core';
     {
       provide: MAT_DATE_LOCALE,
       useValue: 'en-GB'
+    },
+    {
+      provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS,
+      useValue: {
+        useUtc: true
+      }
     }
   ],
   bootstrap: [AppComponent]
