@@ -1,14 +1,14 @@
 import random
 
 from core.model.meta_column import MetaColumn
-from core.service.column_generator import ColumnGenerator
+from core.service.column_generator import ColumnGenerator, RegisteredGenerator
 from core.service.column_generator.params import ColumnGeneratorParam
 from core.service.data_source.data_provider import DataProvider
 from core.service.generation_procedure.database import GeneratedDatabase
 from core.service.types import Types
 
 
-class BernoulliGenerator(ColumnGenerator[bool]):
+class BernoulliGenerator(RegisteredGenerator, ColumnGenerator[bool]):
     name = 'bernoulli'
     only_for_type = Types.BOOL
     param_list = [

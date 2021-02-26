@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import random
-from abc import ABC, abstractmethod
+from abc import ABC
 from enum import Enum
 from typing import Union, List, Dict, Generic, TypeVar
 
@@ -22,6 +22,10 @@ class GeneratorCategory(Enum):
     PERSON = 'Person'
     DATETIME = 'Date & Time'
     TEXT = 'Text'
+
+
+class RegisteredGenerator(ABC):
+    pass
 
 
 class ColumnGenerator(Generic[OutputType], ABC):

@@ -1,5 +1,4 @@
-from core.service.column_generator import ColumnGenerator
-from core.service.column_generator.base import GeneratorCategory
+from core.service.column_generator.base import GeneratorCategory, RegisteredGenerator
 from core.service.column_generator.faker_generator.base import FakerGenerator
 from core.service.types import Types
 
@@ -9,25 +8,25 @@ class FakerAddressGenerator(FakerGenerator[str]):
     only_for_type = Types.STRING
 
 
-class CityGenerator(ColumnGenerator[str], FakerAddressGenerator):
+class CityGenerator(RegisteredGenerator, FakerAddressGenerator):
     name = 'city'
 
 
-class CountryGenerator(ColumnGenerator[str], FakerAddressGenerator):
+class CountryGenerator(RegisteredGenerator, FakerAddressGenerator):
     name = 'country'
 
 
-class CountryCodeGenerator(ColumnGenerator[str], FakerAddressGenerator):
+class CountryCodeGenerator(RegisteredGenerator, FakerAddressGenerator):
     name = 'country_code'
 
 
-class PostcodeGenerator(ColumnGenerator[str], FakerAddressGenerator):
+class PostcodeGenerator(RegisteredGenerator, FakerAddressGenerator):
     name = 'postcode'
 
 
-class StreetAddressGenerator(ColumnGenerator[str], FakerAddressGenerator):
+class StreetAddressGenerator(RegisteredGenerator, FakerAddressGenerator):
     name = 'street_address'
 
 
-class StreetNameGenerator(ColumnGenerator[str], FakerAddressGenerator):
+class StreetNameGenerator(RegisteredGenerator, FakerAddressGenerator):
     name = 'street_name'

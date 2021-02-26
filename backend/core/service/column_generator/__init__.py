@@ -3,26 +3,29 @@ from typing import Type, List
 from core.model.generator_setting import GeneratorSetting
 from core.model.meta_column import MetaColumn
 from core.model.meta_table import MetaTable
-from core.service.column_generator.base import ColumnGenerator, OutputType
+from core.service.column_generator.base import ColumnGenerator, OutputType, RegisteredGenerator
 
 import core.service.column_generator.faker_generator
 from core.service.column_generator import special, number, string, boolean
-from core.service.exception import ColumnGeneratorError, SomeError
+from core.service.exception import ColumnGeneratorError, SomeError, GeneratorRegistrationError
 
 
 def get_generator_by_name(name: str) -> Type[ColumnGenerator[OutputType]]:
     if not hasattr(get_generator_by_name, 'gen_by_name'):
-        get_generator_by_name.gen_by_name = {
-            column_gen.name: column_gen
-            for column_gen in ColumnGenerator.__subclasses__()
-        }
+        get_generator_by_name.gen_by_name = {}
+        for column_gen in RegisteredGenerator.__subclasses__():
+            if not issubclass(column_gen, ColumnGenerator):
+                raise GeneratorRegistrationError()
+            get_generator_by_name.gen_by_name[column_gen.name] = column_gen
     if name not in get_generator_by_name.gen_by_name:
         raise SomeError('invalid generator name')
     return get_generator_by_name.gen_by_name[name]
 
 
 def find_recommended_generator(meta_column: MetaColumn) -> Type[ColumnGenerator]:
-    for column_gen in ColumnGenerator.__subclasses__():
+    for column_gen in RegisteredGenerator.__subclasses__():
+        if not issubclass(column_gen, ColumnGenerator):
+            raise GeneratorRegistrationError()
         if column_gen.only_for_type is not None and \
            column_gen.only_for_type != meta_column.col_type:
             continue

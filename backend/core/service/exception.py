@@ -8,6 +8,11 @@ class SomeError(Exception):
         self.message = message
 
 
+class GeneratorRegistrationError(SomeError):
+    def __init__(self):
+        super().__init__('registered generator must be a column generator')
+
+
 class DataSourceError(SomeError):
     def __init__(self, message: str, data_source: DataSource):
         super().__init__(message)

@@ -1,14 +1,14 @@
 import random
 
 from core.model.meta_column import MetaColumn
-from core.service.column_generator.base import ColumnGenerator
+from core.service.column_generator.base import ColumnGenerator, RegisteredGenerator
 from core.service.column_generator.params import ColumnGeneratorParam
 from core.service.data_source.data_provider.base_provider import DataProvider
 from core.service.generation_procedure.database import GeneratedDatabase
 from core.service.types import Types
 
 
-class IntegerGenerator(ColumnGenerator[int]):
+class IntegerGenerator(RegisteredGenerator, ColumnGenerator[int]):
     name = 'integer'
     only_for_type = Types.INTEGER
     param_list = [
@@ -37,7 +37,7 @@ class IntegerGenerator(ColumnGenerator[int]):
         self._params['max'] = provider.estimate_max() or self.param_list[1].default_value
 
 
-class FloatGenerator(ColumnGenerator[float]):
+class FloatGenerator(RegisteredGenerator, ColumnGenerator[float]):
     name = 'float'
     only_for_type = Types.FLOAT
     param_list = [
@@ -66,7 +66,7 @@ class FloatGenerator(ColumnGenerator[float]):
         self._params['max'] = float(provider.estimate_max()) or self.param_list[1].default_value
 
 
-class GaussianGenerator(ColumnGenerator[float]):
+class GaussianGenerator(RegisteredGenerator, ColumnGenerator[float]):
     name = 'gaussian'
     only_for_type = Types.FLOAT
     param_list = [

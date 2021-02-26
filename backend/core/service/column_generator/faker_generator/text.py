@@ -1,4 +1,4 @@
-from core.service.column_generator.base import GeneratorCategory, ColumnGenerator
+from core.service.column_generator.base import GeneratorCategory, RegisteredGenerator
 from core.service.column_generator.faker_generator.base import FakerGenerator
 from core.service.column_generator.params import ColumnGeneratorParam
 from core.service.generation_procedure.database import GeneratedDatabase
@@ -10,11 +10,11 @@ class FakerTextGenerator(FakerGenerator[str]):
     only_for_type = Types.STRING
 
 
-class WordGenerator(ColumnGenerator[str], FakerTextGenerator):
+class WordGenerator(RegisteredGenerator, FakerTextGenerator):
     name = 'word'
 
 
-class TextGenerator(ColumnGenerator[str], FakerTextGenerator):
+class TextGenerator(RegisteredGenerator, FakerTextGenerator):
     name = 'text'
 
     param_list = [
@@ -31,7 +31,7 @@ class TextGenerator(ColumnGenerator[str], FakerTextGenerator):
         return self._functor(self._params['max_number_of_chars'])
 
 
-class ParagraphGenerator(ColumnGenerator[str], FakerTextGenerator):
+class ParagraphGenerator(RegisteredGenerator, FakerTextGenerator):
     name = 'paragraph'
 
     param_list = [
