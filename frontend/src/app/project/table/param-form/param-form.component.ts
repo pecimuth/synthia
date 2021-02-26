@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import { ColumnView } from 'src/app/api/models/column-view';
-import { GeneratorFacadeService, GeneratorView } from 'src/app/project/service/generator-facade.service';
+import { GeneratorFacadeService, GeneratorParam, GeneratorView } from 'src/app/project/service/generator-facade.service';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { Observable, Subject } from 'rxjs';
 import { switchMap, debounceTime, takeUntil, tap } from 'rxjs/operators';
@@ -86,9 +86,15 @@ export class ParamFormComponent implements OnInit, OnDestroy {
       );
   }
 
-  getInputType(param: {name?: string, value_type?: string}): string {
+  getInputType(param: GeneratorParam): string {
+    if (param.allowed_values) {
+      return 'select';
+    }
     if (param.value_type === 'integer' || param.value_type == 'float') {
       return 'number';
+    }
+    if (param.value_type === 'datetime') {
+      return 'datetime';
     }
     return 'text';
   }

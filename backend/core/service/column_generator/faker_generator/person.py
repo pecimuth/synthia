@@ -8,21 +8,25 @@ class FakerPersonGenerator(FakerGenerator[str]):
     only_for_type = Types.STRING
 
 
-class NameGenerator(FakerPersonGenerator, ColumnGenerator[str]):
+class NameGenerator(ColumnGenerator[str], FakerPersonGenerator):
     name = 'name'
 
 
-class FirstNameGenerator(FakerPersonGenerator, ColumnGenerator[str]):
+class FirstNameGenerator(ColumnGenerator[str], FakerPersonGenerator):
     name = 'first_name'
 
 
-class LastNameGenerator(FakerPersonGenerator, ColumnGenerator[str]):
+class LastNameGenerator(ColumnGenerator[str], FakerPersonGenerator):
     name = 'last_name'
 
 
-class PhoneNumberGenerator(FakerPersonGenerator, ColumnGenerator[str]):
+class PhoneNumberGenerator(ColumnGenerator[str], FakerPersonGenerator):
     name = 'phone_number'
 
 
-class EmailGenerator(FakerPersonGenerator, ColumnGenerator[str]):
+class EmailGenerator(ColumnGenerator[str], FakerPersonGenerator):
     name = 'email'
+
+
+class UserNameGenerator(ColumnGenerator[str], FakerPersonGenerator):
+    name = 'user_name'

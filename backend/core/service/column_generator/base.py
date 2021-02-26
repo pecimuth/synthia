@@ -21,6 +21,7 @@ class GeneratorCategory(Enum):
     ADDRESS = 'Address'
     PERSON = 'Person'
     DATETIME = 'Date & Time'
+    TEXT = 'Text'
 
 
 class ColumnGenerator(Generic[OutputType], ABC):
@@ -58,7 +59,6 @@ class ColumnGenerator(Generic[OutputType], ABC):
         return self._generator_setting.null_frequency
 
     @classmethod
-    @abstractmethod
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
         return False
 

@@ -1,32 +1,32 @@
-<h2 *ngIf="table && column">{{ table.name }}.{{ column.name }}</h2>
+<div *ngIf="table && column" class="container">
+  <h2>{{ table.name }}.{{ column.name }}</h2>
 
-<div *ngIf="table?.generator_settings as settings" class="margin-bottom">
-  <h3>Existing generator</h3>
-  <mat-chip-list>
-    <mat-chip *ngFor="let setting of settings"
-      removable
-      [selected]="setting.id === column?.generator_setting?.id"
-      (click)="selectSetting(setting)"
-      (removed)="deleteSetting(setting)"
-      class="cursor-pointer">
-      {{ setting.name }} ({{ setting.id }})
-      <mat-icon matChipRemove>cancel</mat-icon>
-    </mat-chip>
-  </mat-chip-list>
-</div>
-
-<ng-container *ngIf="generatorsByCategory">
-  <div *ngFor="let item of generatorsByCategory | keyvalue" class="margin-bottom">
-    <h3>{{ item.key }}</h3>
+  <div *ngIf="table.generator_settings as settings" class="margin-bottom">
+    <h3>Existing generator</h3>
     <mat-chip-list>
-      <mat-chip *ngFor="let generator of item.value"
-        selectable 
-        (click)="createSetting(generator)"
+      <mat-chip *ngFor="let setting of settings"
+        removable
+        [selected]="setting.id === column.generator_setting?.id"
+        (click)="selectSetting(setting)"
+        (removed)="deleteSetting(setting)"
         class="cursor-pointer">
-        {{ generator.name }}
+        {{ setting.name }} ({{ setting.id }})
+        <mat-icon matChipRemove>cancel</mat-icon>
       </mat-chip>
     </mat-chip-list>
   </div>
-</ng-container>
 
-<!-- <button mat-flat-button mat-dialog-close type="button">Cancel</button> -->
+  <ng-container *ngIf="generatorsByCategory">
+    <div *ngFor="let item of generatorsByCategory | keyvalue" class="margin-bottom">
+      <h3>{{ item.key }}</h3>
+      <mat-chip-list>
+        <mat-chip *ngFor="let generator of item.value"
+          selectable 
+          (click)="createSetting(generator)"
+          class="cursor-pointer">
+          {{ generator.name }}
+        </mat-chip>
+      </mat-chip-list>
+    </div>
+  </ng-container>
+</div>

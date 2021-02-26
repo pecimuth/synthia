@@ -12,6 +12,7 @@ import { ColumnView } from 'src/app/api/models/column-view';
 
 
 export type GeneratorView = GeneratorListView['items'][0];
+export type GeneratorParam = GeneratorView['param_list'][0];
 
 export type GeneratorsByCategory = {
   [category: string]: GeneratorView[]

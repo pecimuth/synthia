@@ -22,8 +22,6 @@ class PrimaryKeyGenerator(ColumnGenerator[int]):
 
     @classmethod
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
-        if meta_column.col_type != Types.INTEGER:
-            return False
         for constraint in meta_column.constraints:
             if constraint.constraint_type == MetaConstraint.PRIMARY:
                 return True
@@ -48,8 +46,6 @@ class ForeignKeyGenerator(ColumnGenerator[Any]):
 
     @classmethod
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
-        if meta_column.col_type != Types.INTEGER:
-            return False
         for constraint in meta_column.constraints:
             if constraint.constraint_type == MetaConstraint.FOREIGN:
                 return True

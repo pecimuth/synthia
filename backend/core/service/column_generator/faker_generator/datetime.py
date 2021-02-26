@@ -4,6 +4,7 @@ from typing import TypeVar, Generic
 from core.service.column_generator.base import GeneratorCategory, ColumnGenerator
 from core.service.column_generator.faker_generator.base import FakerGenerator
 from core.service.column_generator.params import ColumnGeneratorParam
+from core.service.data_source.data_provider import DataProvider
 from core.service.generation_procedure.database import GeneratedDatabase
 from core.service.types import Types
 
@@ -15,14 +16,35 @@ class FakerDateTimeGenerator(Generic[OutputType], FakerGenerator[OutputType]):
     only_for_type = Types.DATETIME
 
 
-class DateGenerator(FakerDateTimeGenerator[str], ColumnGenerator[str]):
-    name = 'date'
+class DateStringGenerator(ColumnGenerator[str], FakerDateTimeGenerator[str]):
+    name = 'date_string'
+    provider = 'date'
     only_for_type = Types.STRING
 
+    param_list = [
+        ColumnGeneratorParam(
+            name='pattern',
+            value_type=Types.STRING,
+            allowed_values=['%d/%m/%Y', '%Y-%m-%d', '%d.%m.%Y'],
+            default_value='%d/%m/%Y'
+        ),
+        ColumnGeneratorParam(
+            name='end',
+            value_type=Types.DATETIME,
+            default_value=datetime(2021, 1, 1),
+        )
+    ]
 
-class DateBetween(FakerDateTimeGenerator[datetime], ColumnGenerator[datetime]):
-    name = 'date_between'
-    provider = 'date_between_dates'
+    def make_scalar(self, generated_database: GeneratedDatabase) -> str:
+        return self._functor(self._params['pattern'], self._params['end'])
+
+    def _estimate_params_with_provider(self, provider: DataProvider):
+        self._params['end'] = provider.estimate_max() or self.param_list[1].default_value
+
+
+class DateTime(ColumnGenerator[datetime], FakerDateTimeGenerator[datetime]):
+    name = 'datetime'
+    provider = 'date_time_between'
 
     param_list = [
         ColumnGeneratorParam(
@@ -38,48 +60,62 @@ class DateBetween(FakerDateTimeGenerator[datetime], ColumnGenerator[datetime]):
         )
     ]
 
-    def make_scalar(self, generated_database: GeneratedDatabase) -> OutputType:
+    def make_scalar(self, generated_database: GeneratedDatabase) -> datetime:
         return self._functor(self._params['start'], self._params['end'])
 
+    def _estimate_params_with_provider(self, provider: DataProvider):
+        self._params['start'] = provider.estimate_min() or self.param_list[0].default_value
+        self._params['end'] = provider.estimate_max() or self.param_list[1].default_value
 
-class DateOfBirthGenerator(FakerDateTimeGenerator[datetime], ColumnGenerator[datetime]):
-    name = 'date_of_birth'
+
+class TimeStringGenerator(ColumnGenerator[str], FakerDateTimeGenerator[str]):
+    name = 'time_string'
+    provider = 'time'
+    only_for_type = Types.STRING
+
+    param_list = [
+        ColumnGeneratorParam(
+            name='pattern',
+            value_type=Types.STRING,
+            allowed_values=['%H:%M:%S', '%H:%M', '%M:%S'],
+            default_value='%H:%M:%S'
+        )
+    ]
+
+    def make_scalar(self, generated_database: GeneratedDatabase) -> str:
+        return self._functor(self._params['pattern'])
 
 
-class DayOfMonthGenerator(FakerDateTimeGenerator[str], ColumnGenerator[str]):
+class DayOfMonthGenerator(ColumnGenerator[str], FakerDateTimeGenerator[str]):
     name = 'day_of_month'
     only_for_type = Types.STRING
 
 
-class DayOfWeekGenerator(FakerDateTimeGenerator[str], ColumnGenerator[str]):
+class DayOfWeekGenerator(ColumnGenerator[str], FakerDateTimeGenerator[str]):
     name = 'day_of_week'
     only_for_type = Types.STRING
 
 
-class FutureDateGenerator(FakerDateTimeGenerator[datetime], ColumnGenerator[datetime]):
-    name = 'future_date'
-
-
-class MonthGenerator(FakerDateTimeGenerator[str], ColumnGenerator[str]):
+class MonthGenerator(ColumnGenerator[str], FakerDateTimeGenerator[str]):
     name = 'month'
     only_for_type = Types.STRING
 
 
-class MonthNameGenerator(FakerDateTimeGenerator[str], ColumnGenerator[str]):
+class MonthNameGenerator(ColumnGenerator[str], FakerDateTimeGenerator[str]):
     name = 'month_name'
     only_for_type = Types.STRING
 
 
-class TimeZoneGenerator(FakerDateTimeGenerator[str], ColumnGenerator[str]):
+class TimeZoneGenerator(ColumnGenerator[str], FakerDateTimeGenerator[str]):
     name = 'timezone'
     only_for_type = Types.STRING
 
 
-class UnixTimeGenerator(FakerDateTimeGenerator[int], ColumnGenerator[int]):
+class UnixTimeGenerator(ColumnGenerator[int], FakerDateTimeGenerator[int]):
     name = 'unix_time'
     only_for_type = Types.INTEGER
 
 
-class YearGenerator(FakerDateTimeGenerator[str], ColumnGenerator[str]):
+class YearGenerator(ColumnGenerator[str], FakerDateTimeGenerator[str]):
     name = 'year'
     only_for_type = Types.STRING

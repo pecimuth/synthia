@@ -6,7 +6,7 @@ from core.model.meta_table import MetaTable
 from core.service.column_generator.base import ColumnGenerator, OutputType
 
 import core.service.column_generator.faker_generator
-from core.service.column_generator import special, datetime, number, string, boolean
+from core.service.column_generator import special, number, string, boolean
 from core.service.exception import ColumnGeneratorError, SomeError
 
 

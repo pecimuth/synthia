@@ -39,6 +39,7 @@ class GeneratorParam(Schema):
     name = Str()
     value_type = Str()
 
+    allowed_values = Raw()
     min_value = Raw()
     max_value = Raw()
     greater_equal_than = Str(allow_none=True)

@@ -9,25 +9,25 @@ class FakerAddressGenerator(FakerGenerator[str]):
     only_for_type = Types.STRING
 
 
-class CityGenerator(FakerAddressGenerator, ColumnGenerator[str]):
+class CityGenerator(ColumnGenerator[str], FakerAddressGenerator):
     name = 'city'
 
 
-class CountryGenerator(FakerAddressGenerator, ColumnGenerator[str]):
+class CountryGenerator(ColumnGenerator[str], FakerAddressGenerator):
     name = 'country'
 
 
-class CountryCodeGenerator(FakerAddressGenerator, ColumnGenerator[str]):
+class CountryCodeGenerator(ColumnGenerator[str], FakerAddressGenerator):
     name = 'country_code'
 
 
-class PostcodeGenerator(FakerAddressGenerator, ColumnGenerator[str]):
+class PostcodeGenerator(ColumnGenerator[str], FakerAddressGenerator):
     name = 'postcode'
 
 
-class StreetAddressGenerator(FakerAddressGenerator, ColumnGenerator[str]):
+class StreetAddressGenerator(ColumnGenerator[str], FakerAddressGenerator):
     name = 'street_address'
 
 
-class StreetNameGenerator(FakerAddressGenerator, ColumnGenerator[str]):
+class StreetNameGenerator(ColumnGenerator[str], FakerAddressGenerator):
     name = 'street_name'

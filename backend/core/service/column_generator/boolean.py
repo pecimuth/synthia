@@ -10,6 +10,7 @@ from core.service.types import Types
 
 class BernoulliGenerator(ColumnGenerator[bool]):
     name = 'bernoulli'
+    only_for_type = Types.BOOL
     param_list = [
         ColumnGeneratorParam(
             name='success_probability',
@@ -22,7 +23,7 @@ class BernoulliGenerator(ColumnGenerator[bool]):
 
     @classmethod
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
-        return meta_column.col_type == Types.BOOL
+        return True
 
     def make_scalar(self, generated_database: GeneratedDatabase) -> bool:
         return random.random() <= self._params['success_probability']

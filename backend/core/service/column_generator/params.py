@@ -1,6 +1,6 @@
 import datetime as dt
 from dataclasses import dataclass
-from typing import List, Generic, TypeVar, Union, Dict
+from typing import List, Generic, TypeVar, Union, Dict, Set
 
 from core.service.exception import SomeError
 from core.service.types import convert_value_to_type, AnyBasicType, Types
@@ -15,6 +15,7 @@ class ColumnGeneratorParam(Generic[ValueType]):
     default_value: ValueType
 
     # constraints
+    allowed_values: Union[List[ValueType], None] = None
     min_value: ValueType = None
     max_value: ValueType = None
     greater_equal_than: Union[str, None] = None
@@ -54,3 +55,9 @@ def enforce_param_constraints(param_list: ColumnGeneratorParamList, param_dict: 
             param_dict[param.name] = param.min_value
         elif param.max_value is not None and param_dict[param.name] > param.max_value:
             param_dict[param.name] = param.max_value
+    # allowed values
+    for param in param_list:
+        if param.allowed_values is None:
+            continue
+        if param_dict[param.name] not in param.allowed_values:
+            param_dict[param.name] = param.default_value

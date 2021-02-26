@@ -27,7 +27,7 @@ class IntegerGenerator(ColumnGenerator[int]):
 
     @classmethod
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
-        return meta_column.col_type == Types.INTEGER
+        return True
 
     def make_scalar(self, generated_database: GeneratedDatabase) -> int:
         return random.randint(self._params['min'], self._params['max'])
@@ -56,7 +56,7 @@ class FloatGenerator(ColumnGenerator[float]):
 
     @classmethod
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
-        return meta_column.col_type == Types.FLOAT
+        return True
 
     def make_scalar(self, generated_database: GeneratedDatabase) -> float:
         return random.uniform(self._params['min'], self._params['max'])
@@ -64,3 +64,41 @@ class FloatGenerator(ColumnGenerator[float]):
     def _estimate_params_with_provider(self, provider: DataProvider):
         self._params['min'] = float(provider.estimate_min()) or self.param_list[0].default_value
         self._params['max'] = float(provider.estimate_max()) or self.param_list[1].default_value
+
+
+class GaussianGenerator(ColumnGenerator[float]):
+    name = 'gaussian'
+    only_for_type = Types.FLOAT
+    param_list = [
+        ColumnGeneratorParam(
+            name='mu',
+            value_type=Types.FLOAT,
+            default_value=0.
+        ),
+        ColumnGeneratorParam(
+            name='sigma',
+            value_type=Types.FLOAT,
+            default_value=1,
+            min_value=0
+        )
+    ]
+
+    def make_scalar(self, generated_database: GeneratedDatabase) -> float:
+        return random.gauss(self._params['mu'], self._params['sigma'])
+
+    def _estimate_params_with_provider(self, provider: DataProvider):
+        sample_sum = 0
+        square_sum = 0
+        samples = 0
+        for sample in provider.scalar_data():
+            if sample is None:
+                continue
+            samples += 1
+            sample_sum += sample
+            square_sum += sample ** 2
+        if samples == 0:
+            return
+        first_moment = sample_sum / samples
+        second_moment = square_sum / samples
+        self._params['mu'] = first_moment
+        self._params['sigma'] = max(second_moment - first_moment ** 2, 0)
