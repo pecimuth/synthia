@@ -1,9 +1,5 @@
-from marshmallow import Schema, ValidationError
-from marshmallow.fields import Integer, Str, Nested, List, Bool, Dict, Raw, Float
-from marshmallow.validate import OneOf, Range
-
-from core.service.column_generator import get_generator_by_name
-from core.service.exception import SomeError
+from marshmallow import Schema
+from marshmallow.fields import Integer, Str, Nested
 
 
 class MessageView(Schema):

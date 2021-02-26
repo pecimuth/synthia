@@ -2,14 +2,14 @@ import random
 import string
 
 from core.model.meta_column import MetaColumn
-from core.service.column_generator.base import ColumnGeneratorBase
+from core.service.column_generator.base import ColumnGenerator
 from core.service.column_generator.params import ColumnGeneratorParam
 from core.service.data_source.data_provider import DataProvider
 from core.service.generation_procedure.database import GeneratedDatabase
 from core.service.types import Types
 
 
-class StringGenerator(ColumnGeneratorBase[str]):
+class StringGenerator(ColumnGenerator[str]):
     name = 'string'
     only_for_type = Types.STRING
     param_list = [

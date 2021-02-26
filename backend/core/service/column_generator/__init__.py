@@ -1,27 +1,28 @@
-from typing import Type, List, Tuple, Union, Dict
+from typing import Type, List
 
 from core.model.generator_setting import GeneratorSetting
 from core.model.meta_column import MetaColumn
 from core.model.meta_table import MetaTable
-from core.service.column_generator.base import ColumnGeneratorBase, OutputType
+from core.service.column_generator.base import ColumnGenerator, OutputType
 
+import core.service.column_generator.faker_generator
 from core.service.column_generator import special, datetime, number, string, boolean
 from core.service.exception import ColumnGeneratorError, SomeError
 
 
-def get_generator_by_name(name: str) -> Type[ColumnGeneratorBase[OutputType]]:
+def get_generator_by_name(name: str) -> Type[ColumnGenerator[OutputType]]:
     if not hasattr(get_generator_by_name, 'gen_by_name'):
         get_generator_by_name.gen_by_name = {
             column_gen.name: column_gen
-            for column_gen in ColumnGeneratorBase.__subclasses__()
+            for column_gen in ColumnGenerator.__subclasses__()
         }
     if name not in get_generator_by_name.gen_by_name:
         raise SomeError('invalid generator name')
     return get_generator_by_name.gen_by_name[name]
 
 
-def find_recommended_generator(meta_column: MetaColumn) -> Type[ColumnGeneratorBase]:
-    for column_gen in ColumnGeneratorBase.__subclasses__():
+def find_recommended_generator(meta_column: MetaColumn) -> Type[ColumnGenerator]:
+    for column_gen in ColumnGenerator.__subclasses__():
         if column_gen.only_for_type is not None and \
            column_gen.only_for_type != meta_column.col_type:
             continue
@@ -30,7 +31,7 @@ def find_recommended_generator(meta_column: MetaColumn) -> Type[ColumnGeneratorB
     raise ColumnGeneratorError('no suitable generator found', meta_column)
 
 
-def make_generator_instance_for_meta_column(meta_column: MetaColumn) -> ColumnGeneratorBase:
+def make_generator_instance_for_meta_column(meta_column: MetaColumn) -> ColumnGenerator:
     if meta_column.generator_setting is None:
         generator_factory = find_recommended_generator(meta_column)
         generator_setting = generator_factory.create_setting_instance()
@@ -45,7 +46,7 @@ def make_generator_instance_for_meta_column(meta_column: MetaColumn) -> ColumnGe
     return generator_factory(meta_column.generator_setting)
 
 
-GeneratorList = List[ColumnGeneratorBase]
+GeneratorList = List[ColumnGenerator]
 
 
 def make_generator_instances_for_table(meta_table: MetaTable) -> GeneratorList:

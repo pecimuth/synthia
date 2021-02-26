@@ -1,15 +1,23 @@
-from datetime import datetime
+from datetime import datetime, date
 from typing import Type, Union
 
-from sqlalchemy import Column, Integer, String, DateTime, Numeric, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, Numeric, Boolean, Enum
 from sqlalchemy.sql.type_api import TypeEngine
 
 from core.service.exception import SomeError
 
 AnyBasicType = Union[int, float, str, bool, datetime, type(None)]
 
+DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
-class Types:
+
+def json_serialize_default(obj):
+    if isinstance(obj, (datetime, date)):
+        return obj.strftime(DATETIME_FORMAT)
+    return str(obj)
+
+
+class Types(Enum):
     INTEGER = 'integer'
     FLOAT = 'float'
     BOOL = 'bool'
@@ -32,7 +40,7 @@ def get_column_type(column: Column) -> str:
     raise SomeError('unknown type {}'.format(column.type.__visit_name__))
 
 
-def get_sql_alchemy_type(type_literal: str) -> Type[TypeEngine]:
+def get_sql_alchemy_type(type_literal: Types) -> Type[TypeEngine]:
     if type_literal == Types.INTEGER:
         return Integer
     elif type_literal == Types.FLOAT:
@@ -46,7 +54,7 @@ def get_sql_alchemy_type(type_literal: str) -> Type[TypeEngine]:
     raise SomeError('unknown type {}'.format(type_literal))
 
 
-def get_python_type(type_literal: str) -> Type[AnyBasicType]:
+def get_python_type(type_literal: Types) -> Type[AnyBasicType]:
     # alchemy_type = get_sql_alchemy_type(type_literal)
     # alchemy_type.python_type
     if type_literal == Types.INTEGER:
@@ -62,7 +70,9 @@ def get_python_type(type_literal: str) -> Type[AnyBasicType]:
     raise SomeError('unknown type {}'.format(type_literal))
 
 
-def convert_value_to_type(value: AnyBasicType, type_literal: str) -> AnyBasicType:
+def convert_value_to_type(value: AnyBasicType, type_literal: Types) -> AnyBasicType:
+    if type_literal == Types.DATETIME and isinstance(value, str):
+        return datetime.strptime(value, DATETIME_FORMAT)
     return get_python_type(type_literal)(value)
 
 

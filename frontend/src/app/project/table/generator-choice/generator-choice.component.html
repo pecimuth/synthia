@@ -15,16 +15,18 @@
   </mat-chip-list>
 </div>
 
-<div *ngIf="generators" class="margin-bottom">
-  <h3>New generator</h3>
-  <mat-chip-list>
-    <mat-chip *ngFor="let generator of generators"
-      selectable 
-      (click)="createSetting(generator)"
-      class="cursor-pointer">
-      {{ generator.name }}
-    </mat-chip>
-  </mat-chip-list>
-</div>
+<ng-container *ngIf="generatorsByCategory">
+  <div *ngFor="let item of generatorsByCategory | keyvalue" class="margin-bottom">
+    <h3>{{ item.key }}</h3>
+    <mat-chip-list>
+      <mat-chip *ngFor="let generator of item.value"
+        selectable 
+        (click)="createSetting(generator)"
+        class="cursor-pointer">
+        {{ generator.name }}
+      </mat-chip>
+    </mat-chip-list>
+  </div>
+</ng-container>
 
 <!-- <button mat-flat-button mat-dialog-close type="button">Cancel</button> -->

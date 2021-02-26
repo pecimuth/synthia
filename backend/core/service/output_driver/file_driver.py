@@ -11,6 +11,7 @@ from sqlalchemy import Table
 from core.model.meta_table import MetaTable
 from core.service.generation_procedure.database import GeneratedRow, GeneratedDatabase, GeneratedTable
 from core.service.output_driver import OutputDriver
+from core.service.types import json_serialize_default
 
 
 class FileOutputDriver(OutputDriver):
@@ -46,7 +47,7 @@ class JsonOutputDriver(FileOutputDriver):
     mime_type = 'application/json'
 
     def dumps(self):
-        return json.dumps(self._database.get_dict(), indent=2, sort_keys=True, default=str)
+        return json.dumps(self._database.get_dict(), indent=2, sort_keys=True, default=json_serialize_default)
 
     @classmethod
     def add_extension(cls, file_name_base: str) -> str:

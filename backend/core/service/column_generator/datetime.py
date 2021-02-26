@@ -1,12 +1,12 @@
 import datetime
 
 from core.model.meta_column import MetaColumn
-from core.service.column_generator.base import ColumnGeneratorBase
+from core.service.column_generator.base import ColumnGenerator
 from core.service.generation_procedure.database import GeneratedDatabase
 from core.service.types import Types
 
 
-class DatetimeGenerator(ColumnGeneratorBase[datetime.datetime]):
+class DatetimeGenerator(ColumnGenerator[datetime.datetime]):
     name = 'datetime'
     only_for_type = Types.DATETIME
 

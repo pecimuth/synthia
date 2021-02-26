@@ -1,5 +1,5 @@
 from marshmallow import Schema, ValidationError
-from marshmallow.fields import Integer, Str, Dict, Float, Bool, Raw, Nested, List
+from marshmallow.fields import Integer, Str, Dict, Float, Bool, Raw, Nested, List, Method
 from marshmallow.validate import Range
 
 from core.service.column_generator import get_generator_by_name
@@ -46,9 +46,13 @@ class GeneratorParam(Schema):
 
 class GeneratorView(Schema):
     name = Str()
+    category = Method('get_category_value')
     only_for_type = Str()
     supports_null = Bool()
     param_list = List(Nested(GeneratorParam()))
+
+    def get_category_value(self, obj):
+        return obj.category.value
 
 
 class GeneratorListView(Schema):

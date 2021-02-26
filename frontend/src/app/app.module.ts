@@ -13,6 +13,7 @@ import { AtomModule } from './atom/atom.module';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptorService } from './service/auth-interceptor.service';
 import { DialogModule } from './dialog/dialog.module';
+import { MatNativeDateModule, MAT_DATE_LOCALE } from '@angular/material/core';
 
 
 @NgModule({
@@ -29,13 +30,18 @@ import { DialogModule } from './dialog/dialog.module';
     LayoutModule,
     ApiModule.forRoot({rootUrl: environment.apiUrl}),
     AtomModule,
-    DialogModule
+    DialogModule,
+    MatNativeDateModule
   ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptorService,
       multi: true
+    },
+    {
+      provide: MAT_DATE_LOCALE,
+      useValue: 'en-GB'
     }
   ],
   bootstrap: [AppComponent]

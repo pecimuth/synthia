@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import List, Generic, TypeVar, Union, Dict
 
 from core.service.exception import SomeError
-from core.service.types import convert_value_to_type, AnyBasicType
+from core.service.types import convert_value_to_type, AnyBasicType, Types
 
 ValueType = TypeVar('ValueType', int, float, str, bool, dt.datetime, type(None))
 
@@ -11,7 +11,7 @@ ValueType = TypeVar('ValueType', int, float, str, bool, dt.datetime, type(None))
 @dataclass
 class ColumnGeneratorParam(Generic[ValueType]):
     name: str
-    value_type: str
+    value_type: Types
     default_value: ValueType
 
     # constraints
@@ -32,8 +32,9 @@ def normalized_params(param_list: ColumnGeneratorParamList, param_dict: ParamDic
             value = param_dict[param.name]
             try:
                 result[param.name] = convert_value_to_type(value, param.value_type)
-            except (SomeError, ValueError):
-                result[param.name] = param.default_value
+            except (SomeError, ValueError) as e:
+                raise e
+            #    result[param.name] = param.default_value
         else:
             result[param.name] = param.default_value
     enforce_param_constraints(param_list, result)

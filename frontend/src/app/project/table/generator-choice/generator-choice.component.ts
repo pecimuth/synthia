@@ -5,7 +5,7 @@ import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { ColumnView } from 'src/app/api/models/column-view';
 import { GeneratorSettingView } from 'src/app/api/models/generator-setting-view';
 import { TableView } from 'src/app/api/models/table-view';
-import { GeneratorFacadeService, GeneratorView } from 'src/app/project/service/generator-facade.service';
+import { GeneratorFacadeService, GeneratorsByCategory, GeneratorView } from 'src/app/project/service/generator-facade.service';
 import { ActiveProjectService } from '../../service/active-project.service';
 import { ColumnFacadeService } from '../../service/column-facade.service';
 
@@ -23,7 +23,7 @@ export class GeneratorChoiceComponent implements OnInit, OnDestroy {
 
   column: ColumnView;
   table: TableView;
-  generators: GeneratorView[];
+  generatorsByCategory: GeneratorsByCategory;
   private unsubscribe$ = new Subject();
 
   constructor(
@@ -43,11 +43,11 @@ export class GeneratorChoiceComponent implements OnInit, OnDestroy {
           this.column = column;
         }),
         switchMap(([table, column]) => {
-          return this.generatorFacade.getGeneratorsForColumn(column);
+          return this.generatorFacade.getGeneratorsForColumnByCategory(column);
         })
       )
       .subscribe(
-        (generators) => this.generators = generators
+        (generatorsByCategory) => this.generatorsByCategory = generatorsByCategory
       );
   }
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import random
 from abc import ABC, abstractmethod
+from enum import Enum
 from typing import Union, List, Dict, Generic, TypeVar
 
 from core.model.generator_setting import GeneratorSetting
@@ -15,8 +16,16 @@ OutputType = TypeVar('OutputType')
 OutputDict = Dict[str, Union[OutputType, None]]
 
 
-class ColumnGeneratorBase(Generic[OutputType], ABC):
+class GeneratorCategory(Enum):
+    GENERAL = 'General'
+    ADDRESS = 'Address'
+    PERSON = 'Person'
+    DATETIME = 'Date & Time'
+
+
+class ColumnGenerator(Generic[OutputType], ABC):
     name: str
+    category: GeneratorCategory = GeneratorCategory.GENERAL
     is_database_generated = False
     only_for_type: Union[str, None] = None
     supports_null = True

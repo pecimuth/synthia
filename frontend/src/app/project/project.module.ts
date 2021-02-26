@@ -40,6 +40,7 @@ import { CreateColumnFormComponent } from './table/create-column-form/create-col
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { DialogModule } from '../dialog/dialog.module';
 import { CreateTableFormComponent } from './table/create-table-form/create-table-form.component';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 
 
 @NgModule({
@@ -86,7 +87,8 @@ import { CreateTableFormComponent } from './table/create-table-form/create-table
     MatButtonModule,
     MatMenuModule,
     MatFormFieldModule,
-    DialogModule
+    DialogModule,
+    MatDatepickerModule
   ]
 })
 export class ProjectModule { }

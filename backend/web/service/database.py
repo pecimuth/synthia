@@ -1,3 +1,5 @@
+import json
+
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.engine.url import URL
@@ -5,6 +7,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from flask import current_app, g
 
 from core.service.data_source.database_common import database_connection_manager_instance
+from core.service.types import json_serialize_default
 
 
 def get_db_engine() -> Engine:
@@ -17,7 +20,10 @@ def get_db_engine() -> Engine:
             port=current_app.config['DATABASE_PORT'],
             database=current_app.config['DATABASE_DB']
         )
-        return create_engine(url)
+        return create_engine(
+            url,
+            json_serializer=lambda obj: json.dumps(obj, default=json_serialize_default)
+        )
     return g.db_engine
 
 

@@ -13,6 +13,10 @@ import { ColumnView } from 'src/app/api/models/column-view';
 
 export type GeneratorView = GeneratorListView['items'][0];
 
+export type GeneratorsByCategory = {
+  [category: string]: GeneratorView[]
+};
+
 @Injectable({
   providedIn: 'root'
 })
@@ -58,6 +62,21 @@ export class GeneratorFacadeService implements OnDestroy {
             return column.col_type === generator.only_for_type;
           }
         );
+      })
+    );
+  }
+
+  getGeneratorsForColumnByCategory(column: ColumnView): Observable<GeneratorsByCategory> {
+    return this.getGeneratorsForColumn(column).pipe(
+      map((generators) => {
+        const byCategory: GeneratorsByCategory = {};
+        generators.forEach((generator) => {
+          if (!byCategory.hasOwnProperty(generator.category)) {
+            byCategory[generator.category] = [];
+          }
+          byCategory[generator.category].push(generator);
+        });
+        return byCategory;
       })
     );
   }

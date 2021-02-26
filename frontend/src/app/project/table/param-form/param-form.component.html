@@ -1,8 +1,16 @@
 <form *ngIf="form" [formGroup]="form" novalidate (ngSubmit)="onSubmit()">
   <div class="margin-between" *ngFor="let param of generator.param_list">
-    <mat-form-field>
-      <mat-label>{{ param.name }}</mat-label>
-      <input matInput [formControlName]="param.name" [type]="getInputType(param)">
-    </mat-form-field>
+    <ng-container [ngSwitch]="param.value_type">
+      <mat-form-field *ngSwitchCase="'datetime'">
+        <mat-label>{{ param.name }}</mat-label>
+        <input matInput [formControlName]="param.name" [matDatepicker]="picker">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field *ngSwitchDefault>
+        <mat-label>{{ param.name }}</mat-label>
+        <input matInput [formControlName]="param.name" [type]="getInputType(param)">
+      </mat-form-field>
+    </ng-container>
   </div>
 </form>

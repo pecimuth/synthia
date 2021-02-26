@@ -8,6 +8,7 @@ setup(
         # core
         'sqlalchemy',
         'psycopg2-binary',
+        'Faker',
         # web
         'flask>=1.1',
         'flasgger',
