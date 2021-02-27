@@ -107,4 +107,3 @@ class TimeZoneGenerator(RegisteredGenerator, FakerDateTimeStringGenerator):
 
 class YearGenerator(RegisteredGenerator, FakerDateTimeStringGenerator):
     provider = 'year'
-

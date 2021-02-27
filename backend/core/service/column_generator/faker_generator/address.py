@@ -33,5 +33,5 @@ class StreetAddressGenerator(RegisteredGenerator, FakerAddressGenerator):
     provider = 'street_address'
 
 
-class StreetproviderGenerator(RegisteredGenerator, FakerAddressGenerator):
+class StreetNameGenerator(RegisteredGenerator, FakerAddressGenerator):
     provider = 'street_provider'

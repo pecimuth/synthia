@@ -21,9 +21,9 @@ def add_parameter_property(owner: Type[ColumnGenerator],
         value_type=class_to_types(sig.return_annotation),
         **param_options
     )
-    if owner.param_decl_list is ColumnGenerator.param_decl_list:
-        owner.param_decl_list = []
-    owner.param_decl_list.append(param)
+    if owner.param_list is ColumnGenerator.param_list:
+        owner.param_list = []
+    owner.param_list.append(param)
 
     prop = ParameterProperty(owner, name)
     setattr(owner, name, prop)

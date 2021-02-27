@@ -1,6 +1,7 @@
 from typing import Iterator, Tuple, Any
 
-from sqlalchemy import MetaData, select, Column
+from sqlalchemy import MetaData, select, Column, func
+from sqlalchemy.engine import Connection
 
 from core.service.data_source.data_provider.base_provider import DataProvider
 from core.service.data_source.database_common import get_shared_connection, get_shared_engine
@@ -18,10 +19,17 @@ class DatabaseDataProvider(DataProvider):
         for tup in self._select(self._identifiers):
             yield tup
 
+    @property
+    def _conn(self) -> Connection:
+        return get_shared_connection(self._data_source)
+
+    @property
+    def _first_column(self) -> Column:
+        return self._get_column(self._identifiers[0])
+
     def _select(self, identifiers: Identifiers) -> Iterator[Tuple]:
         columns = [self._get_column(idf) for idf in identifiers]
-        conn = get_shared_connection(self._data_source)
-        for row in conn.execute(select(columns)):
+        for row in self._conn.execute(select(columns)):
             yield row
 
     def _get_column(self, idf: Identifier) -> Column:
@@ -34,3 +42,24 @@ class DatabaseDataProvider(DataProvider):
         if idf.column not in table.columns:
             raise DataSourceIdentifierError('column not found', self._data_source, idf)
         return table.columns[idf.column]
+
+    def scalar_data_not_none(self) -> Iterator[Any]:
+        column = self._first_column
+        query = select([column]).where(column.isnot(None))
+        for row in self._conn.execute(query):
+            yield row[0]
+
+    def estimate_min(self) -> Any:
+        column = self._first_column
+        query = select([func.min(column)])
+        return self._conn.execute(query).scalar()
+
+    def estimate_max(self) -> Any:
+        column = self._first_column
+        query = select([func.max(column)])
+        return self._conn.execute(query).scalar()
+
+    def get_null_count(self) -> int:
+        column = self._first_column
+        query = select([func.count()]).where(column.is_(None))
+        return self._conn.execute(query).scalar()

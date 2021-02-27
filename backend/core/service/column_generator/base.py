@@ -38,14 +38,14 @@ class ColumnGenerator(Generic[OutputType], ABC):
     supports_null: bool
 
     # for decorator implementation
-    param_decl_list: ColumnGeneratorParamList = []
+    param_list: ColumnGeneratorParamList = []
     estimator_list: List[Callable[[ColumnGenerator, DataProvider], Any]] = []
 
     def __init__(self, generator_setting: GeneratorSetting):
         assert generator_setting.name == self.name()
         self._generator_setting = generator_setting
         self._generator_setting.params = \
-            normalized_params(self, self.param_decl_list, self._generator_setting.params)
+            normalized_params(self, self.param_list, self._generator_setting.params)
 
     @classmethod
     def name(cls):

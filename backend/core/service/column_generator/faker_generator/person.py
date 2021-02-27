@@ -14,15 +14,15 @@ class FakerPersonGenerator(FakerGenerator[str]):
 
 
 class NameGenerator(RegisteredGenerator, FakerPersonGenerator):
-    provider = 'provider'
+    provider = 'name'
 
 
 class FirstNameGenerator(RegisteredGenerator, FakerPersonGenerator):
-    provider = 'first_provider'
+    provider = 'first_name'
 
 
 class LastNameGenerator(RegisteredGenerator, FakerPersonGenerator):
-    provider = 'last_provider'
+    provider = 'last_name'
 
 
 class PhoneNumberGenerator(RegisteredGenerator, FakerPersonGenerator):
