@@ -10,63 +10,74 @@ ParameterMethod = Callable[[ColumnGenerator], AnyBasicType]
 EstimatorMethod = Callable[[ColumnGenerator, DataProvider], AnyBasicType]
 
 
+def add_parameter_property(owner: Type[ColumnGenerator],
+                           name: str,
+                           default_value_method: ParameterMethod,
+                           param_options):
+    sig = signature(default_value_method)
+    param = ColumnGeneratorParam(
+        name=name,
+        default_value=default_value_method,
+        value_type=class_to_types(sig.return_annotation),
+        **param_options
+    )
+    if owner.param_list is ColumnGenerator.param_list:
+        owner.param_list = []
+    owner.param_list.append(param)
+
+    prop = ParameterProperty(owner, name)
+    setattr(owner, name, prop)
+
+
 class ParameterProperty:
-    def __init__(self, param_name: str, owner: Type[ColumnGenerator]):
+    def __init__(self, owner: Type[ColumnGenerator], name: str):
         self._owner = owner
-        self._param_name = param_name
+        self._name = name
 
     def __set__(self, instance: ColumnGenerator, value: AnyBasicType):
-        instance.params[self._param_name] = value
+        instance.params[self._name] = value
 
     def __get__(self, instance: ColumnGenerator, owner: Type[ColumnGenerator]):
-        return instance.params[self._param_name]
+        return instance.params[self._name]
 
 
 class GeneratorParameterDecorator:
-    def __init__(self, method: ParameterMethod, **kwargs):
-        self._kwargs = kwargs
-        self._method = method
+    def __init__(self, default_value_method: ParameterMethod, param_options):
+        self._param_options = param_options
+        self._default_value_method = default_value_method
 
     def __set_name__(self, owner: Type[ColumnGenerator], name: str):
-        sig = signature(self._method)
-        param = ColumnGeneratorParam(
-            name=name,
-            default_value=self._method,
-            value_type=class_to_types(sig.return_annotation),
-            **self._kwargs
-        )
-        if owner.param_list is ColumnGenerator.param_list:
-            owner.param_list = []
-        owner.param_list.append(param)
-        prop = ParameterProperty(name, owner)
-        setattr(owner, name, prop)
+        add_parameter_property(owner, name, self._default_value_method, self._param_options)
+
+    def estimator(self, estimator_method: EstimatorMethod):
+        return EstimatorDecorator(estimator_method, self._default_value_method, self._param_options)
 
 
 def parameter(method: Optional[ParameterMethod] = None, **kwargs):
     if method is not None:
-        return GeneratorParameterDecorator(method)
+        return GeneratorParameterDecorator(method, {})
 
     def wrapper(_method: ParameterMethod):
-        return GeneratorParameterDecorator(_method, **kwargs)
+        return GeneratorParameterDecorator(_method, kwargs)
     return wrapper
 
 
 class EstimatorDecorator:
-    def __init__(self, method: EstimatorMethod, param_name: str):
-        self._method = method
-        self._param_name = param_name
+    def __init__(self,
+                 method: EstimatorMethod,
+                 default_value_method: ParameterMethod,
+                 param_options):
+        self._estimator_method = method
+        self._default_value_method = default_value_method
+        self._param_options = param_options
 
     def __set_name__(self, owner: Type[ColumnGenerator], name: str):
+        add_parameter_property(owner, name, self._default_value_method, self._param_options)
+
         def call_the_estimator(generator: ColumnGenerator, provider: DataProvider):
-            result = self._method(generator, provider)
+            result = self._estimator_method(generator, provider)
             if result is not None:
-                generator.params[self._param_name] = result
+                generator.params[name] = result
         if owner.estimator_list is ColumnGenerator.estimator_list:
             owner.estimator_list = []
         owner.estimator_list.append(call_the_estimator)
-
-
-def estimate(param_name: str):
-    def wrapper(method: EstimatorMethod):
-        return EstimatorDecorator(method, param_name)
-    return wrapper

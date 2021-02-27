@@ -2,7 +2,7 @@ import random
 
 from core.model.meta_column import MetaColumn
 from core.service.column_generator.base import RegisteredGenerator, SingleColumnGenerator
-from core.service.column_generator.decorator import parameter, estimate
+from core.service.column_generator.decorator import parameter
 from core.service.data_source.data_provider.base_provider import DataProvider
 from core.service.generation_procedure.database import GeneratedDatabase
 from core.service.types import Types
@@ -20,12 +20,12 @@ class IntegerGenerator(RegisteredGenerator, SingleColumnGenerator[int]):
     def max(self) -> int:
         return 100
 
-    @estimate('min')
-    def estimate_min(self, provider: DataProvider) -> int:
+    @min.estimator
+    def min(self, provider: DataProvider) -> int:
         return provider.estimate_min()
 
-    @estimate('max')
-    def estimate_max(self, provider: DataProvider) -> int:
+    @max.estimator
+    def max(self, provider: DataProvider) -> int:
         return provider.estimate_max()
 
     def make_scalar(self, generated_database: GeneratedDatabase) -> int:
@@ -48,12 +48,12 @@ class FloatGenerator(RegisteredGenerator, SingleColumnGenerator[float]):
     def max(self) -> float:
         return 1.
 
-    @estimate('min')
-    def estimate_min(self, provider: DataProvider) -> float:
+    @min.estimator
+    def min(self, provider: DataProvider) -> float:
         return float(provider.estimate_min())
 
-    @estimate('max')
-    def estimate_max(self, provider: DataProvider) -> float:
+    @max.estimator
+    def max(self, provider: DataProvider) -> float:
         return float(provider.estimate_max())
 
     @classmethod

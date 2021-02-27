@@ -3,7 +3,7 @@ from typing import TypeVar, Generic
 
 from core.model.meta_column import MetaColumn
 from core.service.column_generator.base import GeneratorCategory, RegisteredGenerator
-from core.service.column_generator.decorator import parameter, estimate
+from core.service.column_generator.decorator import parameter
 from core.service.column_generator.faker_generator.base import FakerGenerator
 from core.service.data_source.data_provider import DataProvider
 from core.service.generation_procedure.database import GeneratedDatabase
@@ -30,8 +30,8 @@ class DateStringGenerator(RegisteredGenerator, FakerDateTimeGenerator[str]):
     def end(self) -> dt.datetime:
         return dt.datetime(2021, 1, 1)
 
-    @estimate('end')
-    def estimate_pattern(self, provider: DataProvider) -> dt.datetime:
+    @end.estimator
+    def end(self, provider: DataProvider) -> dt.datetime:
         return provider.estimate_max()
 
     def make_scalar(self, generated_database: GeneratedDatabase) -> str:
@@ -50,12 +50,12 @@ class DateTime(RegisteredGenerator, FakerDateTimeGenerator[dt.datetime]):
     def end(self) -> dt.datetime:
         return dt.datetime(2021, 1, 1)
 
-    @estimate('start')
-    def estimate_pattern(self, provider: DataProvider) -> dt.datetime:
+    @start.estimator
+    def start(self, provider: DataProvider) -> dt.datetime:
         return provider.estimate_min()
 
-    @estimate('end')
-    def estimate_pattern(self, provider: DataProvider) -> dt.datetime:
+    @end.estimator
+    def end(self, provider: DataProvider) -> dt.datetime:
         return provider.estimate_max()
 
     @classmethod

@@ -36,6 +36,8 @@ class ColumnGenerator(Generic[OutputType], ABC):
     is_database_generated = False
     only_for_type: Optional[str] = None
     supports_null: bool
+
+    # for decorator implementation
     param_list: ColumnGeneratorParamList = []
     estimator_list: List[Callable[[ColumnGenerator, DataProvider], Any]] = []
 

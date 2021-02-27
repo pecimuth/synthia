@@ -1,6 +1,6 @@
 from core.service.column_generator.base import GeneratorCategory, RegisteredGenerator
+from core.service.column_generator.decorator import parameter
 from core.service.column_generator.faker_generator.base import FakerGenerator
-from core.service.column_generator.params import ColumnGeneratorParam
 from core.service.generation_procedure.database import GeneratedDatabase
 from core.service.types import Types
 
@@ -17,32 +17,20 @@ class WordGenerator(RegisteredGenerator, FakerTextGenerator):
 class TextGenerator(RegisteredGenerator, FakerTextGenerator):
     name = 'text'
 
-    param_list = [
-        ColumnGeneratorParam(
-            name='max_number_of_chars',
-            value_type=Types.INTEGER,
-            default_value=50,
-            min_value=0,
-            max_value=200
-        )
-    ]
+    @parameter(min_value=0, max_value=200)
+    def max_number_of_chars(self) -> int:
+        return 50
 
     def make_scalar(self, generated_database: GeneratedDatabase) -> str:
-        return self._functor(self._params['max_number_of_chars'])
+        return self._functor(self.max_number_of_chars)
 
 
 class ParagraphGenerator(RegisteredGenerator, FakerTextGenerator):
     name = 'paragraph'
 
-    param_list = [
-        ColumnGeneratorParam(
-            name='number_of_sentences',
-            value_type=Types.INTEGER,
-            default_value=1,
-            min_value=0,
-            max_value=10
-        )
-    ]
+    @parameter(min_value=0, max_value=10)
+    def number_of_sentences(self) -> int:
+        return 1
 
     def make_scalar(self, generated_database: GeneratedDatabase) -> str:
-        return self._functor(self._params['number_of_sentences'])
+        return self._functor(self.number_of_sentences)
