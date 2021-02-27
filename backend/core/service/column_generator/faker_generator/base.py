@@ -11,15 +11,12 @@ OutputType = TypeVar('OutputType')
 
 
 class FakerGenerator(Generic[OutputType], SingleColumnGenerator[OutputType]):
-    name: str
     provider: str
     column_names: Set[str]
 
     def __init__(self, generator_setting: GeneratorSetting):
         super().__init__(generator_setting)
         self._fake = Faker()
-        if not hasattr(self, 'provider'):
-            self.provider = self.name
         self._functor = getattr(self._fake, self.provider)
 
     @classmethod
@@ -27,7 +24,7 @@ class FakerGenerator(Generic[OutputType], SingleColumnGenerator[OutputType]):
         normal = meta_column.name.lower()
         if hasattr(cls, 'column_names'):
             return normal in cls.column_names
-        return normal == cls.name
+        return normal == cls.name().lower()
 
     def make_scalar(self, generated_database: GeneratedDatabase) -> OutputType:
         return self._functor()

@@ -6,12 +6,9 @@ from core.service.column_generator.base import RegisteredGenerator, SingleColumn
 from core.service.column_generator.decorator import parameter
 from core.service.data_source.data_provider import DataProvider
 from core.service.generation_procedure.database import GeneratedDatabase
-from core.service.types import Types
 
 
 class StringGenerator(RegisteredGenerator, SingleColumnGenerator[str]):
-    name = 'string'
-    only_for_type = Types.STRING
 
     @parameter(min_value=1)
     def min_length(self) -> int:

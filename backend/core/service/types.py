@@ -81,6 +81,8 @@ def get_value_type(value: AnyBasicType) -> Types:
         return Types.INTEGER
     elif isinstance(value, str):
         return Types.STRING
+    elif isinstance(value, bool):
+        return Types.BOOl
     elif isinstance(value, float):
         return Types.FLOAT
     elif isinstance(value, type(None)):
@@ -95,10 +97,12 @@ def class_to_types(cls) -> Types:
         return Types.INTEGER
     elif cls == str:
         return Types.STRING
+    elif cls == bool:
+        return Types.BOOL
     elif cls == float:
         return Types.FLOAT
     elif cls == type(None):
         return Types.NONE
     elif cls == datetime:
         return Types.DATETIME
-    raise SomeError('unknown class')
+    raise SomeError('unknown class {}'.format(cls))

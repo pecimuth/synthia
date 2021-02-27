@@ -46,14 +46,20 @@ class GeneratorParam(Schema):
 
 
 class GeneratorView(Schema):
-    name = Str()
+    name = Method('get_name')
     category = Method('get_category_value')
-    only_for_type = Str()
+    only_for_type = Method('get_only_for_type')
     supports_null = Bool()
     param_list = List(Nested(GeneratorParam()))
 
+    def get_name(self, obj):
+        return obj.name()
+
     def get_category_value(self, obj):
         return obj.category.value
+
+    def get_only_for_type(self, obj):
+        return obj.only_for_type()
 
 
 class GeneratorListView(Schema):

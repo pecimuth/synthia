@@ -1,3 +1,5 @@
+from typing import Optional
+
 from core.service.column_generator.base import GeneratorCategory, RegisteredGenerator
 from core.service.column_generator.faker_generator.base import FakerGenerator
 from core.service.types import Types
@@ -5,28 +7,31 @@ from core.service.types import Types
 
 class FakerAddressGenerator(FakerGenerator[str]):
     category = GeneratorCategory.ADDRESS
-    only_for_type = Types.STRING
+
+    @classmethod
+    def only_for_type(cls) -> Optional[Types]:
+        return Types.STRING
 
 
 class CityGenerator(RegisteredGenerator, FakerAddressGenerator):
-    name = 'city'
+    provider = 'city'
 
 
 class CountryGenerator(RegisteredGenerator, FakerAddressGenerator):
-    name = 'country'
+    provider = 'country'
 
 
 class CountryCodeGenerator(RegisteredGenerator, FakerAddressGenerator):
-    name = 'country_code'
+    provider = 'country_code'
 
 
 class PostcodeGenerator(RegisteredGenerator, FakerAddressGenerator):
-    name = 'postcode'
+    provider = 'postcode'
 
 
 class StreetAddressGenerator(RegisteredGenerator, FakerAddressGenerator):
-    name = 'street_address'
+    provider = 'street_address'
 
 
-class StreetNameGenerator(RegisteredGenerator, FakerAddressGenerator):
-    name = 'street_name'
+class StreetproviderGenerator(RegisteredGenerator, FakerAddressGenerator):
+    provider = 'street_provider'

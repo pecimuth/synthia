@@ -5,12 +5,9 @@ from core.service.column_generator.base import RegisteredGenerator, SingleColumn
 from core.service.column_generator.decorator import parameter
 from core.service.data_source.data_provider.base_provider import DataProvider
 from core.service.generation_procedure.database import GeneratedDatabase
-from core.service.types import Types
 
 
 class IntegerGenerator(RegisteredGenerator, SingleColumnGenerator[int]):
-    name = 'integer'
-    only_for_type = Types.INTEGER
 
     @parameter
     def min(self) -> int:
@@ -37,8 +34,6 @@ class IntegerGenerator(RegisteredGenerator, SingleColumnGenerator[int]):
 
 
 class FloatGenerator(RegisteredGenerator, SingleColumnGenerator[float]):
-    name = 'float'
-    only_for_type = Types.FLOAT
 
     @parameter
     def min(self) -> float:
@@ -65,8 +60,6 @@ class FloatGenerator(RegisteredGenerator, SingleColumnGenerator[float]):
 
 
 class GaussianGenerator(RegisteredGenerator, SingleColumnGenerator[float]):
-    name = 'gaussian'
-    only_for_type = Types.FLOAT
 
     @parameter
     def mu(self) -> float:

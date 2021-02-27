@@ -3,7 +3,8 @@ from __future__ import annotations
 import random
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Union, List, Dict, Generic, TypeVar, Optional, Callable, Any
+from inspect import signature
+from typing import List, Dict, Generic, TypeVar, Optional, Callable, Any
 
 from core.model.generator_setting import GeneratorSetting
 from core.model.meta_column import MetaColumn
@@ -12,6 +13,7 @@ from core.service.data_source.data_provider import DataProviderFactory
 from core.service.data_source.data_provider.base_provider import DataProvider
 from core.service.exception import GeneratorSettingError
 from core.service.generation_procedure.database import GeneratedDatabase
+from core.service.types import class_to_types, Types
 
 OutputType = TypeVar('OutputType')
 OutputDict = Dict[str, Optional[OutputType]]
@@ -30,22 +32,33 @@ class RegisteredGenerator(ABC):
 
 
 class ColumnGenerator(Generic[OutputType], ABC):
-    name: str
     category: GeneratorCategory = GeneratorCategory.GENERAL
     is_multi_column: bool
     is_database_generated = False
-    only_for_type: Optional[str] = None
     supports_null: bool
 
     # for decorator implementation
-    param_list: ColumnGeneratorParamList = []
+    param_decl_list: ColumnGeneratorParamList = []
     estimator_list: List[Callable[[ColumnGenerator, DataProvider], Any]] = []
 
     def __init__(self, generator_setting: GeneratorSetting):
-        assert generator_setting.name == self.name
+        assert generator_setting.name == self.name()
         self._generator_setting = generator_setting
         self._generator_setting.params = \
-            normalized_params(self, self.param_list, self._generator_setting.params)
+            normalized_params(self, self.param_decl_list, self._generator_setting.params)
+
+    @classmethod
+    def name(cls):
+        cls_name: str = cls.__name__
+        suffix = 'Generator'
+        if cls_name.endswith(suffix):
+            return cls_name[:-len(suffix)]
+        return cls_name
+
+    @classmethod
+    @abstractmethod
+    def only_for_type(cls) -> Optional[Types]:
+        pass
 
     @classmethod
     @abstractmethod
@@ -58,7 +71,7 @@ class ColumnGenerator(Generic[OutputType], ABC):
 
     @classmethod
     def create_setting_instance(cls) -> GeneratorSetting:
-        return GeneratorSetting(name=cls.name)
+        return GeneratorSetting(name=cls.name())
 
     @property
     def params(self) -> ParamDict:
@@ -96,6 +109,14 @@ class SingleColumnGenerator(Generic[OutputType], ColumnGenerator[OutputType]):
             )
 
     @classmethod
+    def only_for_type(cls) -> Optional[Types]:
+        sig = signature(cls.make_scalar)
+        klass = sig.return_annotation
+        if not isinstance(klass, TypeVar):
+            return class_to_types(klass)
+        return None
+
+    @classmethod
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
         return False
 
@@ -123,9 +144,13 @@ class SingleColumnGenerator(Generic[OutputType], ColumnGenerator[OutputType]):
         }
 
 
-class MultiColumnGenerator(Generic[OutputType], ColumnGenerator[OutputType]):
+class MultiColumnGenerator(Generic[OutputType], ColumnGenerator[OutputType], ABC):
     is_multi_column = True
     supports_null = False
+
+    @classmethod
+    def only_for_type(cls) -> Optional[Types]:
+        return None
 
     @classmethod
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:

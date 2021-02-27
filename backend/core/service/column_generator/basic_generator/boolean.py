@@ -5,12 +5,9 @@ from core.service.column_generator.base import SingleColumnGenerator
 from core.service.column_generator.decorator import parameter
 from core.service.data_source.data_provider import DataProvider
 from core.service.generation_procedure.database import GeneratedDatabase
-from core.service.types import Types
 
 
 class BernoulliGenerator(RegisteredGenerator, SingleColumnGenerator[bool]):
-    name = 'bernoulli'
-    only_for_type = Types.BOOL
 
     @parameter(min_value=0, max_value=1)
     def success_probability(self) -> float:

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from core.service.column_generator.base import GeneratorCategory, RegisteredGenerator
 from core.service.column_generator.faker_generator.base import FakerGenerator
 from core.service.types import Types
@@ -5,28 +7,31 @@ from core.service.types import Types
 
 class FakerPersonGenerator(FakerGenerator[str]):
     category = GeneratorCategory.PERSON
-    only_for_type = Types.STRING
+
+    @classmethod
+    def only_for_type(cls) -> Optional[Types]:
+        return Types.STRING
 
 
 class NameGenerator(RegisteredGenerator, FakerPersonGenerator):
-    name = 'name'
+    provider = 'provider'
 
 
 class FirstNameGenerator(RegisteredGenerator, FakerPersonGenerator):
-    name = 'first_name'
+    provider = 'first_provider'
 
 
 class LastNameGenerator(RegisteredGenerator, FakerPersonGenerator):
-    name = 'last_name'
+    provider = 'last_provider'
 
 
 class PhoneNumberGenerator(RegisteredGenerator, FakerPersonGenerator):
-    name = 'phone_number'
+    provider = 'phone_number'
 
 
 class EmailGenerator(RegisteredGenerator, FakerPersonGenerator):
-    name = 'email'
+    provider = 'email'
 
 
 class UserNameGenerator(RegisteredGenerator, FakerPersonGenerator):
-    name = 'user_name'
+    provider = 'user_provider'

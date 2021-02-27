@@ -1,5 +1,5 @@
 import random
-from typing import Union, Any
+from typing import Union, Any, Optional
 
 from core.model.generator_setting import GeneratorSetting
 from core.model.meta_column import MetaColumn
@@ -11,9 +11,7 @@ from core.service.types import Types
 
 
 class PrimaryKeyGenerator(RegisteredGenerator, SingleColumnGenerator[int]):
-    name = 'primary_key'
     supports_null = False
-    only_for_type = Types.INTEGER
     is_database_generated = True
 
     def __init__(self, generator_setting: GeneratorSetting):
@@ -33,7 +31,6 @@ class PrimaryKeyGenerator(RegisteredGenerator, SingleColumnGenerator[int]):
 
 
 class ForeignKeyGenerator(RegisteredGenerator, SingleColumnGenerator[Any]):
-    name = 'foreign_key'
     is_multi_column = True
 
     def __init__(self, generator_setting: GeneratorSetting):
@@ -44,6 +41,10 @@ class ForeignKeyGenerator(RegisteredGenerator, SingleColumnGenerator[Any]):
                 index = constraint.constrained_columns.index(self._meta_column)
                 self._fk_column = constraint.referenced_columns[index]
                 break
+
+    @classmethod
+    def only_for_type(cls) -> Optional[Types]:
+        return None
 
     @classmethod
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:

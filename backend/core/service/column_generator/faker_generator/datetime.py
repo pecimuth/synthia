@@ -1,5 +1,5 @@
 import datetime as dt
-from typing import TypeVar, Generic
+from typing import TypeVar, Optional
 
 from core.model.meta_column import MetaColumn
 from core.service.column_generator.base import GeneratorCategory, RegisteredGenerator
@@ -12,15 +12,24 @@ from core.service.types import Types
 OutputType = TypeVar('OutputType')
 
 
-class FakerDateTimeGenerator(Generic[OutputType], FakerGenerator[OutputType]):
+class FakerDateTimeGenerator(FakerGenerator[dt.datetime]):
     category = GeneratorCategory.DATETIME
-    only_for_type = Types.DATETIME
+
+    @classmethod
+    def only_for_type(cls) -> Optional[Types]:
+        return Types.DATETIME
 
 
-class DateStringGenerator(RegisteredGenerator, FakerDateTimeGenerator[str]):
-    name = 'date_string'
+class FakerDateTimeStringGenerator(FakerGenerator[str]):
+    category = GeneratorCategory.DATETIME
+
+    @classmethod
+    def only_for_type(cls) -> Optional[Types]:
+        return Types.STRING
+
+
+class DateStringGenerator(RegisteredGenerator, FakerDateTimeStringGenerator):
     provider = 'date'
-    only_for_type = Types.STRING
 
     @parameter(allowed_values=['%d/%m/%Y', '%Y-%m-%d', '%d.%m.%Y'])
     def pattern(self) -> str:
@@ -38,8 +47,7 @@ class DateStringGenerator(RegisteredGenerator, FakerDateTimeGenerator[str]):
         return self._functor(self.pattern, self.end)
 
 
-class DateTime(RegisteredGenerator, FakerDateTimeGenerator[dt.datetime]):
-    name = 'datetime'
+class DateTime(RegisteredGenerator, FakerDateTimeGenerator):
     provider = 'date_time_between'
 
     @parameter
@@ -66,10 +74,8 @@ class DateTime(RegisteredGenerator, FakerDateTimeGenerator[dt.datetime]):
         return self._functor(self.start, self.end)
 
 
-class TimeStringGenerator(RegisteredGenerator, FakerDateTimeGenerator[str]):
-    name = 'time_string'
+class TimeStringGenerator(RegisteredGenerator, FakerDateTimeStringGenerator):
     provider = 'time'
-    only_for_type = Types.STRING
 
     @parameter(allowed_values=['%H:%M:%S', '%H:%M', '%M:%S'])
     def pattern(self) -> str:
@@ -79,36 +85,26 @@ class TimeStringGenerator(RegisteredGenerator, FakerDateTimeGenerator[str]):
         return self._functor(self.pattern)
 
 
-class DayOfMonthGenerator(RegisteredGenerator, FakerDateTimeGenerator[str]):
-    name = 'day_of_month'
-    only_for_type = Types.STRING
+class DayOfMonthGenerator(RegisteredGenerator, FakerDateTimeStringGenerator):
+    provider = 'day_of_month'
 
 
-class DayOfWeekGenerator(RegisteredGenerator, FakerDateTimeGenerator[str]):
-    name = 'day_of_week'
-    only_for_type = Types.STRING
+class DayOfWeekGenerator(RegisteredGenerator, FakerDateTimeStringGenerator):
+    provider = 'day_of_week'
 
 
-class MonthGenerator(RegisteredGenerator, FakerDateTimeGenerator[str]):
-    name = 'month'
-    only_for_type = Types.STRING
+class MonthGenerator(RegisteredGenerator, FakerDateTimeStringGenerator):
+    provider = 'month'
 
 
-class MonthNameGenerator(RegisteredGenerator, FakerDateTimeGenerator[str]):
-    name = 'month_name'
-    only_for_type = Types.STRING
+class MonthNameGenerator(RegisteredGenerator, FakerDateTimeStringGenerator):
+    provider = 'month_provider'
 
 
-class TimeZoneGenerator(RegisteredGenerator, FakerDateTimeGenerator[str]):
-    name = 'timezone'
-    only_for_type = Types.STRING
+class TimeZoneGenerator(RegisteredGenerator, FakerDateTimeStringGenerator):
+    provider = 'timezone'
 
 
-class UnixTimeGenerator(RegisteredGenerator, FakerDateTimeGenerator[int]):
-    name = 'unix_time'
-    only_for_type = Types.INTEGER
+class YearGenerator(RegisteredGenerator, FakerDateTimeStringGenerator):
+    provider = 'year'
 
-
-class YearGenerator(RegisteredGenerator, FakerDateTimeGenerator[str]):
-    name = 'year'
-    only_for_type = Types.STRING
