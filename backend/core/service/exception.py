@@ -13,6 +13,12 @@ class GeneratorRegistrationError(SomeError):
         super().__init__('registered generator must be a column generator')
 
 
+class GeneratorSettingError(SomeError):
+    def __init__(self, message: str, generator_setting):
+        super().__init__(message)
+        self.generator_setting = generator_setting
+
+
 class DataSourceError(SomeError):
     def __init__(self, message: str, data_source: DataSource):
         super().__init__(message)

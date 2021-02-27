@@ -1,98 +1,89 @@
 import random
 
 from core.model.meta_column import MetaColumn
-from core.service.column_generator.base import ColumnGenerator, RegisteredGenerator
-from core.service.column_generator.params import ColumnGeneratorParam
+from core.service.column_generator.base import RegisteredGenerator, SingleColumnGenerator
+from core.service.column_generator.decorator import parameter, estimate
 from core.service.data_source.data_provider.base_provider import DataProvider
 from core.service.generation_procedure.database import GeneratedDatabase
 from core.service.types import Types
 
 
-class IntegerGenerator(RegisteredGenerator, ColumnGenerator[int]):
+class IntegerGenerator(RegisteredGenerator, SingleColumnGenerator[int]):
     name = 'integer'
     only_for_type = Types.INTEGER
-    param_list = [
-        ColumnGeneratorParam(
-            name='min',
-            value_type=Types.INTEGER,
-            default_value=-100
-        ),
-        ColumnGeneratorParam(
-            name='max',
-            value_type=Types.INTEGER,
-            default_value=100,
-            greater_equal_than='min'
-        )
-    ]
 
-    @classmethod
-    def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
-        return True
+    @parameter
+    def min(self) -> int:
+        return -100
+
+    @parameter(greater_equal_than='min')
+    def max(self) -> int:
+        return 100
+
+    @estimate('min')
+    def estimate_min(self, provider: DataProvider) -> int:
+        return provider.estimate_min()
+
+    @estimate('max')
+    def estimate_max(self, provider: DataProvider) -> int:
+        return provider.estimate_max()
 
     def make_scalar(self, generated_database: GeneratedDatabase) -> int:
-        return random.randint(self._params['min'], self._params['max'])
+        return random.randint(self.min, self.max)
 
-    def _estimate_params_with_provider(self, provider: DataProvider):
-        self._params['min'] = provider.estimate_min() or self.param_list[0].default_value
-        self._params['max'] = provider.estimate_max() or self.param_list[1].default_value
+    @classmethod
+    def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
+        return True
 
 
-class FloatGenerator(RegisteredGenerator, ColumnGenerator[float]):
+class FloatGenerator(RegisteredGenerator, SingleColumnGenerator[float]):
     name = 'float'
     only_for_type = Types.FLOAT
-    param_list = [
-        ColumnGeneratorParam(
-            name='min',
-            value_type=Types.FLOAT,
-            default_value=-1.
-        ),
-        ColumnGeneratorParam(
-            name='max',
-            value_type=Types.FLOAT,
-            default_value=1.,
-            greater_equal_than='min'
-        )
-    ]
+
+    @parameter
+    def min(self) -> float:
+        return -1.
+
+    @parameter(greater_equal_than='min')
+    def max(self) -> float:
+        return 1.
+
+    @estimate('min')
+    def estimate_min(self, provider: DataProvider) -> float:
+        return float(provider.estimate_min())
+
+    @estimate('max')
+    def estimate_max(self, provider: DataProvider) -> float:
+        return float(provider.estimate_max())
 
     @classmethod
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
         return True
 
     def make_scalar(self, generated_database: GeneratedDatabase) -> float:
-        return random.uniform(self._params['min'], self._params['max'])
-
-    def _estimate_params_with_provider(self, provider: DataProvider):
-        self._params['min'] = float(provider.estimate_min()) or self.param_list[0].default_value
-        self._params['max'] = float(provider.estimate_max()) or self.param_list[1].default_value
+        return random.uniform(self.min, self.max)
 
 
-class GaussianGenerator(RegisteredGenerator, ColumnGenerator[float]):
+class GaussianGenerator(RegisteredGenerator, SingleColumnGenerator[float]):
     name = 'gaussian'
     only_for_type = Types.FLOAT
-    param_list = [
-        ColumnGeneratorParam(
-            name='mu',
-            value_type=Types.FLOAT,
-            default_value=0.
-        ),
-        ColumnGeneratorParam(
-            name='sigma',
-            value_type=Types.FLOAT,
-            default_value=1,
-            min_value=0
-        )
-    ]
+
+    @parameter
+    def mu(self) -> float:
+        return 0.
+
+    @parameter(min_value=0)
+    def sigma(self) -> float:
+        return 1.
 
     def make_scalar(self, generated_database: GeneratedDatabase) -> float:
-        return random.gauss(self._params['mu'], self._params['sigma'])
+        return random.gauss(self.mu, self.sigma)
 
     def _estimate_params_with_provider(self, provider: DataProvider):
         sample_sum = 0
         square_sum = 0
         samples = 0
-        for sample in provider.scalar_data():
-            if sample is None:
-                continue
+        for sample in provider.scalar_data_not_none():
             samples += 1
             sample_sum += sample
             square_sum += sample ** 2
@@ -100,5 +91,5 @@ class GaussianGenerator(RegisteredGenerator, ColumnGenerator[float]):
             return
         first_moment = sample_sum / samples
         second_moment = square_sum / samples
-        self._params['mu'] = first_moment
-        self._params['sigma'] = max(second_moment - first_moment ** 2, 0)
+        self.mu = first_moment
+        self.sigma = max(second_moment - first_moment ** 2, 0)

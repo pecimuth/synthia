@@ -2,39 +2,32 @@ import random
 import string
 
 from core.model.meta_column import MetaColumn
-from core.service.column_generator.base import ColumnGenerator, RegisteredGenerator
-from core.service.column_generator.params import ColumnGeneratorParam
+from core.service.column_generator.base import RegisteredGenerator, SingleColumnGenerator
+from core.service.column_generator.decorator import parameter
 from core.service.data_source.data_provider import DataProvider
 from core.service.generation_procedure.database import GeneratedDatabase
 from core.service.types import Types
 
 
-class StringGenerator(RegisteredGenerator, ColumnGenerator[str]):
+class StringGenerator(RegisteredGenerator, SingleColumnGenerator[str]):
     name = 'string'
     only_for_type = Types.STRING
-    param_list = [
-        ColumnGeneratorParam(
-            name='min_length',
-            value_type=Types.INTEGER,
-            default_value=1,
-            min_value=1
-        ),
-        ColumnGeneratorParam(
-            name='max_length',
-            value_type=Types.INTEGER,
-            default_value=10,
-            max_value=100,
-            greater_equal_than='min_length'
-        )
-    ]
+
+    @parameter(min_value=1)
+    def min_length(self) -> int:
+        return 1
+
+    @parameter(max_value=100, greater_equal_than='min_length')
+    def max_length(self) -> int:
+        return 10
+
+    def make_scalar(self, generated_database: GeneratedDatabase) -> str:
+        length = random.randint(self.min_length, self.max_length)
+        return self._random_string_of_length(length)
 
     @classmethod
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
-        return meta_column.col_type == Types.STRING
-
-    def make_scalar(self, generated_database: GeneratedDatabase) -> str:
-        length = random.randint(self._params['min_length'], self._params['max_length'])
-        return self._random_string_of_length(length)
+        return True
 
     @classmethod
     def _random_string_of_length(cls, length: int) -> str:
@@ -43,12 +36,10 @@ class StringGenerator(RegisteredGenerator, ColumnGenerator[str]):
     def _estimate_params_with_provider(self, provider: DataProvider):
         min_len = None
         max_len = None
-        for sample in provider.scalar_data():
-            if sample is None:
-                continue
+        for sample in provider.scalar_data_not_none():
             if min_len is None or len(sample) < min_len:
                 min_len = len(sample)
             if max_len is None or len(sample) > max_len:
                 max_len = len(sample)
-        self._params['min_length'] = min_len or self.param_list[0].default_value
-        self._params['max_length'] = max_len or self.param_list[1].default_value
+        self.min_length = min_len or 1
+        self.max_length = max_len or 10

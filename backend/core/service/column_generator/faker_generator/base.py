@@ -4,13 +4,13 @@ from faker import Faker
 
 from core.model.generator_setting import GeneratorSetting
 from core.model.meta_column import MetaColumn
-from core.service.column_generator import ColumnGenerator
+from core.service.column_generator.base import SingleColumnGenerator
 from core.service.generation_procedure.database import GeneratedDatabase
 
 OutputType = TypeVar('OutputType')
 
 
-class FakerGenerator(Generic[OutputType], ColumnGenerator[OutputType]):
+class FakerGenerator(Generic[OutputType], SingleColumnGenerator[OutputType]):
     name: str
     provider: str
     column_names: Set[str]

@@ -23,6 +23,11 @@ class DataProvider(ABC):
     def vector_data(self) -> Iterator[Tuple]:
         pass
 
+    def scalar_data_not_none(self) -> Iterator[Any]:
+        for sample in self.scalar_data():
+            if sample is not None:
+                yield sample
+
     def reduce(self, function: Callable, initial: Any, limit=DEFAULT_ROW_LIMIT) -> Any:
         # TODO generic types
         return reduce(

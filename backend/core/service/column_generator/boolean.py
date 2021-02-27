@@ -1,39 +1,29 @@
 import random
 
-from core.model.meta_column import MetaColumn
-from core.service.column_generator import ColumnGenerator, RegisteredGenerator
-from core.service.column_generator.params import ColumnGeneratorParam
+from core.service.column_generator import RegisteredGenerator
+from core.service.column_generator.base import SingleColumnGenerator
+from core.service.column_generator.decorator import parameter, estimate
 from core.service.data_source.data_provider import DataProvider
 from core.service.generation_procedure.database import GeneratedDatabase
 from core.service.types import Types
 
 
-class BernoulliGenerator(RegisteredGenerator, ColumnGenerator[bool]):
+class BernoulliGenerator(RegisteredGenerator, SingleColumnGenerator[bool]):
     name = 'bernoulli'
     only_for_type = Types.BOOL
-    param_list = [
-        ColumnGeneratorParam(
-            name='success_probability',
-            value_type=Types.FLOAT,
-            min_value=0.0,
-            max_value=1.0,
-            default_value=0.5
-        )
-    ]
 
-    @classmethod
-    def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
-        return True
+    @parameter(min_value=0, max_value=1)
+    def success_probability(self) -> float:
+        return 0.5
 
-    def make_scalar(self, generated_database: GeneratedDatabase) -> bool:
-        return random.random() <= self._params['success_probability']
-
-    def _estimate_params_with_provider(self, provider: DataProvider):
+    @estimate('success_probability')
+    def estimate_success_probability(self, provider: DataProvider) -> float:
         samples = 2
         successes = 1
-        for sample in provider.scalar_data():
-            if sample is None:
-                continue
+        for sample in provider.scalar_data_not_none():
             samples += 1
             successes += bool(sample)
-        self._params['success_probability'] = successes / samples
+        return samples / successes
+
+    def make_scalar(self, generated_database: GeneratedDatabase) -> bool:
+        return random.random() <= self.success_probability

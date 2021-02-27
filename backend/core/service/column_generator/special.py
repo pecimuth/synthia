@@ -4,13 +4,13 @@ from typing import Union, Any
 from core.model.generator_setting import GeneratorSetting
 from core.model.meta_column import MetaColumn
 from core.model.meta_constraint import MetaConstraint
-from core.service.column_generator.base import ColumnGenerator, RegisteredGenerator
+from core.service.column_generator.base import RegisteredGenerator, SingleColumnGenerator
 from core.service.exception import ColumnGeneratorError
 from core.service.generation_procedure.database import GeneratedDatabase
 from core.service.types import Types
 
 
-class PrimaryKeyGenerator(RegisteredGenerator, ColumnGenerator[int]):
+class PrimaryKeyGenerator(RegisteredGenerator, SingleColumnGenerator[int]):
     name = 'primary_key'
     supports_null = False
     only_for_type = Types.INTEGER
@@ -32,8 +32,9 @@ class PrimaryKeyGenerator(RegisteredGenerator, ColumnGenerator[int]):
         return self._counter
 
 
-class ForeignKeyGenerator(RegisteredGenerator, ColumnGenerator[Any]):
+class ForeignKeyGenerator(RegisteredGenerator, SingleColumnGenerator[Any]):
     name = 'foreign_key'
+    is_multi_column = True
 
     def __init__(self, generator_setting: GeneratorSetting):
         super().__init__(generator_setting)

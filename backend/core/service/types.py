@@ -76,7 +76,7 @@ def convert_value_to_type(value: AnyBasicType, type_literal: Types) -> AnyBasicT
     return get_python_type(type_literal)(value)
 
 
-def get_value_type(value: AnyBasicType) -> str:
+def get_value_type(value: AnyBasicType) -> Types:
     if isinstance(value, int):
         return Types.INTEGER
     elif isinstance(value, str):
@@ -88,3 +88,17 @@ def get_value_type(value: AnyBasicType) -> str:
     elif isinstance(value, datetime):
         return Types.DATETIME
     raise SomeError('unknown value type {}'.format(value))
+
+
+def class_to_types(cls) -> Types:
+    if cls == int:
+        return Types.INTEGER
+    elif cls == str:
+        return Types.STRING
+    elif cls == float:
+        return Types.FLOAT
+    elif cls == type(None):
+        return Types.NONE
+    elif cls == datetime:
+        return Types.DATETIME
+    raise SomeError('unknown class')

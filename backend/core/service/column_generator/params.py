@@ -1,32 +1,35 @@
 import datetime as dt
 from dataclasses import dataclass
-from typing import List, Generic, TypeVar, Union, Dict, Set
+from typing import List, Generic, TypeVar, Union, Dict, Set, Callable, Any, Optional
 
 from core.service.exception import SomeError
 from core.service.types import convert_value_to_type, AnyBasicType, Types
 
 ValueType = TypeVar('ValueType', int, float, str, bool, dt.datetime, type(None))
+ColumnGenerator = Any
 
 
 @dataclass
 class ColumnGeneratorParam(Generic[ValueType]):
     name: str
     value_type: Types
-    default_value: ValueType
+    default_value: Callable[[ColumnGenerator], ValueType]
 
     # constraints
-    allowed_values: Union[List[ValueType], None] = None
+    allowed_values: Optional[List[ValueType]] = None
     min_value: ValueType = None
     max_value: ValueType = None
-    greater_equal_than: Union[str, None] = None
+    greater_equal_than: Optional[str] = None
 
 
 ColumnGeneratorParamList = List[ColumnGeneratorParam]
 ParamDict = Dict[str, AnyBasicType]
-ParamDictOrNone = Union[ParamDict, None]
+ParamDictOrNone = Optional[ParamDict]
 
 
-def normalized_params(param_list: ColumnGeneratorParamList, param_dict: ParamDictOrNone) -> ParamDict:
+def normalized_params(column_generator: ColumnGenerator,
+                      param_list: ColumnGeneratorParamList,
+                      param_dict: ParamDictOrNone) -> ParamDict:
     result = {}
     for param in param_list:
         if param_dict and param.name in param_dict:
@@ -34,10 +37,10 @@ def normalized_params(param_list: ColumnGeneratorParamList, param_dict: ParamDic
             try:
                 result[param.name] = convert_value_to_type(value, param.value_type)
             except (SomeError, ValueError) as e:
-                raise e
-            #    result[param.name] = param.default_value
+                result[param.name] = param.default_value(column_generator)
+                raise e  # TODO remove
         else:
-            result[param.name] = param.default_value
+            result[param.name] = param.default_value(column_generator)
     enforce_param_constraints(param_list, result)
     return result
 
