@@ -1,4 +1,4 @@
-from typing import Iterator, Tuple, Any
+from typing import Iterator, Tuple, Any, Optional
 
 from sqlalchemy import MetaData, select, Column, func
 from sqlalchemy.engine import Connection
@@ -63,3 +63,16 @@ class DatabaseDataProvider(DataProvider):
         column = self._first_column
         query = select([func.count()]).where(column.is_(None))
         return self._conn.execute(query).scalar()
+
+    def get_not_null_count(self) -> int:
+        column = self._first_column
+        query = select([func.count(column)])
+        return self._conn.execute(query).scalar()
+
+    def estimate_null_frequency(self) -> Optional[float]:
+        null_count = self.get_null_count()
+        not_null_count = self.get_not_null_count()
+        count = null_count + not_null_count
+        if count == 0:
+            return None
+        return null_count / count

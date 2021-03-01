@@ -72,7 +72,8 @@ class GaussianGenerator(RegisteredGenerator, SingleColumnGenerator[float]):
     def make_scalar(self, generated_database: GeneratedDatabase) -> float:
         return random.gauss(self.mu, self.sigma)
 
-    def _estimate_params_with_provider(self, provider: DataProvider):
+    def estimate_params(self, provider: DataProvider):
+        super().estimate_params(provider)
         sample_sum = 0
         square_sum = 0
         samples = 0

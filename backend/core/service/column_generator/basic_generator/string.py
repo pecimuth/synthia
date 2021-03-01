@@ -30,7 +30,8 @@ class StringGenerator(RegisteredGenerator, SingleColumnGenerator[str]):
     def _random_string_of_length(cls, length: int) -> str:
         return ''.join(random.choice(string.ascii_letters) for _ in range(length))
 
-    def _estimate_params_with_provider(self, provider: DataProvider):
+    def estimate_params(self, provider: DataProvider):
+        super().estimate_params(provider)
         min_len = None
         max_len = None
         for sample in provider.scalar_data_not_none():

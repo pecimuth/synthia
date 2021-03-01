@@ -2,8 +2,7 @@ from marshmallow import Schema, ValidationError
 from marshmallow.fields import Integer, Str, Dict, Float, Bool, Raw, Nested, List, Method
 from marshmallow.validate import Range
 
-from core.service.column_generator import get_generator_by_name
-from core.service.exception import SomeError
+from core.service.column_generator import RegisteredGenerator
 
 
 class GeneratorSettingView(Schema):
@@ -14,10 +13,8 @@ class GeneratorSettingView(Schema):
 
 
 def validate_generator_name(name):
-    try:
-        get_generator_by_name(name)
-    except SomeError as e:
-        raise ValidationError(e.message)
+    if not RegisteredGenerator.is_name_registered(name):
+        raise ValidationError('invalid generator name')
 
 
 class GeneratorSettingWrite(Schema):

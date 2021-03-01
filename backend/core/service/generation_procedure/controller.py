@@ -4,7 +4,7 @@ from sqlalchemy import Table
 
 from core.model.meta_table import MetaTable
 from core.model.project import Project
-from core.service.column_generator import make_generator_instances_for_table, GeneratorList
+from core.service.column_generator import GeneratorList, GeneratorSettingFacade
 from core.service.deserializer import StructureDeserializer
 from core.service.exception import SomeError
 from core.service.generation_procedure.constraint_checker import ConstraintChecker
@@ -53,7 +53,7 @@ class ProcedureController:
     def _table_loop(self, meta_table: MetaTable):
         table_db = self._database.add_table(meta_table.name)
         stats = self._statistics.get_table_statistics(meta_table.name)
-        generators = make_generator_instances_for_table(meta_table)
+        generators = GeneratorSettingFacade.instances_from_table(meta_table)
         checker = ConstraintChecker(meta_table, self._database)
         while stats.expects_next_row:
             row = self._make_row(generators)

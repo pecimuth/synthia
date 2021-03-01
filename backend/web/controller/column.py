@@ -7,14 +7,14 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from core.model.generator_setting import GeneratorSetting
 from core.model.meta_constraint import MetaConstraint
-from core.service.column_generator import make_generator_instance_for_meta_column
+from core.service.column_generator import GeneratorSettingFacade
 from web.controller.auth import login_required
 from core.model.meta_column import MetaColumn
 from core.model.meta_table import MetaTable
 from core.model.project import Project
 from web.controller.util import bad_request, INVALID_INPUT, TOKEN_SECURITY, BAD_REQUEST_SCHEMA, COLUMN_NOT_FOUND, \
     find_user_meta_table, TABLE_NOT_FOUND, OK_REQUEST_SCHEMA, ok_request, validate_json, patch_all_from_json, \
-    patch_from_json
+    patch_from_json, error_into_message
 from web.service.database import get_db_session
 from web.view.column import ColumnWrite, ColumnView, ColumnCreate
 
@@ -41,16 +41,16 @@ def try_patch_column(meta_column: MetaColumn) -> bool:
         return False
     patch_all_from_json(meta_column, ['name', 'col_type', 'nullable'])
 
-    if meta_column.generator_setting_id is not None:
-        generator_instance = make_generator_instance_for_meta_column(meta_column)
-        if meta_column.data_source is not None:
-            generator_instance.estimate_params()
+    if meta_column.generator_setting is not None:
+        facade = GeneratorSettingFacade(meta_column.generator_setting)
+        facade.maybe_estimate_params()
     return True
 
 
 @column.route('/column', methods=('POST',))
 @login_required
 @validate_json(ColumnCreate)
+@error_into_message
 @swag_from({
     'tags': ['Column'],
     'security': TOKEN_SECURITY,
@@ -110,6 +110,7 @@ def with_column_by_id(view):
 @login_required
 @with_column_by_id
 @validate_json(ColumnWrite)
+@error_into_message
 @swag_from({
     'tags': ['Column'],
     'security': TOKEN_SECURITY,

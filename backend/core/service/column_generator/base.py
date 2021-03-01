@@ -4,14 +4,15 @@ import random
 from abc import ABC, abstractmethod
 from enum import Enum
 from inspect import signature
-from typing import List, Dict, Generic, TypeVar, Optional, Callable, Any
+from typing import List, Dict, Generic, TypeVar, Optional, Callable, Any, Type, Iterable
+
+from sqlalchemy.orm.attributes import flag_modified
 
 from core.model.generator_setting import GeneratorSetting
 from core.model.meta_column import MetaColumn
 from core.service.column_generator.params import normalized_params, ParamDict, ColumnGeneratorParamList
-from core.service.data_source.data_provider import DataProviderFactory
 from core.service.data_source.data_provider.base_provider import DataProvider
-from core.service.exception import GeneratorSettingError
+from core.service.exception import GeneratorSettingError, GeneratorRegistrationError, SomeError
 from core.service.generation_procedure.database import GeneratedDatabase
 from core.service.types import class_to_types, Types
 
@@ -25,10 +26,6 @@ class GeneratorCategory(Enum):
     PERSON = 'Person'
     DATETIME = 'Date & Time'
     TEXT = 'Text'
-
-
-class RegisteredGenerator(ABC):
-    pass
 
 
 class ColumnGenerator(Generic[OutputType], ABC):
@@ -46,6 +43,7 @@ class ColumnGenerator(Generic[OutputType], ABC):
         self._generator_setting = generator_setting
         self._generator_setting.params = \
             normalized_params(self, self.param_list, self._generator_setting.params)
+        flag_modified(generator_setting, 'params')  # register the param change
 
     @classmethod
     def name(cls):
@@ -81,19 +79,46 @@ class ColumnGenerator(Generic[OutputType], ABC):
     def _meta_columns(self) -> List[MetaColumn]:
         return self._generator_setting.columns
 
-    def estimate_params(self):
-        factory = DataProviderFactory(self._meta_columns)
-        provider = factory.find_provider()
+    def estimate_params(self, provider: DataProvider):
         if self.supports_null:
             estimate = provider.estimate_null_frequency()
             if estimate is not None:
                 self._generator_setting.null_frequency = estimate
         for estimator in self.estimator_list:
             estimator(self, provider)
-        self._estimate_params_with_provider(provider)
 
-    def _estimate_params_with_provider(self, provider: DataProvider):
-        pass
+
+class RegisteredGenerator(ABC):
+    _by_name: Optional[Dict[str, Type[ColumnGenerator]]] = None
+
+    @classmethod
+    def _make_dict(cls):
+        cls._by_name = {}
+        for column_gen in RegisteredGenerator.__subclasses__():
+            if not issubclass(column_gen, ColumnGenerator):
+                raise GeneratorRegistrationError()
+            cls._by_name[column_gen.name()] = column_gen
+
+    @classmethod
+    def _require_dict(cls):
+        if cls._by_name is None:
+            cls._make_dict()
+
+    @classmethod
+    def is_name_registered(cls, name: str) -> bool:
+        cls._require_dict()
+        return name in cls._by_name
+
+    @classmethod
+    def get_by_name(cls, name: str) -> Type[ColumnGenerator[OutputType]]:
+        if not cls.is_name_registered(name):
+            raise SomeError('invalid generator name')
+        return cls._by_name[name]
+
+    @classmethod
+    def iter(cls) -> Iterable[Type[ColumnGenerator]]:
+        cls._require_dict()
+        return cls._by_name.values()
 
 
 class SingleColumnGenerator(Generic[OutputType], ColumnGenerator[OutputType]):

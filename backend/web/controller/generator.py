@@ -2,18 +2,17 @@ import functools
 
 from flasgger import swag_from
 from flask import Blueprint, g, request
-from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.orm.exc import NoResultFound
 
 from core.model.generator_setting import GeneratorSetting
 from core.model.meta_table import MetaTable
 from core.model.project import Project
-from core.service.column_generator import make_generator_instance_for_meta_column
+from core.service.column_generator import GeneratorSettingFacade
 from core.service.column_generator.base import RegisteredGenerator
 from web.controller.auth import login_required
 from web.controller.util import TOKEN_SECURITY, BAD_REQUEST_SCHEMA, bad_request, \
     GENERATOR_SETTING_NOT_FOUND, OK_REQUEST_SCHEMA, ok_request, validate_json, find_user_meta_table, \
-    patch_all_from_json, INVALID_INPUT, find_column_in_table
+    patch_all_from_json, INVALID_INPUT, find_column_in_table, error_into_message
 from web.service.database import get_db_session
 from web.view.generator import GeneratorListView, GeneratorSettingWrite, GeneratorSettingView, GeneratorSettingCreate
 
@@ -58,6 +57,7 @@ def with_generator_setting_by_id(view):
 @generator.route('/generator-setting', methods=('POST',))
 @login_required
 @validate_json(GeneratorSettingCreate)
+@error_into_message
 @swag_from({
     'tags': ['Generator'],
     'security': TOKEN_SECURITY,
@@ -100,11 +100,8 @@ def create_generator_setting():
     db_session.add(generator_setting)
     if meta_column is not None:
         meta_column.generator_setting = generator_setting
-        # TODO multi column
-        gen_instance = make_generator_instance_for_meta_column(meta_column)
-        if meta_column.data_source is not None:
-            gen_instance.estimate_params()
-        flag_modified(generator_setting, 'params')  # register the param change
+        facade = GeneratorSettingFacade(generator_setting)
+        facade.maybe_estimate_params()
     db_session.commit()
     return GeneratorSettingView().dump(generator_setting)
 
@@ -113,6 +110,7 @@ def create_generator_setting():
 @login_required
 @with_generator_setting_by_id
 @validate_json(GeneratorSettingWrite)
+@error_into_message
 @swag_from({
     'tags': ['Generator'],
     'security': TOKEN_SECURITY,
@@ -143,12 +141,12 @@ def create_generator_setting():
 def patch_generator_setting(generator_setting: GeneratorSetting):
     patch_all_from_json(generator_setting, ['name', 'params', 'null_frequency'])
     estimate_params = request.json.get('estimate_params')
-    if estimate_params and generator_setting.columns:
-        # TODO support several columns
-        meta_column = generator_setting.columns[0]
-        gen_instance = make_generator_instance_for_meta_column(meta_column)
-        if meta_column.data_source is not None:
-            gen_instance.estimate_params()
+    facade = GeneratorSettingFacade(generator_setting)
+
+    if estimate_params:
+        facade.maybe_estimate_params()
+    else:
+        facade.make_generator_instance()  # normalizes params
 
     db_session = get_db_session()
     db_session.commit()
