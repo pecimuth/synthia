@@ -76,3 +76,19 @@ class DatabaseDataProvider(DataProvider):
         if count == 0:
             return None
         return null_count / count
+
+    def estimate_mean(self) -> Optional[float]:
+        column = self._first_column
+        query = select([func.avg(column)])
+        return self._conn.execute(query).scalar()
+
+    def estimate_variance(self) -> Optional[float]:
+        column = self._first_column
+        query = select([
+            func.avg(column),
+            func.avg(column * column)
+        ])
+        avg, square_avg = self._conn.execute(query).fetchone()
+        if avg is None:
+            return None
+        return max(square_avg - avg ** 2, 0)

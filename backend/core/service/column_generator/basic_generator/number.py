@@ -1,4 +1,6 @@
 import random
+from math import sqrt
+from typing import Optional
 
 from core.model.meta_column import MetaColumn
 from core.service.column_generator.base import RegisteredGenerator, SingleColumnGenerator
@@ -69,21 +71,16 @@ class GaussianGenerator(RegisteredGenerator, SingleColumnGenerator[float]):
     def sigma(self) -> float:
         return 1.
 
+    @mu.estimator
+    def mu(self, provider: DataProvider) -> Optional[float]:
+        return provider.estimate_mean()
+
+    @sigma.estimator
+    def sigma(self, provider: DataProvider) -> Optional[float]:
+        variance = provider.estimate_variance()
+        if variance is None:
+            return None
+        return sqrt(variance)
+
     def make_scalar(self, generated_database: GeneratedDatabase) -> float:
         return random.gauss(self.mu, self.sigma)
-
-    def estimate_params(self, provider: DataProvider):
-        super().estimate_params(provider)
-        sample_sum = 0
-        square_sum = 0
-        samples = 0
-        for sample in provider.scalar_data_not_none():
-            samples += 1
-            sample_sum += sample
-            square_sum += sample ** 2
-        if samples == 0:
-            return
-        first_moment = sample_sum / samples
-        second_moment = square_sum / samples
-        self.mu = first_moment
-        self.sigma = max(second_moment - first_moment ** 2, 0)

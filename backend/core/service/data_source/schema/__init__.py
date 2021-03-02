@@ -1,7 +1,13 @@
+from typing import List, Iterable
+
 from sqlalchemy.orm import Session
 
 from core.model.data_source import DataSource
+from core.model.meta_table import MetaTable
 from core.model.project import Project
+from core.service.column_generator.assignment import GeneratorAssignment
+from core.service.column_generator.base import ColumnGenerator
+from core.service.column_generator.setting_facade import GeneratorSettingFacade
 from core.service.data_source import DataSourceConstants
 from core.service.data_source.schema.base_provider import SchemaProvider
 from core.service.data_source.schema.database_provider import DatabaseSchemaProvider
@@ -16,6 +22,8 @@ class DataSourceSchemaImport:
     def import_schema(self, data_source: DataSource, db_session: Session):
         provider = self._create_schema_provider(data_source)
         new_tables = provider.read_structure()
+        generators = self._assign_generators(new_tables)
+        self._estimate_all(generators)
         table_by_name = {
             table.name: table
             for table in self._project.tables
@@ -34,3 +42,16 @@ class DataSourceSchemaImport:
         if data_source.mime_type == DataSourceConstants.MIME_TYPE_JSON:
             return JsonSchemaProvider(data_source)
         raise DataSourceError('no appropriate schema provider found', data_source)
+
+    @classmethod
+    def _assign_generators(cls, new_tables: List[MetaTable]) -> Iterable[ColumnGenerator]:
+        for meta_table in new_tables:
+            facade = GeneratorAssignment(meta_table)
+            table_instances = facade.assign()
+            yield from table_instances
+
+    @classmethod
+    def _estimate_all(cls, generators: Iterable[ColumnGenerator]):
+        for column_gen in generators:
+            facade = GeneratorSettingFacade(column_gen.setting)
+            facade.estimate_params(column_gen)

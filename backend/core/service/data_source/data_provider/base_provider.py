@@ -74,3 +74,26 @@ class DataProvider(ABC):
             return None
         nulls = self.get_null_count()
         return nulls / count
+
+    def estimate_mean(self) -> Optional[float]:
+        sample_sum = 0
+        count = 0
+        for sample in self.scalar_data_not_none():
+            count += 1
+            sample_sum += sample
+        if count == 0:
+            return None
+        return sample_sum / count
+
+    def estimate_variance(self) -> Optional[float]:
+        sample_sum = 0
+        square_sum = 0
+        count = 0
+        for sample in self.scalar_data_not_none():
+            count += 1
+            sample_sum += sample
+            square_sum += sample ** 2
+        if count == 0:
+            return None
+        mean = sample_sum / count
+        return max(square_sum - mean, 0)

@@ -72,6 +72,10 @@ class ColumnGenerator(Generic[OutputType], ABC):
         return GeneratorSetting(name=cls.name())
 
     @property
+    def setting(self) -> GeneratorSetting:
+        return self._generator_setting
+
+    @property
     def params(self) -> ParamDict:
         return self._generator_setting.params
 
@@ -180,3 +184,10 @@ class MultiColumnGenerator(Generic[OutputType], ColumnGenerator[OutputType], ABC
     @classmethod
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
         return False
+
+    def should_unite_with(self, meta_column: MetaColumn) -> bool:
+        return self.is_recommended_for(meta_column)
+
+    @abstractmethod
+    def unite_with(self, meta_column: MetaColumn):
+        pass

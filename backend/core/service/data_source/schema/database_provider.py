@@ -30,7 +30,6 @@ class DatabaseSchemaProvider(SchemaProvider):
             for tab in meta.tables.values()
         ]
         self._add_meta_constraints(meta)
-        self._set_recommended_generators_for_list(self._table_list)
         return self._table_list
 
     def _make_meta_column(self, table: Table, column: Column) -> MetaColumn:

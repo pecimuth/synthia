@@ -52,8 +52,8 @@ class JsonSchemaProvider(SchemaProvider):
             for column, value in row.items()
         }
 
-    def _type_to_columns(self, table_name: str, col_name: str, type_literal: str) -> List[MetaColumn]:
-        meta_column = MetaColumn(
+    def _type_to_column(self, table_name: str, col_name: str, type_literal: str) -> MetaColumn:
+        return MetaColumn(
             name=col_name,
             col_type=type_literal,
             nullable=False,
@@ -61,9 +61,6 @@ class JsonSchemaProvider(SchemaProvider):
             data_source=self._data_source,
             reflected_column_idf=repr(Identifier(table_name, col_name))
         )
-        self._set_recommended_generator(meta_column)
-
-        return meta_column
 
     @classmethod
     def _is_consistent(cls, lhs: JsonTableType, rhs: JsonTableType) -> bool:
@@ -83,7 +80,7 @@ class JsonSchemaProvider(SchemaProvider):
             name=table_name,
             data_source=self._data_source,
             columns=[
-                self._type_to_columns(table_name, col_name, type_name)
+                self._type_to_column(table_name, col_name, type_name)
                 for col_name, type_name in table_type.items()
             ]
         )

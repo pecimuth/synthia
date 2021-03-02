@@ -2,7 +2,7 @@
   <input
     matInput
     type="number"
-    [value]="toPercent(column.generator_setting.null_frequency)"
+    [value]="toPercent(column.generator_setting.null_frequency) | number: '1.0-2'"
     (input)="nextValue($event.target.value)">
   <span matSuffix>%</span>
 </mat-form-field>

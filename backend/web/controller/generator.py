@@ -7,8 +7,8 @@ from sqlalchemy.orm.exc import NoResultFound
 from core.model.generator_setting import GeneratorSetting
 from core.model.meta_table import MetaTable
 from core.model.project import Project
-from core.service.column_generator import GeneratorSettingFacade
 from core.service.column_generator.base import RegisteredGenerator
+from core.service.column_generator.setting_facade import GeneratorSettingFacade
 from web.controller.auth import login_required
 from web.controller.util import TOKEN_SECURITY, BAD_REQUEST_SCHEMA, bad_request, \
     GENERATOR_SETTING_NOT_FOUND, OK_REQUEST_SCHEMA, ok_request, validate_json, find_user_meta_table, \
@@ -96,12 +96,12 @@ def create_generator_setting():
         params=request.json['params'],
         null_frequency=request.json['null_frequency']
     )
-    db_session = get_db_session()
-    db_session.add(generator_setting)
     if meta_column is not None:
         meta_column.generator_setting = generator_setting
         facade = GeneratorSettingFacade(generator_setting)
         facade.maybe_estimate_params()
+    db_session = get_db_session()
+    db_session.add(generator_setting)
     db_session.commit()
     return GeneratorSettingView().dump(generator_setting)
 

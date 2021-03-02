@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, Inject, LOCALE_ID } from '@angular/core';
 import { ColumnView } from 'src/app/api/models/column-view';
 import { GeneratorFacadeService, GeneratorParam, GeneratorView } from 'src/app/project/service/generator-facade.service';
 import { FormGroup, FormBuilder } from '@angular/forms';
@@ -6,6 +6,7 @@ import { Observable, Subject } from 'rxjs';
 import { switchMap, debounceTime, takeUntil, tap } from 'rxjs/operators';
 import { TableView } from 'src/app/api/models/table-view';
 import { GeneratorSettingView } from 'src/app/api/models/generator-setting-view';
+import { formatNumber } from '@angular/common';
 
 const TYPE_DEBOUNCE_MS = 3000;
 
@@ -25,7 +26,8 @@ export class ParamFormComponent implements OnInit, OnDestroy {
 
   constructor(
     private generatorFacade: GeneratorFacadeService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    @Inject(LOCALE_ID) public localeId: string
   ) { }
 
   ngOnInit(): void {
@@ -64,7 +66,11 @@ export class ParamFormComponent implements OnInit, OnDestroy {
       Object.entries(this.column.generator_setting.params)
         .forEach(([key, value]) => {
           if (options.hasOwnProperty(key)) {
-            options[key] = [value];
+            let formatted = value;
+            if (typeof value === 'number') {
+              formatted = formatNumber(value, this.localeId, '1.0-2');
+            }
+            options[key] = [formatted];
           }
         });
     }

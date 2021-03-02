@@ -1,7 +1,6 @@
 import random
 
-from core.service.column_generator import RegisteredGenerator
-from core.service.column_generator.base import SingleColumnGenerator
+from core.service.column_generator.base import SingleColumnGenerator, RegisteredGenerator
 from core.service.column_generator.decorator import parameter
 from core.service.data_source.data_provider import DataProvider
 from core.service.generation_procedure.database import GeneratedDatabase

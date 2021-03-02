@@ -7,7 +7,8 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from core.model.generator_setting import GeneratorSetting
 from core.model.meta_constraint import MetaConstraint
-from core.service.column_generator import GeneratorSettingFacade
+from core.service.column_generator.assignment import GeneratorAssignment
+from core.service.column_generator.setting_facade import GeneratorSettingFacade
 from web.controller.auth import login_required
 from core.model.meta_column import MetaColumn
 from core.model.meta_table import MetaTable
@@ -21,28 +22,27 @@ from web.view.column import ColumnWrite, ColumnView, ColumnCreate
 column = Blueprint('column', __name__, url_prefix='/api')
 
 
-def validate_setting_id(meta_column: MetaColumn) -> bool:
+def get_generator_setting(generator_setting_id: int, meta_table: MetaTable) -> GeneratorSetting:
     # make sure that the generator setting points to the correct table
     db_session = get_db_session()
-    try:
-        db_session.query(GeneratorSetting).\
-            filter(
-                GeneratorSetting.id == meta_column.generator_setting_id,
-                GeneratorSetting.table == meta_column.table
-            ).one()
-    except NoResultFound:
-        return False
-    return True
+    return db_session.query(GeneratorSetting).\
+        filter(
+            GeneratorSetting.id == generator_setting_id,
+            GeneratorSetting.table == meta_table
+        ).one()
 
 
 def try_patch_column(meta_column: MetaColumn) -> bool:
-    if patch_from_json(meta_column, 'generator_setting_id') and \
-       not validate_setting_id(meta_column):
-        return False
     patch_all_from_json(meta_column, ['name', 'col_type', 'nullable'])
 
-    if meta_column.generator_setting is not None:
-        facade = GeneratorSettingFacade(meta_column.generator_setting)
+    if 'generator_setting_id' in request.json:
+        generator_setting_id = request.json['generator_setting_id']
+        generator_setting = get_generator_setting(generator_setting_id, meta_column.table)
+
+        if not GeneratorAssignment.maybe_assign(generator_setting, meta_column):
+            return False
+
+        facade = GeneratorSettingFacade(generator_setting)
         facade.maybe_estimate_params()
     return True
 
