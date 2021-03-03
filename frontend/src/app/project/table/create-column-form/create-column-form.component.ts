@@ -5,6 +5,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ColumnCreate } from 'src/app/api/models/column-create';
 import { Constants } from 'src/app/service/constants';
+import { SnackService } from 'src/app/service/snack.service';
 import { ColumnFacadeService } from '../../service/column-facade.service';
 
 export interface CreateColumnFormInput {
@@ -32,7 +33,8 @@ export class CreateColumnFormComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: CreateColumnFormInput,
     private dialogRef: MatDialogRef<CreateColumnFormComponent>,
     private columnFacade: ColumnFacadeService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private snackService: SnackService
   ) { }
 
   ngOnInit(): void {
@@ -44,12 +46,18 @@ export class CreateColumnFormComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
+    if (!this.columnForm.valid) {
+      return;
+    }
     const column: ColumnCreate = {
       ...this.columnForm.value,
       table_id: this.data.tableId
     };
     this.columnFacade.createColumn(column)
       .pipe(takeUntil(this.unsubscribe$))
-      .subscribe(() => this.dialogRef.close());
+      .subscribe(
+        () => this.dialogRef.close(),
+        (err) => this.snackService.errorIntoSnack(err)
+      );
   }
 }

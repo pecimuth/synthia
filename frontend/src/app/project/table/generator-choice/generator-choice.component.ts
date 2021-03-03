@@ -86,11 +86,16 @@ export class GeneratorChoiceComponent implements OnInit, OnDestroy {
         setting
       )
       .pipe(takeUntil(this.unsubscribe$))
-      .subscribe();
+      .subscribe(
+        () => null,
+        (err) => this.snackService.errorIntoSnack(err, 'Could not delete the setting')
+      );
   }
 
   chooseGenerator(generator: GeneratorView) {
-    if (generator.is_multi_column) {
+    if (!this.column.generator_setting ||
+        this.generatorFacade.isMultiColumn(this.column.generator_setting.name) ||
+        generator.is_multi_column) {
       this.createSetting(generator);
     } else {
       this.patchSetting(generator);

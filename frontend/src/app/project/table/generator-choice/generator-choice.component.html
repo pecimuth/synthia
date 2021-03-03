@@ -7,10 +7,13 @@
       <mat-chip *ngFor="let setting of existingSettings"
         removable
         [selected]="setting.id === column.generator_setting?.id"
+        [attr.cdkFocusInitial]="setting.id === column.generator_setting?.id ? true : null"
         (click)="selectSetting(setting)"
         (removed)="deleteSetting(setting)"
         class="cursor-pointer">
-        {{ setting.name }} ({{ setting.id }})
+        <span class="mat-chip-wrapper">
+          {{ setting.name }} <small>{{ setting.id }}</small>
+        </span>
         <mat-icon matChipRemove>cancel</mat-icon>
       </mat-chip>
     </mat-chip-list>
@@ -23,7 +26,8 @@
         <mat-chip *ngFor="let generator of item.value"
           selectable 
           (click)="chooseGenerator(generator)"
-          [selected]="generator.name === column?.generator_setting?.name"
+          [selected]="generator.name === column.generator_setting?.name"
+          [attr.cdkFocusInitial]="generator.name === column.generator_setting?.name ? true : null"
           color="accent"
           class="cursor-pointer">
           {{ generator.name }}

@@ -35,16 +35,7 @@
       <th mat-header-cell *matHeaderCellDef>Generator</th>
       <td mat-cell *matCellDef="let column">
         <div class="margin-right narrow-column">
-          <button mat-button
-            *ngIf="column.generator_setting as setting"
-            (click)="chooseGenerator(column)">
-            {{ setting.name }} ({{ setting.id }})
-          </button>
-          <button *ngIf="!column.generator_setting "
-            mat-button
-            (click)="chooseGenerator(column)">
-            Choose a generator
-          </button>
+          <app-generator-field [table]="table" [column]="column"></app-generator-field>
         </div>
       </td>
     </ng-container>

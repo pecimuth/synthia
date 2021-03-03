@@ -1,19 +1,42 @@
 import { Component, OnInit, Input, OnDestroy, Inject, LOCALE_ID } from '@angular/core';
 import { ColumnView } from 'src/app/api/models/column-view';
 import { GeneratorFacadeService, GeneratorParam, GeneratorView } from 'src/app/project/service/generator-facade.service';
-import { FormGroup, FormBuilder } from '@angular/forms';
-import { Observable, Subject } from 'rxjs';
-import { switchMap, debounceTime, takeUntil, tap } from 'rxjs/operators';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { EMPTY, Observable, Subject } from 'rxjs';
+import { switchMap, debounceTime, takeUntil, tap, filter } from 'rxjs/operators';
 import { TableView } from 'src/app/api/models/table-view';
 import { GeneratorSettingView } from 'src/app/api/models/generator-setting-view';
 import { formatNumber } from '@angular/common';
+import { SnackService } from 'src/app/service/snack.service';
+import { DateAdapter, MatDateFormats, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
+import { MAT_MOMENT_DATE_ADAPTER_OPTIONS, MomentDateAdapter } from '@angular/material-moment-adapter';
 
 const TYPE_DEBOUNCE_MS = 3000;
+
+export const DATE_FORMATS: MatDateFormats = {
+  parse: {
+    dateInput: 'YYYY-MM-DD',
+  },
+  display: {
+    dateInput: 'YYYY-MM-DD',
+    monthYearLabel: 'MMM YYYY',
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'MMMM YYYY',
+  }
+};
 
 @Component({
   selector: 'app-param-form',
   templateUrl: './param-form.component.html',
-  styleUrls: ['./param-form.component.scss']
+  styleUrls: ['./param-form.component.scss'],
+  providers: [
+    {
+      provide: DateAdapter,
+      useClass: MomentDateAdapter,
+      deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS]
+    },
+    {provide: MAT_DATE_FORMATS, useValue: DATE_FORMATS},
+  ],
 })
 export class ParamFormComponent implements OnInit, OnDestroy {
   
@@ -27,6 +50,7 @@ export class ParamFormComponent implements OnInit, OnDestroy {
   constructor(
     private generatorFacade: GeneratorFacadeService,
     private fb: FormBuilder,
+    private snackService: SnackService,
     @Inject(LOCALE_ID) public localeId: string
   ) { }
 
@@ -44,7 +68,10 @@ export class ParamFormComponent implements OnInit, OnDestroy {
         }),
         switchMap(() => this.handleFormChanges())
       )
-      .subscribe();
+      .subscribe(
+        () => null,
+        (err) => this.snackService.errorIntoSnack(err, 'Failed to update parameters')
+      );
   }
 
   ngOnDestroy() {
@@ -70,7 +97,7 @@ export class ParamFormComponent implements OnInit, OnDestroy {
             if (typeof value === 'number') {
               formatted = formatNumber(value, this.localeId, '1.0-2');
             }
-            options[key] = [formatted];
+            options[key] = [formatted, Validators.required];
           }
         });
     }
@@ -82,12 +109,17 @@ export class ParamFormComponent implements OnInit, OnDestroy {
       .pipe(
         debounceTime(TYPE_DEBOUNCE_MS),
         switchMap(
-          (params) => this.generatorFacade
-            .patchParams(
-              this.table.id,
-              this.column.generator_setting,
-              {params: params}
-            )
+          (params) => {
+            if (!this.form.valid) {
+              return EMPTY;
+            }
+            return this.generatorFacade
+              .patchParams(
+                this.table.id,
+                this.column.generator_setting,
+                {params: params}
+              );
+          }
         )
       );
   }

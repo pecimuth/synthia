@@ -1,0 +1,24 @@
+<ng-container *ngIf="column.generator_setting as setting; else noGenerator">
+  <button mat-button
+    *ngIf="generatorFacade.isMultiColumn(setting.name); else singleColumn"
+    color="primary"
+    (click)="chooseGenerator(column)">
+    {{ setting.name }} <small>{{ setting.id }}</small>
+  </button>
+
+  <ng-template #singleColumn>
+    <button
+      mat-button
+      (click)="chooseGenerator(column)">
+      {{ setting.name }}
+    </button>
+  </ng-template>
+</ng-container>
+
+<ng-template #noGenerator>
+  <button
+    mat-button
+    (click)="chooseGenerator(column)">
+    Choose a generator
+  </button>
+</ng-template>

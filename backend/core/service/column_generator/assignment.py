@@ -37,7 +37,7 @@ class GeneratorAssignment:
     def maybe_assign(cls, generator_setting: GeneratorSetting, meta_column: MetaColumn) -> bool:
         facade = GeneratorSettingFacade(generator_setting)
         column_gen = facade.make_generator_instance()
-        if cls._assignment_allowed(column_gen, generator_setting, meta_column):
+        if not cls._assignment_allowed(column_gen, generator_setting, meta_column):
             return False
         meta_column.generator_setting = generator_setting
         if isinstance(column_gen, MultiColumnGenerator):

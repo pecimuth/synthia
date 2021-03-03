@@ -41,6 +41,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { DialogModule } from '../dialog/dialog.module';
 import { CreateTableFormComponent } from './table/create-table-form/create-table-form.component';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { GeneratorFieldComponent } from './table/generator-field/generator-field.component';
 
 
 @NgModule({
@@ -61,7 +62,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
     ConstraintListComponent,
     NullFrequencyFieldComponent,
     CreateColumnFormComponent,
-    CreateTableFormComponent
+    CreateTableFormComponent,
+    GeneratorFieldComponent
   ],
   imports: [
     CommonModule,

@@ -27,6 +27,8 @@ export class GeneratorFacadeService implements OnDestroy {
     return this._generators$;
   }
 
+  private generatorByNames$ = new BehaviorSubject<Map<string, GeneratorView>>(new Map());
+
   constructor(
     private generatorService: GeneratorService,
     private activeProject: ActiveProjectService
@@ -34,21 +36,36 @@ export class GeneratorFacadeService implements OnDestroy {
 
   ngOnDestroy() {
     this.generators$.complete();
+    this.generatorByNames$.complete();
   }
 
   refresh() {
     this.generatorService.getApiGenerators()
       .subscribe(
-        (generators) => this._generators$.next(generators),
+        (generators) => {
+          this._generators$.next(generators);
+          this.refreshGeneratorsByName(generators);
+        }
       );
   }
 
+  private refreshGeneratorsByName(generatorList: GeneratorListView) {
+    const map = new Map<string, GeneratorView>();
+    for (const generator of generatorList.items) {
+      map.set(generator.name, generator);
+    }
+    this.generatorByNames$.next(map);
+  }
+
+  isMultiColumn(name: string): boolean {
+    const map = this.generatorByNames$.value;
+    const gen = map.get(name);
+    return gen && gen.is_multi_column;
+  }
+
   getGeneratorByName(name: string): Observable<GeneratorView> {
-    return this._generators$.pipe(
-      map((generators) => {
-        return generators.items
-          .find((item) => item.name === name);
-      })
+    return this.generatorByNames$.pipe(
+      map((map) => map.get(name))
     );
   }
 

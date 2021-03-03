@@ -3,6 +3,7 @@ import { Subject } from 'rxjs';
 import { debounceTime, switchMap, takeUntil } from 'rxjs/operators';
 import { ColumnView } from 'src/app/api/models/column-view';
 import { TableView } from 'src/app/api/models/table-view';
+import { SnackService } from 'src/app/service/snack.service';
 import { GeneratorFacadeService } from '../../service/generator-facade.service';
 
 const TYPE_DEBOUNCE_MS = 2000;
@@ -23,7 +24,8 @@ export class NullFrequencyFieldComponent implements OnInit {
   private valueChanges = new Subject<number>();
 
   constructor(
-    private generatorFacade: GeneratorFacadeService
+    private generatorFacade: GeneratorFacadeService,
+    private snackService: SnackService
   ) { }
 
   ngOnInit(): void {
@@ -50,7 +52,10 @@ export class NullFrequencyFieldComponent implements OnInit {
             )
         )
       )
-      .subscribe();
+      .subscribe(
+        () => null,
+        (err) => this.snackService.errorIntoSnack(err)
+      );
   }
 
   ngOnDestroy() {

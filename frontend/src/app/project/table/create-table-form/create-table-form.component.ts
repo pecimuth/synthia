@@ -4,6 +4,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { TableCreate } from 'src/app/api/models/table-create';
+import { SnackService } from 'src/app/service/snack.service';
 import { ActiveProjectService } from '../../service/active-project.service';
 import { TableFacadeService } from '../../service/table-facade.service';
 
@@ -24,7 +25,8 @@ export class CreateTableFormComponent implements OnInit {
     private dialogRef: MatDialogRef<CreateTableFormComponent>,
     private tableFacade: TableFacadeService,
     private fb: FormBuilder,
-    private activeProject: ActiveProjectService
+    private activeProject: ActiveProjectService,
+    private snackService: SnackService
   ) { }
 
   ngOnInit(): void {
@@ -36,6 +38,9 @@ export class CreateTableFormComponent implements OnInit {
   }
 
   onSubmit() {
+    if (!this.tableForm.valid) {
+      return;
+    }
     const projectId = this.activeProject.project$.value.id;
     if (!projectId) {
       return;
@@ -46,6 +51,9 @@ export class CreateTableFormComponent implements OnInit {
     };
     this.tableFacade.createTable(table)
       .pipe(takeUntil(this.unsubscribe$))
-      .subscribe(() => this.dialogRef.close());
+      .subscribe(
+        () => this.dialogRef.close(),
+        (err) => this.snackService.errorIntoSnack(err)
+      );
   }
 }

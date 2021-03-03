@@ -2,12 +2,12 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { TableView } from 'src/app/api/models/table-view';
 import { ColumnView } from 'src/app/api/models/column-view';
 import { MatDialog } from '@angular/material/dialog';
-import { GeneratorChoiceComponent } from './generator-choice/generator-choice.component';
 import { Subject } from 'rxjs';
 import { TableFacadeService } from '../service/table-facade.service';
 import { takeUntil } from 'rxjs/operators';
 import { ColumnFacadeService } from '../service/column-facade.service';
 import { CreateColumnFormComponent } from './create-column-form/create-column-form.component';
+import { SnackService } from 'src/app/service/snack.service';
 
 @Component({
   selector: 'app-table',
@@ -23,7 +23,8 @@ export class TableComponent implements OnInit, OnDestroy {
   constructor(
     private dialog: MatDialog,
     private tableFacade: TableFacadeService,
-    private columnFacade: ColumnFacadeService
+    private columnFacade: ColumnFacadeService,
+    private snackService: SnackService
   ) { }
 
   ngOnInit(): void {
@@ -32,15 +33,6 @@ export class TableComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
-  }
-
-  chooseGenerator(column: ColumnView) {
-    this.dialog.open(GeneratorChoiceComponent, {
-      data: {
-        columnId: column.id,
-        tableId: this.table.id
-      }
-    });
   }
 
   createColumn() {
@@ -54,12 +46,18 @@ export class TableComponent implements OnInit, OnDestroy {
   deleteTable() {
     this.tableFacade.deleteTable(this.table.id)
       .pipe(takeUntil(this.unsubscribe$))
-      .subscribe();
+      .subscribe(
+        () => null,
+        (err) => this.snackService.errorIntoSnack(err)
+      );
   }
 
   deleteColumn(column: ColumnView) {
     this.columnFacade.deleteColumn(this.table.id, column.id)
       .pipe(takeUntil(this.unsubscribe$))
-      .subscribe();
+      .subscribe(
+        () => null,
+        (err) => this.snackService.errorIntoSnack(err)
+      );
   }
 }
