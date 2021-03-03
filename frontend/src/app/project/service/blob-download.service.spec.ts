@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { ResourceService } from './resource.service';
+import { BlobDownloadService } from './blob-download.service';
 
-describe('ResourceService', () => {
-  let service: ResourceService;
+describe('BlobDownloadService', () => {
+  let service: BlobDownloadService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(ResourceService);
+    service = TestBed.inject(BlobDownloadService);
   });
 
   it('should be created', () => {

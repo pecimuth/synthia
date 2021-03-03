@@ -10,11 +10,15 @@ export class SnackService {
 
   constructor(private snackBar: MatSnackBar) { }
 
+  snack(message: string) {
+    this.snackBar.open(message, Snack.OK, Snack.CONFIG);
+  }
+
   errorIntoSnack(err: any, defaultMessage: string = 'An error occured') {
     if (err instanceof HttpErrorResponse && err.error.message) {
-      this.snackBar.open(err.error.message, Snack.OK, Snack.CONFIG);
+      this.snack(err.error.message);
     } else {
-      this.snackBar.open(defaultMessage, Snack.OK, Snack.CONFIG);
+      this.snack(defaultMessage);
     }
   }
 }

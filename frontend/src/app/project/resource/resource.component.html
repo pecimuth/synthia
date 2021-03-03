@@ -15,11 +15,11 @@
           <mat-icon>edit</mat-icon>
           Edit
         </button>
-        <button *ngIf="dataSource.file_name" mat-menu-item>
+        <button *ngIf="dataSource.file_name" mat-menu-item (click)="download()">
           <mat-icon>download</mat-icon>
           Download
         </button>
-        <button mat-menu-item (click)="resourceService.delete(dataSource.id)">
+        <button mat-menu-item (click)="delete()">
           <mat-icon>delete</mat-icon>
           Delete
         </button>

@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormBuilder } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
-import { ResourceService } from 'src/app/project/service/resource.service';
+import { DataSourceFacadeService } from 'src/app/project/service/data-source-facade.service';
+import { SnackService } from 'src/app/service/snack.service';
 import { CreateProjectFormComponent } from '../create-project-form/create-project-form.component';
 
 @Component({
@@ -23,13 +24,17 @@ export class DatabaseSourceFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<CreateProjectFormComponent>,
-    private resourceService: ResourceService
+    private dataSourceFacade: DataSourceFacadeService,
+    private snackService: SnackService
   ) {}
 
   ngOnInit() {}
 
   onSubmit() {
-    this.resourceService.createDatabase(this.databaseForm.value);
-    this.dialogRef.close();
+    this.dataSourceFacade.createDatabase(this.databaseForm.value)
+      .subscribe(
+        () => this.dialogRef.close(),
+        (err) => this.snackService.errorIntoSnack(err, 'Failed to add a database')
+      );
   }
 }

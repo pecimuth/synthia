@@ -5,8 +5,9 @@ import { takeUntil } from 'rxjs/operators';
 import { ProjectView } from 'src/app/api/models/project-view';
 import { DatabaseSourceFormComponent } from 'src/app/dialog/database-source-form/database-source-form.component';
 import { FileSourceFormComponent } from 'src/app/dialog/file-source-form/file-source-form.component';
+import { SnackService } from 'src/app/service/snack.service';
 import { ActiveProjectService } from '../../service/active-project.service';
-import { ResourceService } from '../../service/resource.service';
+import { DataSourceFacadeService } from '../../service/data-source-facade.service';
 
 @Component({
   selector: 'app-resource-list',
@@ -21,7 +22,8 @@ export class ResourceListComponent implements OnInit {
   constructor(
     private activeProject: ActiveProjectService,
     private dialog: MatDialog,
-    private resourceService: ResourceService
+    private dataSourceFacade: DataSourceFacadeService,
+    private snackService: SnackService
   ) { }
 
   ngOnInit(): void {
@@ -44,6 +46,11 @@ export class ResourceListComponent implements OnInit {
   }
 
   mockDatabase() {
-    this.resourceService.mockDatabase();
+    this.dataSourceFacade.mockDatabase()
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe(
+        () => null,
+        (err) => this.snackService.errorIntoSnack(err)
+      );
   }
 }
