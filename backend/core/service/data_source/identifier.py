@@ -1,13 +1,23 @@
+import re
 from typing import List, Iterable
 
 from core.model.meta_column import MetaColumn
 from core.model.meta_table import MetaTable
+from core.service.exception import MalformedIdentifierError
 
 
 class Identifier:
+    PATTERN = r'^[_a-zA-Z][_a-zA-Z0-9]*$'
+    COMPILED_PATTERN = re.compile(PATTERN)
+
     def __init__(self, table: str, column: str):
         self._table = table
         self._column = column
+
+        if not re.fullmatch(self.COMPILED_PATTERN, self._table):
+            raise MalformedIdentifierError(self._table)
+        if not re.fullmatch(self.COMPILED_PATTERN, self._column):
+            raise MalformedIdentifierError(self._column)
 
     @property
     def table(self):

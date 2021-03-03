@@ -37,10 +37,10 @@ class DatabaseDataProvider(DataProvider):
         meta = MetaData()
         meta.reflect(bind=engine)
         if idf.table not in meta.tables:
-            raise DataSourceIdentifierError('table not found', self._data_source, idf)
+            raise DataSourceIdentifierError('Table not found', self._data_source, repr(idf))
         table = meta.tables[idf.table]
         if idf.column not in table.columns:
-            raise DataSourceIdentifierError('column not found', self._data_source, idf)
+            raise DataSourceIdentifierError('Column not found', self._data_source, repr(idf))
         return table.columns[idf.column]
 
     def scalar_data_not_none(self) -> Iterator[Any]:

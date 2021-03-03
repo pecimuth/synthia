@@ -1,5 +1,5 @@
 import functools
-from typing import Type, Any, List
+from typing import Type, Any, List, Dict
 
 from flask import g, request
 from marshmallow import Schema
@@ -37,6 +37,13 @@ BAD_REQUEST_SCHEMA = {
     'schema': MessageView
 }
 
+FILE_SCHEMA = {
+    'description': 'File of the requested format',
+    'schema': {
+        'type': 'file'
+    }
+}
+
 TOKEN_SECURITY = [
     {
         'APIKeyHeader': [
@@ -44,6 +51,13 @@ TOKEN_SECURITY = [
         ]
     }
 ]
+
+
+def file_attachment_headers(file_name: str):
+    return {
+        'Access-Control-Expose-Headers': 'Content-Disposition',
+        'Content-Disposition': 'attachment; filename={}'.format(file_name)
+    }
 
 
 def error_into_message(view):
@@ -77,13 +91,20 @@ COLUMN_NOT_FOUND = 'Column not found'
 TABLE_NOT_FOUND = 'Table not found'
 
 
+def format_validation_errors(validation_errors: Dict[str, List[str]]) -> str:
+    return ', '.join(
+        '{}: {}'.format(key, value[0])
+        for key, value in validation_errors.items()
+    )
+
+
 def validate_json(schema_factory: Type[Schema]):
     def decorator(view):
         @functools.wraps(view)
         def wrapped_view(*args, **kwargs):
             validation_errors = schema_factory().validate(request.json)
             if validation_errors:
-                return bad_request(INVALID_INPUT)
+                return bad_request(format_validation_errors(validation_errors))
             return view(*args, **kwargs)
         return wrapped_view
     return decorator

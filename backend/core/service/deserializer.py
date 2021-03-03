@@ -1,12 +1,14 @@
 from typing import Any, List
 
-from sqlalchemy import MetaData, Table, Column, Integer, String, DateTime, ForeignKey, ForeignKeyConstraint
+from sqlalchemy import MetaData, Table, Column, Integer, String, DateTime, ForeignKey, ForeignKeyConstraint, Index, \
+    PrimaryKeyConstraint
 
 from core.model.meta_column import MetaColumn
 from core.model.meta_constraint import MetaConstraint
 from core.model.meta_table import MetaTable
 from core.model.project import Project
 from core.service.data_source.identifier import Identifier
+from core.service.exception import SomeError
 from core.service.types import get_sql_alchemy_type
 
 
@@ -18,7 +20,7 @@ class StructureDeserializer:
     @classmethod
     def _deserialize_table(cls, meta_table: MetaTable, meta: MetaData) -> Table:
         columns = [cls._deserialize_column(col) for col in meta_table.columns]
-        constraints = cls._make_fk_constraints(meta_table)
+        constraints = cls._make_constraints(meta_table)
         table = Table(
             meta_table.name,
             meta,
@@ -37,24 +39,36 @@ class StructureDeserializer:
         return column
 
     @classmethod
-    def _make_fk_constraints(cls, meta_table: MetaTable) -> List[ForeignKeyConstraint]:
+    def _make_constraints(cls, meta_table: MetaTable) -> List[ForeignKeyConstraint]:
         constraints = []
         for meta_constraint in meta_table.constraints:
-            if meta_constraint.constraint_type != MetaConstraint.FOREIGN:
-                continue
             constrained_columns: Any = [
                 meta_column.name
                 for meta_column in meta_constraint.constrained_columns
             ]
-            referenced_columns = [
-                repr(Identifier(meta_column.table.name, meta_column.name))
-                for meta_column in meta_constraint.referenced_columns
-            ]
-            constraint = ForeignKeyConstraint(
-                constrained_columns,
-                referenced_columns,
-                name=meta_constraint.name
-            )
+            if meta_constraint.constraint_type == MetaConstraint.FOREIGN:
+                referenced_columns = [
+                    repr(Identifier(meta_column.table.name, meta_column.name))
+                    for meta_column in meta_constraint.referenced_columns
+                ]
+                constraint = ForeignKeyConstraint(
+                    constrained_columns,
+                    referenced_columns,
+                    name=meta_constraint.name
+                )
+            elif meta_constraint.constraint_type == MetaConstraint.PRIMARY:
+                constraint = PrimaryKeyConstraint(
+                    *constrained_columns,
+                    name=meta_constraint.name
+                )
+            elif meta_constraint.constraint_type == MetaConstraint.UNIQUE:
+                constraint = Index(
+                    constrained_columns,
+                    name=meta_constraint.name,
+                    unique=True
+                )
+            else:
+                raise SomeError('Unknown constraint type')
             constraints.append(constraint)
         return constraints
 

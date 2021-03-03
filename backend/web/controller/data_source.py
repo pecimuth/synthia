@@ -2,7 +2,7 @@ import functools
 import os
 
 from flasgger import swag_from
-from flask import Blueprint, request, current_app
+from flask import Blueprint, request, current_app, send_file, Response
 from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.utils import secure_filename
 
@@ -16,7 +16,8 @@ from core.service.generation_procedure.controller import ProcedureController
 from core.service.output_driver.database import DatabaseOutputDriver
 from web.controller.auth import login_required
 from web.controller.util import BAD_REQUEST_SCHEMA, bad_request, find_user_project, PROJECT_NOT_FOUND, INVALID_INPUT, \
-    DATA_SOURCE_NOT_FOUND, ok_request, find_user_data_source, OK_REQUEST_SCHEMA, error_into_message, TOKEN_SECURITY
+    DATA_SOURCE_NOT_FOUND, ok_request, find_user_data_source, OK_REQUEST_SCHEMA, error_into_message, TOKEN_SECURITY, \
+    FILE_SCHEMA, file_attachment_headers
 from web.service.database import get_db_session
 from web.view.data_source import DataSourceView, DataSourceDatabaseWrite
 from web.view.project import ProjectView, TableCountsWrite
@@ -184,6 +185,41 @@ def with_data_source_by_id(view):
             return bad_request(DATA_SOURCE_NOT_FOUND)
         return view(data_source)
     return wrapped_view
+
+
+@source.route('/data-source-file/<id>/download')
+@login_required
+@with_data_source_by_id
+@swag_from({
+    'tags': ['DataSource'],
+    'security': TOKEN_SECURITY,
+    'parameters': [
+        {
+            'name': 'id',
+            'in': 'path',
+            'description': 'Data source ID to be downloaded',
+            'required': True,
+            'type': 'integer'
+        },
+    ],
+    'responses': {
+        200: FILE_SCHEMA,
+        400: BAD_REQUEST_SCHEMA
+    }
+})
+def download_data_source_file(data_source: DataSource):
+    if data_source.file_path is None:
+        return bad_request('Data source has no file')
+    try:
+        with open(data_source.file_path, 'rb') as file:
+            content = file.read()
+    except FileNotFoundError:
+        return bad_request('File not found')
+    return Response(
+        content,
+        mimetype=data_source.mime_type,
+        headers=file_attachment_headers(data_source.file_name)
+    )
 
 
 @source.route('/data-source/<id>', methods=('DELETE',))

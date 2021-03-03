@@ -31,7 +31,7 @@ def create_app() -> Flask:
         DATABASE_DB=os.environ.get('POSTGRES_DB'),
         DATABASE_HOST=os.environ.get('DATABASE_HOST'),
         DATABASE_PORT=os.environ.get('DATABASE_PORT'),
-        ORIGIN=os.environ.get('ORIGIN'),
+        ORIGIN=os.environ.get('ORIGIN')
     )
 
     Swagger(app)

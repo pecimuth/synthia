@@ -7,9 +7,10 @@ from core.service.generation_procedure.database import GeneratedDatabase, Genera
 
 
 class ConstraintChecker:
-    def __init__(self, meta_table: MetaTable, database: GeneratedDatabase):
+    def __init__(self, meta_table: MetaTable, database: GeneratedDatabase, interactive_driver: bool):
         self._database = database
         self._meta_table = meta_table
+        self._interactive_driver = interactive_driver
         self._unique_constraints: Tuple[MetaConstraint] = tuple(self._get_unique_constraints())
         self._self_references: Tuple[MetaConstraint] = tuple(self._get_self_references())
         self._unique_tuples: Dict[int, Set[Tuple]] = {}
@@ -35,6 +36,10 @@ class ConstraintChecker:
     @classmethod
     def _is_unique_constraint(cls, constraint: MetaConstraint) -> bool:
         return constraint.constraint_type in (MetaConstraint.UNIQUE, MetaConstraint.PRIMARY)
+
+    def _should_check_uniqueness(self, constraint: MetaConstraint) -> bool:
+        return constraint.constraint_type == MetaConstraint.UNIQUE or \
+               (constraint.constraint_type == MetaConstraint.PRIMARY and not self._interactive_driver)
 
     def _is_self_reference(self, constraint: MetaConstraint) -> bool:
         if constraint.constraint_type != MetaConstraint.FOREIGN:
@@ -70,11 +75,13 @@ class ConstraintChecker:
             if constraint.constraint_type == MetaConstraint.FOREIGN:
                 return self._tuple_is_none(row, constraint.constrained_columns) or \
                        self._tuple_exists(row, constraint.id, constraint.constrained_columns)
-            elif self._is_unique_constraint(constraint):
+            elif self._should_check_uniqueness(constraint):
                 return self._tuple_is_none(row, constraint.constrained_columns) \
                     or not self._tuple_exists(row, constraint.id, constraint.constrained_columns)
         for meta_column in self._meta_table.columns:
-            if not meta_column.nullable and row[meta_column.name] is None:
+            if not meta_column.nullable and \
+               meta_column.name in row and \
+               row[meta_column.name] is None:
                 return False
         return True
 

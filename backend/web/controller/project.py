@@ -10,7 +10,8 @@ from core.model.project import Project
 from core.service.generation_procedure.controller import ProcedureController
 from core.service.output_driver import PreviewOutputDriver
 from core.service.output_driver.file_driver import JsonOutputDriver, ZippedCsvOutputDriver
-from web.controller.util import find_user_project, bad_request, PROJECT_NOT_FOUND, BAD_REQUEST_SCHEMA, TOKEN_SECURITY
+from web.controller.util import find_user_project, bad_request, PROJECT_NOT_FOUND, BAD_REQUEST_SCHEMA, TOKEN_SECURITY, \
+    FILE_SCHEMA, file_attachment_headers
 from web.view.project import ProjectListView, ProjectView, PreviewView, TableCountsWrite, ExportFileRequestWrite
 from web.controller.auth import login_required
 from web.service.database import get_db_session
@@ -173,12 +174,7 @@ def generate_project_preview(proj: Project):
         }
     ],
     'responses': {
-        200: {
-            'description': 'File of the requested format',
-            'schema': {
-                'type': 'file'
-            }
-        },
+        200: FILE_SCHEMA,
         400: BAD_REQUEST_SCHEMA
     }
 })
@@ -200,8 +196,5 @@ def export_project(proj: Project):
     return Response(
         file_driver.dumps(),
         mimetype=file_driver.mime_type,
-        headers={
-            'Access-Control-Expose-Headers': 'Content-Disposition',
-            'Content-Disposition': 'attachment; filename={}'.format(file_name)
-        }
+        headers=file_attachment_headers(file_name)
     )

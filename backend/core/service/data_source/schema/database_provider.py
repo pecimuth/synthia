@@ -10,7 +10,7 @@ from core.model.meta_table import MetaTable
 from core.service.data_source.database_common import get_shared_engine
 from core.service.data_source.identifier import Identifier
 from core.service.data_source.schema.base_provider import SchemaProvider
-from core.service.exception import SomeError
+from core.service.exception import SomeError, DataSourceError
 from core.service.types import get_column_type
 
 
@@ -87,5 +87,5 @@ class DatabaseSchemaProvider(SchemaProvider):
                 meta_column = column_by_name[foreign_key.column.name]
                 meta_constraint.referenced_columns.append(meta_column)
         else:
-            raise SomeError('unknown constraint type')
+            raise DataSourceError('Unknown constraint type', self._data_source)
         return meta_constraint

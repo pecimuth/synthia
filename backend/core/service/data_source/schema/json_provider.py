@@ -6,6 +6,7 @@ from core.model.meta_table import MetaTable
 from core.service.data_source.file_common import strip_file_extensions
 from core.service.data_source.identifier import Identifier
 from core.service.data_source.schema import SchemaProvider
+from core.service.exception import DataSourceError
 from core.service.types import get_value_type
 
 JsonRow = Dict[str, Any]
@@ -27,7 +28,7 @@ class JsonSchemaProvider(SchemaProvider):
                         self._file_name_to_table_name()
                     )
                 ]
-        raise Exception('invalid format')
+        raise DataSourceError('Invalid JSON structure', self._data_source)
 
     def _file_name_to_table_name(self) -> str:
         return strip_file_extensions(self._data_source.file_name)

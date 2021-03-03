@@ -1,6 +1,5 @@
 from core.model.data_source import DataSource
 from core.model.meta_column import MetaColumn
-from core.service.data_source.identifier import Identifier
 
 
 class SomeError(Exception):
@@ -10,7 +9,7 @@ class SomeError(Exception):
 
 class GeneratorRegistrationError(SomeError):
     def __init__(self):
-        super().__init__('registered generator must be a column generator')
+        super().__init__('Registered generator must be a column generator')
 
 
 class GeneratorSettingError(SomeError):
@@ -26,7 +25,7 @@ class DataSourceError(SomeError):
 
 
 class DataSourceIdentifierError(DataSourceError):
-    def __init__(self, message: str, data_source: DataSource, identifier: Identifier):
+    def __init__(self, message: str, data_source: DataSource, identifier: str):
         super().__init__(message, data_source)
         self.identifier = identifier
 
@@ -35,3 +34,8 @@ class ColumnGeneratorError(SomeError):
     def __init__(self, message: str, meta_column: MetaColumn):
         super().__init__(message)
         self.meta_column = meta_column
+
+
+class MalformedIdentifierError(SomeError):
+    def __init__(self, identifier: str):
+        super().__init__('Malformed identifier: {}'.format(identifier))

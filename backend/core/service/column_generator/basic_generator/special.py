@@ -93,7 +93,7 @@ class ForeignKeyGenerator(RegisteredGenerator, MultiColumnGenerator):
         if self._constraint is None:
             return self._find_constraint(meta_column.constraints)
         if not self._maybe_add_column(self._constraint, meta_column):
-            raise ColumnGeneratorError('Cannot be united', meta_column)
+            raise ColumnGeneratorError('These columns do not share a FK', meta_column)
 
     def _all_columns_nullable(self) -> bool:
         return all(map(lambda meta_column: meta_column.nullable, self._meta_columns))
@@ -113,7 +113,7 @@ class ForeignKeyGenerator(RegisteredGenerator, MultiColumnGenerator):
 
     def make_dict(self, generated_database: GeneratedDatabase) -> OutputDict:
         if not self._constraint:
-            raise GeneratorSettingError('Nothing to do', self._generator_setting)
+            raise GeneratorSettingError('Dangling FK generator', self._generator_setting)
 
         row_count = generated_database.get_table_row_count(self._ref_table.name)
         if row_count == 0:

@@ -54,7 +54,7 @@ class ProcedureController:
         table_db = self._database.add_table(meta_table.name)
         stats = self._statistics.get_table_statistics(meta_table.name)
         generators = GeneratorSettingFacade.instances_from_table(meta_table)
-        checker = ConstraintChecker(meta_table, self._database)
+        checker = ConstraintChecker(meta_table, self._database, self._output_driver.is_interactive)
         while stats.expects_next_row:
             row = self._make_row(generators)
             if not checker.check_row(row):

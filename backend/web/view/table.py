@@ -1,6 +1,8 @@
 from marshmallow import Schema
 from marshmallow.fields import Integer, Str, List, Nested
+from marshmallow.validate import Regexp
 
+from core.service.data_source.identifier import Identifier
 from web.view.column import ColumnBriefView, ColumnTableBriefView, ColumnView
 from web.view.generator import GeneratorSettingView
 
@@ -23,7 +25,7 @@ class TableView(Schema):
 
 
 class TableWrite(Schema):
-    name = Str()
+    name = Str(validate=Regexp(Identifier.COMPILED_PATTERN))
 
 
 class TableCreate(TableWrite):

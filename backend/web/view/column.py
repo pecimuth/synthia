@@ -1,6 +1,8 @@
 from marshmallow import Schema
 from marshmallow.fields import Integer, Str, Bool, Nested
+from marshmallow.validate import Regexp
 
+from core.service.data_source.identifier import Identifier
 from web.view.generator import GeneratorSettingView
 
 
@@ -24,14 +26,14 @@ class ColumnView(Schema):
 
 
 class ColumnWrite(Schema):
-    name = Str(required=False)
+    name = Str(required=False, validate=Regexp(Identifier.COMPILED_PATTERN))
     col_type = Str(required=False)
     nullable = Bool(required=False)
     generator_setting_id = Integer(required=False, allow_none=True)
 
 
 class ColumnCreate(ColumnWrite):
-    name = Str()
+    name = Str(validate=Regexp(Identifier.COMPILED_PATTERN))
     col_type = Str()
     nullable = Bool()
     generator_setting_id = Integer(allow_none=True)
