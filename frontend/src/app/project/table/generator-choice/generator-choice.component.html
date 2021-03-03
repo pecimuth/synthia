@@ -1,10 +1,10 @@
 <div *ngIf="table && column" class="container">
   <h2>{{ table.name }}.{{ column.name }}</h2>
 
-  <div *ngIf="table.generator_settings as settings" class="margin-bottom">
+  <div *ngIf="existingSettings?.length" class="margin-bottom">
     <h3>Existing generator</h3>
     <mat-chip-list>
-      <mat-chip *ngFor="let setting of settings"
+      <mat-chip *ngFor="let setting of existingSettings"
         removable
         [selected]="setting.id === column.generator_setting?.id"
         (click)="selectSetting(setting)"
@@ -22,7 +22,9 @@
       <mat-chip-list>
         <mat-chip *ngFor="let generator of item.value"
           selectable 
-          (click)="createSetting(generator)"
+          (click)="chooseGenerator(generator)"
+          [selected]="generator.name === column?.generator_setting?.name"
+          color="accent"
           class="cursor-pointer">
           {{ generator.name }}
         </mat-chip>

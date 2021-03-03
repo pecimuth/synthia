@@ -67,7 +67,7 @@ export class GeneratorFacadeService implements OnDestroy {
     );
   }
 
-  getGeneratorsForColumnByCategory(column: ColumnView): Observable<GeneratorsByCategory> {
+  getGeneratorsForColumnByCategory(column: ColumnView): Observable<[GeneratorsByCategory, GeneratorView[]]> {
     return this.getGeneratorsForColumn(column).pipe(
       map((generators) => {
         const byCategory: GeneratorsByCategory = {};
@@ -77,9 +77,29 @@ export class GeneratorFacadeService implements OnDestroy {
           }
           byCategory[generator.category].push(generator);
         });
-        return byCategory;
+        return [byCategory, generators];
       })
     );
+  }
+
+  static getMultiSettings(generatorSettings: GeneratorSettingView[],
+                          generators: GeneratorView[]): GeneratorView[] { 
+    const multiSettings = [];
+    if (!generatorSettings?.length) {
+      return;
+    }
+    const multiGenerators = new Set<string>();
+    for (const generator of generators) {
+      if (generator.is_multi_column) {
+        multiGenerators.add(generator.name);
+      }
+    }
+    for (const setting of generatorSettings) {
+      if (multiGenerators.has(setting.name)) {
+        multiSettings.push(setting);
+      }
+    }
+    return multiSettings;
   }
 
   patchParams(tableId: number,
@@ -93,6 +113,24 @@ export class GeneratorFacadeService implements OnDestroy {
           params: setting.params
         },
         ...newSetting
+      }
+    };
+    return this.generatorService.patchApiGeneratorSettingId(params)
+      .pipe(
+        tap(
+          (patchedSetting) => this.activeProject
+            .patchGeneratorSetting(tableId, patchedSetting)
+        )
+      );
+  }
+
+  patchGeneratorName(tableId: number,
+                     setting: GeneratorSettingView,
+                     newGenerator: GeneratorView): Observable<GeneratorSettingView> {
+    const params = {
+      id: setting.id,
+      generatorSetting: {
+        name: newGenerator.name
       }
     };
     return this.generatorService.patchApiGeneratorSettingId(params)

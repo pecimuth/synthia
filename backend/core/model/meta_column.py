@@ -31,3 +31,6 @@ class MetaColumn(base):
     __table_args__ = (
         Index('ix_metacolumn_table_name', table_id, name, unique=True),
     )
+
+    def __repr__(self):
+        return '<MetaColumn(id={},name={})>'.format(self.id, self.name)

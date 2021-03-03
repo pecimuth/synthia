@@ -8,6 +8,7 @@ import { TableView } from 'src/app/api/models/table-view';
 import { GeneratorFacadeService, GeneratorsByCategory, GeneratorView } from 'src/app/project/service/generator-facade.service';
 import { ActiveProjectService } from '../../service/active-project.service';
 import { ColumnFacadeService } from '../../service/column-facade.service';
+import { SnackService } from '../../../service/snack.service';
 
 export interface GeneratorChoiceInput {
   columnId: number,
@@ -24,6 +25,7 @@ export class GeneratorChoiceComponent implements OnInit, OnDestroy {
   column: ColumnView;
   table: TableView;
   generatorsByCategory: GeneratorsByCategory;
+  existingSettings: GeneratorSettingView[] = [];
   private unsubscribe$ = new Subject();
 
   constructor(
@@ -31,7 +33,8 @@ export class GeneratorChoiceComponent implements OnInit, OnDestroy {
     private dialogRef: MatDialogRef<GeneratorChoiceComponent>,
     private generatorFacade: GeneratorFacadeService,
     private columnFacade: ColumnFacadeService,
-    private activeProject: ActiveProjectService
+    private activeProject: ActiveProjectService,
+    private snackService: SnackService
   ) { }
 
   ngOnInit(): void {
@@ -47,7 +50,13 @@ export class GeneratorChoiceComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe(
-        (generatorsByCategory) => this.generatorsByCategory = generatorsByCategory
+        ([generatorsByCategory, generators]) => {
+          this.generatorsByCategory = generatorsByCategory;
+          this.existingSettings = GeneratorFacadeService.getMultiSettings(
+            this.table?.generator_settings,
+            generators
+          );
+        }
       );
   }
 
@@ -64,7 +73,10 @@ export class GeneratorChoiceComponent implements OnInit, OnDestroy {
         setting
       )
       .pipe(takeUntil(this.unsubscribe$))
-      .subscribe(() => this.dialogRef.close());
+      .subscribe(
+        () => this.dialogRef.close(),
+        (err) => this.snackService.errorIntoSnack(err, 'Could not select the setting')
+      );
   }
 
   deleteSetting(setting: GeneratorSettingView) {
@@ -77,7 +89,15 @@ export class GeneratorChoiceComponent implements OnInit, OnDestroy {
       .subscribe();
   }
 
-  createSetting(generator: GeneratorView) {
+  chooseGenerator(generator: GeneratorView) {
+    if (generator.is_multi_column) {
+      this.createSetting(generator);
+    } else {
+      this.patchSetting(generator);
+    }
+  }
+
+  private createSetting(generator: GeneratorView) {
     this.generatorFacade
       .createSetting(
         this.table.id,
@@ -85,6 +105,23 @@ export class GeneratorChoiceComponent implements OnInit, OnDestroy {
         generator
       )
       .pipe(takeUntil(this.unsubscribe$))
-      .subscribe();
+      .subscribe(
+        () => null,
+        (err) => this.snackService.errorIntoSnack(err, 'Could not create the generator')
+      );
+  }
+
+  private patchSetting(generator: GeneratorView) {
+    this.generatorFacade
+      .patchGeneratorName(
+        this.table.id,
+        this.column.generator_setting,
+        generator
+      )
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe(
+        () => this.dialogRef.close(),
+        (err) => this.snackService.errorIntoSnack(err, 'Could not patch the generator')
+      );
   }
 }
