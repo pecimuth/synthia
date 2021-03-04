@@ -18,3 +18,10 @@ class GeneratorSetting(base):
     table = relationship('MetaTable', back_populates='generator_settings')
 
     columns = relationship('MetaColumn', order_by=MetaColumn.id, back_populates='generator_setting')
+
+    def __repr__(self):
+        return '<GeneratorSetting(id={},name={},params={})>'.format(
+            self.id,
+            self.name,
+            self.params
+        )

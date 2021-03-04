@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { filter, switchMap, takeUntil } from 'rxjs/operators';
-import { ExportRequisitionWrite } from 'src/app/api/models/export-requisition-write';
+import { ExportRequisitionView } from 'src/app/api/models/export-requisition-view';
 import { PreviewView } from 'src/app/api/models/preview-view';
 import { ProjectView } from 'src/app/api/models/project-view';
 import { ProjectService } from 'src/app/api/services';
@@ -41,13 +41,13 @@ export class PreviewComponent implements OnInit {
       .subscribe((preview) => this.preview = preview);
   }
 
-  private makeRequisition(): ExportRequisitionWrite {
-    const result: ExportRequisitionWrite = {
-      rows: this.project.tables.map((table) => {
+  private makeRequisition(): ExportRequisitionView {
+    const result: ExportRequisitionView = {
+      rows: this.project.tables.map((table, index) => {
         return {
           table_name: table.name,
           row_count: N_PREVIEW_ROWS,
-          seed: 1
+          seed: index
         };
       })
     };

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DataSourceView } from 'src/app/api/models/data-source-view';
-import { ExportRequisitionWrite } from 'src/app/api/models/export-requisition-write';
+import { ExportRequisitionView } from 'src/app/api/models/export-requisition-view';
 import { MessageView } from 'src/app/api/models/message-view';
 import { DataSourceService, ProjectService } from 'src/app/api/services';
 import { ActiveProjectService } from './active-project.service';
@@ -20,16 +20,19 @@ export class ExportService {
     private blobDownloadService: BlobDownloadService
   ) { }
 
-  export(outputChoice: DataSourceView | string,
-         requisition: ExportRequisitionWrite): Observable<Blob | MessageView> {
-    if (typeof outputChoice === 'string') {
+  export(outputChoice: DataSourceView | string | null,
+         requisition: ExportRequisitionView): Observable<Blob | MessageView> {
+    if (outputChoice === null) {
+      return this.saveProjectFile(requisition);
+    }
+    else if (typeof outputChoice === 'string') {
       return this.exportAsFile(outputChoice, requisition);
     } else {
       return this.exportToDataSource(outputChoice, requisition);
     }
   }
 
-  private exportAsFile(outputChoice: string, requisition: ExportRequisitionWrite): Observable<Blob> {
+  private exportAsFile(outputChoice: string, requisition: ExportRequisitionView): Observable<Blob> {
     const projectId = this.activeProject.project$.value.id;
     const params = {
       id: projectId,
@@ -48,8 +51,24 @@ export class ExportService {
       );
   }
 
+  private saveProjectFile(requisition: ExportRequisitionView): Observable<Blob> {
+    const projectId = this.activeProject.project$.value.id;
+    const params = {
+      id: projectId,
+      requisition: requisition
+    };
+
+    return this.projectService.postApiProjectIdSaveResponse(params)
+      .pipe(
+        map((response) => {
+          this.blobDownloadService.handleResponse(response);
+          return response.body;
+        })
+      );
+  }
+
   private exportToDataSource(outputChoice: DataSourceView,
-                             requisition: ExportRequisitionWrite): Observable<MessageView> {
+                             requisition: ExportRequisitionView): Observable<MessageView> {
     const params = {
       id: outputChoice.id,
       requisition: requisition

@@ -2,7 +2,7 @@
   <app-export-requisition [project]="project" (requisitionChanged)="requisitionChanged($event)"></app-export-requisition>
   <div>
     <app-output-choice [project]="project" (outputChoiceChanged)="outputChoiceChanged($event)"></app-output-choice>
-    <mat-card class="margin-left margin-top export-card" *ngIf="requisition && outputChoice">
+    <mat-card class="margin-left margin-top export-card" *ngIf="requisition && outputChoice !== undefined">
       <mat-card-header>
         <mat-card-title>Export</mat-card-title>
       </mat-card-header>

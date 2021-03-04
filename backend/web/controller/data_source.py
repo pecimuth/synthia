@@ -2,7 +2,7 @@ import functools
 import os
 
 from flasgger import swag_from
-from flask import Blueprint, request, current_app, send_file, Response
+from flask import Blueprint, request, current_app, Response
 from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.utils import secure_filename
 
@@ -13,7 +13,6 @@ from core.service.data_source.file_common import FileDataSourceFactory, is_file_
 from core.service.data_source.schema import DataSourceSchemaImport
 from core.service.deserializer import create_mock_meta
 from core.service.generation_procedure.controller import ProcedureController
-from core.service.generation_procedure.requisition import ExportRequisition
 from core.service.output_driver.database import DatabaseOutputDriver
 from web.controller.auth import login_required
 from web.controller.util import BAD_REQUEST_SCHEMA, bad_request, find_user_project, PROJECT_NOT_FOUND, INVALID_INPUT, \
@@ -21,7 +20,7 @@ from web.controller.util import BAD_REQUEST_SCHEMA, bad_request, find_user_proje
     FILE_SCHEMA, file_attachment_headers, validate_json
 from web.service.database import get_db_session
 from web.view.data_source import DataSourceView, DataSourceDatabaseWrite
-from web.view.project import ProjectView, ExportRequisitionWrite
+from web.view.project import ProjectView, ExportRequisitionView
 
 source = Blueprint('data_source', __name__, url_prefix='/api')
 
@@ -293,7 +292,7 @@ def import_data_source_schema(data_source: DataSource):
 @login_required
 @with_data_source_by_id
 @error_into_message
-@validate_json(ExportRequisitionWrite)
+@validate_json(ExportRequisitionView)
 @swag_from({
     'tags': ['DataSource'],
     'security': TOKEN_SECURITY,
@@ -310,7 +309,7 @@ def import_data_source_schema(data_source: DataSource):
             'in': 'body',
             'description': 'Which tables, how many rows and seeds',
             'required': True,
-            'schema': ExportRequisitionWrite
+            'schema': ExportRequisitionView
         }
     ],
     'responses': {
@@ -322,8 +321,7 @@ def export_to_data_source(data_source: DataSource):
     if data_source.driver is None:
         return bad_request('The data source is not a database')
 
-    requisition = ExportRequisition()
-    requisition.extend(request.json['rows'])
+    requisition = ExportRequisitionView().load(request.json)
     database_driver = DatabaseOutputDriver(data_source)
     controller = ProcedureController(data_source.project, requisition, database_driver)
     controller.run()

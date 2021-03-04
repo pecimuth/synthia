@@ -48,7 +48,7 @@ def get_generators():
 })
 def get_output_file_drivers():
     output = {
-        'items': FileOutputDriverFacade.get_driver_name_list()
+        'items': FileOutputDriverFacade.get_driver_list()
     }
     return OutputFileDriverListView().dump(output)
 

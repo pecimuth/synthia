@@ -27,12 +27,13 @@ class LiteralCompiler(dialect.statement_compiler):
         if value is None:
             return 'NULL'
         elif isinstance(value, (date, datetime, timedelta)):
-            return str(value)
+            return '\'{}\''.format(str(value))
         return super(LiteralCompiler, self).render_literal_value(value, typ)
 
 
 class InsertScriptOutputDriver(FileOutputDriver):
     mime_type = 'application/sql'
+    display_name = 'INSERT Script'
 
     def __init__(self):
         super().__init__()

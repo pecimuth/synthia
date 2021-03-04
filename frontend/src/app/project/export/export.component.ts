@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DataSourceView } from 'src/app/api/models/data-source-view';
-import { ExportRequisitionWrite } from 'src/app/api/models/export-requisition-write';
+import { ExportRequisitionView } from 'src/app/api/models/export-requisition-view';
 import { ProjectView } from 'src/app/api/models/project-view';
 import { SnackService } from 'src/app/service/snack.service';
 import { ActiveProjectService } from '../service/active-project.service';
@@ -16,8 +16,8 @@ import { ExportService } from '../service/export.service';
 export class ExportComponent implements OnInit {
 
   project: ProjectView;
-  requisition: ExportRequisitionWrite;
-  outputChoice: DataSourceView | string;
+  requisition: ExportRequisitionView;
+  outputChoice: DataSourceView | string | null;
 
   private unsubscribe$ = new Subject();
 
@@ -38,7 +38,7 @@ export class ExportComponent implements OnInit {
     this.unsubscribe$.complete();
   }
 
-  requisitionChanged(requisition: ExportRequisitionWrite) {
+  requisitionChanged(requisition: ExportRequisitionView) {
     this.requisition = requisition;
   }
 
@@ -48,6 +48,7 @@ export class ExportComponent implements OnInit {
 
   generate() {
     this.exportService.export(this.outputChoice, this.requisition)
+      .pipe(takeUntil(this.unsubscribe$))
       .subscribe(
         () => this.snackService.snack('Export completed'),
         (err) => this.snackService.errorIntoSnack(err)

@@ -3,15 +3,11 @@
 <div *ngIf="projects" class="row flex-wrap margin">
   <mat-card *ngFor="let project of projects" class="margin resource-card">
     <mat-card-header>
-      <mat-card-title>{{ project.name }}</mat-card-title>
+      <mat-card-title class="margin-top">{{ project.name }}</mat-card-title>
     </mat-card-header>
-    <mar-card-content>
-      <mat-chip-list>
-        <mat-chip *ngFor="let table of project.tables" [routerLink]="[project.id, table.id]">
-          {{ table.name }}
-        </mat-chip>
-      </mat-chip-list>
-    </mar-card-content>
+    <mat-card-content>
+      <span *ngFor="let table of project.tables">{{ table.name }} </span>
+    </mat-card-content>
     <div class="action-buttons">
       <button mat-button [routerLink]="project.id">Open</button>
     </div>

@@ -14,9 +14,15 @@ class MetaTable(base):
     project_id = Column(Integer, ForeignKey('project.id'))
     project = relationship('Project', back_populates='tables')
 
-    columns = relationship('MetaColumn', order_by=MetaColumn.id, back_populates='table', cascade='all, delete, delete-orphan')
+    columns = relationship('MetaColumn',
+                           order_by=MetaColumn.id,
+                           back_populates='table',
+                           cascade='all, delete, delete-orphan')
 
-    generator_settings = relationship('GeneratorSetting', order_by=GeneratorSetting.id, back_populates='table', cascade='all, delete, delete-orphan')
+    generator_settings = relationship('GeneratorSetting',
+                                      order_by=GeneratorSetting.id,
+                                      back_populates='table',
+                                      cascade='all, delete, delete-orphan')
 
     data_source_id = Column(Integer, ForeignKey('datasource.id', ondelete='SET NULL'))
     data_source = relationship('DataSource')
@@ -26,3 +32,12 @@ class MetaTable(base):
     __table_args__ = (
         Index('ix_metatable_project_name', project_id, name, unique=True),
     )
+
+    def __repr__(self):
+        return '<MetaTable(id={},name={},columns={},constraints={},generator_settings={})>'.format(
+            self.id,
+            self.name,
+            self.columns,
+            self.constraints,
+            self.generator_settings
+        )

@@ -33,4 +33,8 @@ class MetaColumn(base):
     )
 
     def __repr__(self):
-        return '<MetaColumn(id={},name={})>'.format(self.id, self.name)
+        return '<MetaColumn(id={},name={},table_id={})>'.format(
+            self.id,
+            self.name,
+            self.table.id
+        )

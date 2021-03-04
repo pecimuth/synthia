@@ -6,6 +6,7 @@ from core.service.types import json_serialize_default
 
 class JsonOutputDriver(FileOutputDriver):
     mime_type = 'application/json'
+    display_name = 'JSON'
 
     def dumps(self):
         return json.dumps(self._database.get_dict(),

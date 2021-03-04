@@ -1,22 +1,19 @@
 from io import StringIO, BytesIO
 import csv
-import json
 from zipfile import ZIP_DEFLATED, ZipFile
 
-from abc import abstractmethod
-from typing import Union, Optional
+from typing import Union
 
 from sqlalchemy import Table
 
 from core.model.meta_table import MetaTable
-from core.service.generation_procedure.database import GeneratedRow, GeneratedDatabase, GeneratedTable
-from core.service.output_driver import OutputDriver
+from core.service.generation_procedure.database import GeneratedRow, GeneratedDatabase
 from core.service.output_driver.file_driver.base import FileOutputDriver
-from core.service.types import json_serialize_default
 
 
 class ZippedCsvOutputDriver(FileOutputDriver):
     mime_type = 'application/zip'
+    display_name = 'Zipped CSV'
 
     def __init__(self):
         super(ZippedCsvOutputDriver, self).__init__()

@@ -17,9 +17,15 @@ class Project(base):
     tables = relationship('MetaTable', order_by=MetaTable.id, back_populates='project', cascade='all, delete, delete-orphan')
     data_sources = relationship('DataSource', order_by=DataSource.id, back_populates='project', cascade='all, delete, delete-orphan')
 
-    def __repr__(self):
-        return '<Project(id={},name={},user_id={})>'.format(self.id, self.name, self.user_id)
 
     __table_args__ = (
         Index('ix_project_user', user_id),
     )
+
+    def __repr__(self):
+        return '<Project(id={},name={},user_id={},tables={})>'.format(
+            self.id,
+            self.name,
+            self.user_id,
+            self.tables
+        )

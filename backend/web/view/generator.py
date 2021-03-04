@@ -1,8 +1,10 @@
-from marshmallow import Schema, ValidationError
+from marshmallow import Schema, ValidationError, post_load
 from marshmallow.fields import Integer, Str, Dict, Float, Bool, Raw, Nested, List, Method
 from marshmallow.validate import Range
 
-from core.service.column_generator.base import RegisteredGenerator
+from core.model.generator_setting import GeneratorSetting
+from core.service.column_generator.base import RegisteredGenerator, ColumnGenerator
+from core.service.output_driver.file_driver.base import FileOutputDriver
 
 
 class GeneratorSettingView(Schema):
@@ -10,6 +12,10 @@ class GeneratorSettingView(Schema):
     name = Str()
     params = Dict(keys=Str())
     null_frequency = Float()
+
+    @post_load
+    def make_generator_setting(self, data, **kwargs):
+        return GeneratorSetting(**data)
 
 
 def validate_generator_name(name):
@@ -50,13 +56,13 @@ class GeneratorView(Schema):
     is_multi_column = Bool()
     param_list = List(Nested(GeneratorParam()))
 
-    def get_name(self, obj):
+    def get_name(self, obj: ColumnGenerator):
         return obj.name()
 
-    def get_category_value(self, obj):
+    def get_category_value(self, obj: ColumnGenerator):
         return obj.category.value
 
-    def get_only_for_type(self, obj):
+    def get_only_for_type(self, obj: ColumnGenerator):
         return obj.only_for_type()
 
 
@@ -64,5 +70,14 @@ class GeneratorListView(Schema):
     items = List(Nested(GeneratorView()))
 
 
+class OutputFileDriverView(Schema):
+    driver_name = Method('get_driver_name')
+    display_name = Str()
+    mime_type = Str()
+
+    def get_driver_name(self, obj: FileOutputDriver):
+        return obj.driver_name()
+
+
 class OutputFileDriverListView(Schema):
-    items = List(Str())
+    items = List(Nested(OutputFileDriverView()))

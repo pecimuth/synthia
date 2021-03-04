@@ -38,3 +38,10 @@ class MetaConstraint(base):
     __table_args__ = (
         Index('ix_metaconstraint_table_name', table_id, name, unique=True),
     )
+
+    def __repr__(self):
+        return '<MetaConstraint(id={},name={},table_id={})>'.format(
+            self.id,
+            self.name,
+            self.table.id
+        )

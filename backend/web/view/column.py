@@ -1,7 +1,8 @@
-from marshmallow import Schema
+from marshmallow import Schema, post_load
 from marshmallow.fields import Integer, Str, Bool, Nested
 from marshmallow.validate import Regexp
 
+from core.model.meta_column import MetaColumn
 from core.service.data_source.identifier import Identifier
 from web.view.generator import GeneratorSettingView
 
@@ -23,6 +24,10 @@ class ColumnView(Schema):
     col_type = Str()
     nullable = Bool()
     generator_setting = Nested(GeneratorSettingView())
+
+    @post_load
+    def make_meta_column(self, data, **kwargs):
+        return MetaColumn(**data)
 
 
 class ColumnWrite(Schema):

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Iterable
+from typing import Dict, Iterable, List
 
 
 @dataclass
@@ -10,19 +10,11 @@ class ExportRequisitionRow:
 
 
 class ExportRequisition:
-    def __init__(self):
-        self._rows: Dict[str, ExportRequisitionRow] = {}
-
-    def extend(self, rows: Iterable[dict]):
-        for row in rows:
-            self.add_row(row)
-
-    def add_row(self, row: dict):
-        self._rows[row['table_name']] = ExportRequisitionRow(
-            table_name=row['table_name'],
-            row_count=row['row_count'],
-            seed=row['seed']
-        )
+    def __init__(self, list_of_rows: List[ExportRequisitionRow]):
+        self._rows: Dict[str, ExportRequisitionRow] = {
+            row.table_name: row
+            for row in list_of_rows
+        }
 
     def number_of_rows(self, table_name: str) -> int:
         return self._rows[table_name].row_count
@@ -36,3 +28,7 @@ class ExportRequisition:
     @property
     def rows(self) -> Iterable[ExportRequisitionRow]:
         yield from self._rows.values()
+
+    def __repr__(self):
+        return '<ExportRequisition(rows={})>'.format(self._rows)
+

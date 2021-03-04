@@ -14,7 +14,7 @@ import { GeneratorService } from 'src/app/api/services';
 export class OutputChoiceComponent implements OnInit {
 
   @Input() project: ProjectView;
-  @Output() outputChoiceChanged = new EventEmitter<DataSourceView | string>();
+  @Output() outputChoiceChanged = new EventEmitter<DataSourceView | string | null>();
 
   fileDrivers: OutputFileDriverListView = {items: []};
   private unsubscribe$ = new Subject();

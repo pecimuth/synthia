@@ -1,10 +1,15 @@
-from typing import List
+from typing import List, Type
 
 from core.service.exception import SomeError
 from core.service.output_driver.file_driver.base import FileOutputDriver
 
 
 class FileOutputDriverFacade:
+
+    @staticmethod
+    def get_driver_list() -> List[Type[FileOutputDriver]]:
+        return FileOutputDriver.__subclasses__()
+
     @staticmethod
     def get_driver_name_list() -> List[str]:
         return [

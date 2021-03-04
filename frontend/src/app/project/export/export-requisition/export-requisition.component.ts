@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatCheckboxChange } from '@angular/material/checkbox';
-import { ExportRequisitionWrite } from 'src/app/api/models/export-requisition-write';
+import { ExportRequisitionView } from 'src/app/api/models/export-requisition-view';
 import { ProjectView } from 'src/app/api/models/project-view';
 
 const BASE_COUNT = 10;
@@ -9,7 +9,7 @@ interface Inclusion {
   included: boolean;
 }
 
-type RequisitionRows = ExportRequisitionWrite['rows'];
+type RequisitionRows = ExportRequisitionView['rows'];
 type RequisitionRow = RequisitionRows[0];
 
 @Component({
@@ -43,7 +43,7 @@ export class ExportRequisitionComponent implements OnInit {
     return this._project;
   }
 
-  @Output() requisitionChanged = new EventEmitter<ExportRequisitionWrite>();
+  @Output() requisitionChanged = new EventEmitter<ExportRequisitionView>();
 
   displayedColumns = ['table', 'row_count', 'seed'];
 
@@ -76,7 +76,7 @@ export class ExportRequisitionComponent implements OnInit {
   }
 
   private emit() {
-    const result: ExportRequisitionWrite = {
+    const result: ExportRequisitionView = {
       rows: []
     };
     this.requisitionRows

@@ -1,4 +1,5 @@
 import functools
+import json
 
 from flask import Blueprint, g, request, Response
 from sqlalchemy.orm import Session
@@ -7,14 +8,15 @@ from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.utils import secure_filename
 
 from core.model.project import Project
+from core.service.data_source import DataSourceConstants
 from core.service.generation_procedure.controller import ProcedureController
-from core.service.generation_procedure.requisition import ExportRequisition
 from core.service.output_driver import PreviewOutputDriver
 from core.service.output_driver.file_driver.facade import FileOutputDriverFacade
+from core.service.types import json_serialize_default
 from web.controller.util import find_user_project, bad_request, PROJECT_NOT_FOUND, BAD_REQUEST_SCHEMA, TOKEN_SECURITY, \
     FILE_SCHEMA, file_attachment_headers, validate_json, error_into_message
-from web.view.project import ProjectListView, ProjectView, PreviewView, ExportRequisitionWrite, \
-    ExportFileRequisitionWrite
+from web.view.project import ProjectListView, ProjectView, PreviewView, ExportRequisitionView, \
+    ExportFileRequisitionView, SaveView
 from web.controller.auth import login_required
 from web.service.database import get_db_session
 
@@ -116,7 +118,7 @@ def delete_schema_from_project(proj: Project, session: Session):
 @project.route('/project/<id>/preview', methods=('POST',))
 @login_required
 @with_project_by_id
-@validate_json(ExportRequisitionWrite)
+@validate_json(ExportRequisitionView)
 @error_into_message
 @swag_from({
     'tags': ['Project'],
@@ -134,7 +136,7 @@ def delete_schema_from_project(proj: Project, session: Session):
             'in': 'body',
             'description': 'Which tables, how many rows and seeds',
             'required': True,
-            'schema': ExportRequisitionWrite
+            'schema': ExportRequisitionView
         }
     ],
     'responses': {
@@ -146,8 +148,7 @@ def delete_schema_from_project(proj: Project, session: Session):
     }
 })
 def generate_project_preview(proj: Project):
-    requisition = ExportRequisition()
-    requisition.extend(request.json['rows'])
+    requisition = ExportRequisitionView().load(request.json)
     preview_driver = PreviewOutputDriver()
     controller = ProcedureController(proj, requisition, preview_driver)
     preview = controller.run()
@@ -157,7 +158,7 @@ def generate_project_preview(proj: Project):
 @project.route('/project/<id>/export', methods=('POST',))
 @login_required
 @with_project_by_id
-@validate_json(ExportFileRequisitionWrite)
+@validate_json(ExportFileRequisitionView)
 @error_into_message
 @swag_from({
     'tags': ['Project'],
@@ -175,7 +176,7 @@ def generate_project_preview(proj: Project):
             'in': 'body',
             'description': 'Export requisition',
             'required': True,
-            'object': ExportFileRequisitionWrite
+            'object': ExportFileRequisitionView
         }
     ],
     'responses': {
@@ -184,10 +185,8 @@ def generate_project_preview(proj: Project):
     }
 })
 def export_project(proj: Project):
-    driver_name = request.json['driver_name']
+    requisition, driver_name = ExportFileRequisitionView().load(request.json)
     file_driver = FileOutputDriverFacade.make_driver(driver_name)
-    requisition = ExportRequisition()
-    requisition.extend(request.json['rows'])
     controller = ProcedureController(proj, requisition, file_driver)
     controller.run()
     file_name = file_driver.add_extension(secure_filename(proj.name))
@@ -195,5 +194,53 @@ def export_project(proj: Project):
     return Response(
         file_driver.dumps(),
         mimetype=file_driver.mime_type,
+        headers=file_attachment_headers(file_name)
+    )
+
+
+@project.route('/project/<id>/save', methods=('POST',))
+@login_required
+@with_project_by_id
+@validate_json(ExportRequisitionView)
+@error_into_message
+@swag_from({
+    'tags': ['Project'],
+    'security': TOKEN_SECURITY,
+    'parameters': [
+        {
+            'name': 'id',
+            'in': 'path',
+            'description': 'Project ID',
+            'required': True,
+            'type': 'integer'
+        },
+        {
+            'name': 'requisition',
+            'in': 'body',
+            'description': 'Export requisition',
+            'required': True,
+            'object': ExportRequisitionView
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'Project file',
+            'schema': {
+                'type': 'file'
+            }
+        },
+        400: BAD_REQUEST_SCHEMA
+    }
+})
+def save_project(proj: Project):
+    file_name = '{}_proj.json'.format(secure_filename(proj.name))
+    py_dump = SaveView().dump({
+        'project': proj,
+        'requisition': request.json
+    })
+    json_dump = json.dumps(py_dump, indent=2, default=json_serialize_default)
+    return Response(
+        json_dump,
+        mimetype=DataSourceConstants.MIME_TYPE_JSON,
         headers=file_attachment_headers(file_name)
     )

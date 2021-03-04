@@ -10,6 +10,7 @@ from core.service.output_driver import OutputDriver
 
 class FileOutputDriver(OutputDriver):
     mime_type: str
+    display_name: str
     is_interactive = False
 
     def __init__(self):

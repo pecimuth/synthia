@@ -1,9 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ProjectFacadeService } from 'src/app/service/project-facade.service';
 import { ProjectView } from 'src/app/api/models/project-view';
-import { Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateProjectFormComponent } from 'src/app/dialog/create-project-form/create-project-form.component';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-project-list',
@@ -13,7 +14,7 @@ import { CreateProjectFormComponent } from 'src/app/dialog/create-project-form/c
 export class ProjectListComponent implements OnInit, OnDestroy {
 
   projects: ProjectView[];
-  private projectsSub: Subscription;
+  private unsubscribe$ = new Subject();
 
   constructor(
     private projectFacade: ProjectFacadeService,
@@ -21,16 +22,16 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.projectsSub = this.projectFacade.list$
+    this.projectFacade.list$
+      .pipe(takeUntil(this.unsubscribe$))
       .subscribe(
         (projects) => this.projects = projects.items
       );
   }
 
   ngOnDestroy() {
-    if (this.projectsSub) {
-      this.projectsSub.unsubscribe();
-    }
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
   
   createProject() {

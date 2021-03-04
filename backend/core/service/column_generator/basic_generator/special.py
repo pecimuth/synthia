@@ -11,26 +11,6 @@ from core.service.generation_procedure.database import GeneratedDatabase, Genera
 from core.service.types import Types
 
 
-class PrimaryKeyGenerator(RegisteredGenerator, SingleColumnGenerator[int]):
-    supports_null = False
-    is_database_generated = True
-
-    def __init__(self, generator_setting: GeneratorSetting):
-        super().__init__(generator_setting)
-        self._counter = 0
-
-    @classmethod
-    def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
-        for constraint in meta_column.constraints:
-            if constraint.constraint_type == MetaConstraint.PRIMARY:
-                return True
-        return False
-
-    def make_scalar(self, generated_database: GeneratedDatabase) -> int:
-        self._counter += 1
-        return self._counter
-
-
 class ForeignKeyGenerator(RegisteredGenerator, MultiColumnGenerator):
 
     def __init__(self, generator_setting: GeneratorSetting):
@@ -125,3 +105,23 @@ class ForeignKeyGenerator(RegisteredGenerator, MultiColumnGenerator):
 
         rows = generated_database.get_table(self._ref_table.name)
         return self._from_random_row(rows)
+
+
+class PrimaryKeyGenerator(RegisteredGenerator, SingleColumnGenerator[int]):
+    supports_null = False
+    is_database_generated = True
+
+    def __init__(self, generator_setting: GeneratorSetting):
+        super().__init__(generator_setting)
+        self._counter = 0
+
+    @classmethod
+    def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
+        for constraint in meta_column.constraints:
+            if constraint.constraint_type == MetaConstraint.PRIMARY:
+                return True
+        return False
+
+    def make_scalar(self, generated_database: GeneratedDatabase) -> int:
+        self._counter += 1
+        return self._counter
