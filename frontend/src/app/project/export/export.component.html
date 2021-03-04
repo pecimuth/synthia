@@ -1,8 +1,8 @@
 <div *ngIf="project" class="row flex-wrap">
-  <app-table-count [project]="project" (tableCountsChanged)="tableCountsChanged($event)"></app-table-count>
+  <app-export-requisition [project]="project" (requisitionChanged)="requisitionChanged($event)"></app-export-requisition>
   <div>
     <app-output-choice [project]="project" (outputChoiceChanged)="outputChoiceChanged($event)"></app-output-choice>
-    <mat-card class="margin-left margin-top export-card" *ngIf="tableCounts && outputChoice">
+    <mat-card class="margin-left margin-top export-card" *ngIf="requisition && outputChoice">
       <mat-card-header>
         <mat-card-title>Export</mat-card-title>
       </mat-card-header>

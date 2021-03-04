@@ -13,14 +13,15 @@ from core.service.data_source.file_common import FileDataSourceFactory, is_file_
 from core.service.data_source.schema import DataSourceSchemaImport
 from core.service.deserializer import create_mock_meta
 from core.service.generation_procedure.controller import ProcedureController
+from core.service.generation_procedure.requisition import ExportRequisition
 from core.service.output_driver.database import DatabaseOutputDriver
 from web.controller.auth import login_required
 from web.controller.util import BAD_REQUEST_SCHEMA, bad_request, find_user_project, PROJECT_NOT_FOUND, INVALID_INPUT, \
     DATA_SOURCE_NOT_FOUND, ok_request, find_user_data_source, OK_REQUEST_SCHEMA, error_into_message, TOKEN_SECURITY, \
-    FILE_SCHEMA, file_attachment_headers
+    FILE_SCHEMA, file_attachment_headers, validate_json
 from web.service.database import get_db_session
 from web.view.data_source import DataSourceView, DataSourceDatabaseWrite
-from web.view.project import ProjectView, TableCountsWrite
+from web.view.project import ProjectView, ExportRequisitionWrite
 
 source = Blueprint('data_source', __name__, url_prefix='/api')
 
@@ -292,6 +293,7 @@ def import_data_source_schema(data_source: DataSource):
 @login_required
 @with_data_source_by_id
 @error_into_message
+@validate_json(ExportRequisitionWrite)
 @swag_from({
     'tags': ['DataSource'],
     'security': TOKEN_SECURITY,
@@ -304,11 +306,11 @@ def import_data_source_schema(data_source: DataSource):
             'type': 'integer'
         },
         {
-            'name': 'table_counts',
+            'name': 'requisition',
             'in': 'body',
-            'description': 'Which tables and how many rows',
+            'description': 'Which tables, how many rows and seeds',
             'required': True,
-            'schema': TableCountsWrite
+            'schema': ExportRequisitionWrite
         }
     ],
     'responses': {
@@ -320,9 +322,9 @@ def export_to_data_source(data_source: DataSource):
     if data_source.driver is None:
         return bad_request('The data source is not a database')
 
-    table_counts = request.json['rows_by_table_name']
+    requisition = ExportRequisition()
+    requisition.extend(request.json['rows'])
     database_driver = DatabaseOutputDriver(data_source)
-    controller = ProcedureController(data_source.project, table_counts, database_driver)
-    # TODO handle errors
+    controller = ProcedureController(data_source.project, requisition, database_driver)
     controller.run()
     return ok_request('Successfully filled the database')

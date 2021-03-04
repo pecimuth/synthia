@@ -9,7 +9,7 @@ from core.service.deserializer import StructureDeserializer
 from core.service.exception import SomeError
 from core.service.generation_procedure.constraint_checker import ConstraintChecker
 from core.service.generation_procedure.database import GeneratedRow, GeneratedDatabase
-from core.service.generation_procedure.requisition import TableCountRequisition
+from core.service.generation_procedure.requisition import ExportRequisition
 from core.service.generation_procedure.statistics import ProcedureStatistics
 from core.service.output_driver import OutputDriver
 
@@ -17,7 +17,7 @@ from core.service.output_driver import OutputDriver
 class ProcedureController:
     def __init__(self,
                  project: Project,
-                 requisition: TableCountRequisition,
+                 requisition: ExportRequisition,
                  output_driver: OutputDriver):
         self._project = project
         self._statistics = ProcedureStatistics(requisition)

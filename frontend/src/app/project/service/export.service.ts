@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DataSourceView } from 'src/app/api/models/data-source-view';
+import { ExportRequisitionWrite } from 'src/app/api/models/export-requisition-write';
 import { MessageView } from 'src/app/api/models/message-view';
-import { TableCountsWrite } from 'src/app/api/models/table-counts-write';
 import { DataSourceService, ProjectService } from 'src/app/api/services';
 import { ActiveProjectService } from './active-project.service';
 import { BlobDownloadService } from './blob-download.service';
@@ -21,20 +21,20 @@ export class ExportService {
   ) { }
 
   export(outputChoice: DataSourceView | string,
-         tableCounts: TableCountsWrite): Observable<Blob | MessageView> {
+         requisition: ExportRequisitionWrite): Observable<Blob | MessageView> {
     if (typeof outputChoice === 'string') {
-      return this.exportAsFile(outputChoice, tableCounts);
+      return this.exportAsFile(outputChoice, requisition);
     } else {
-      return this.exportToDataSource(outputChoice, tableCounts);
+      return this.exportToDataSource(outputChoice, requisition);
     }
   }
 
-  private exportAsFile(outputChoice: string, tableCounts: TableCountsWrite): Observable<Blob> {
+  private exportAsFile(outputChoice: string, requisition: ExportRequisitionWrite): Observable<Blob> {
     const projectId = this.activeProject.project$.value.id;
     const params = {
       id: projectId,
-      exportRequest: {
-        table_counts: tableCounts,
+      requisition: {
+        rows: requisition.rows,
         output_format: outputChoice as any
       }
     };
@@ -49,10 +49,10 @@ export class ExportService {
   }
 
   private exportToDataSource(outputChoice: DataSourceView,
-                             tableCounts: TableCountsWrite): Observable<MessageView> {
+                             requisition: ExportRequisitionWrite): Observable<MessageView> {
     const params = {
       id: outputChoice.id,
-      tableCounts: tableCounts
+      requisition: requisition
     };
     return this.dataSourceService.postApiDataSourceDatabaseIdExport(params);
   }

@@ -17,13 +17,18 @@ class ProjectListView(Schema):
     items = List(Nested(ProjectView()))
 
 
-class TableCountsWrite(Schema):
-    rows_by_table_name = Dict(keys=Str(), values=Integer())
+class ExportRequisitionRow(Schema):
+    table_name = Str()
+    row_count = Integer()
+    seed = Integer()
 
 
-class ExportFileRequestWrite(Schema):
+class ExportRequisitionWrite(Schema):
+    rows = List(Nested(ExportRequisitionRow()))
+
+
+class ExportFileRequestWrite(ExportRequisitionWrite):
     output_format = Str(validate=OneOf(['csv', 'json']))
-    table_counts = Nested(TableCountsWrite())
 
 
 class PreviewView(Schema):

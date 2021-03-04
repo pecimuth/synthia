@@ -1,0 +1,57 @@
+<mat-card *ngIf="project && requisitionRows" class="margin-left margin-top export-card">
+  <mat-card-header>
+    <mat-card-title>Choose tables to populate</mat-card-title>
+  </mat-card-header>
+  <table mat-table [dataSource]="requisitionRows" class="full-width">
+    <ng-container matColumnDef="table">
+      <th mat-header-cell *matHeaderCellDef>
+        <mat-checkbox [checked]="allIncluded"
+        [indeterminate]="indeterminate"
+        class="margin-right"
+        (change)="includeAll($event)">
+          Table
+        </mat-checkbox>
+      </th>
+      <td mat-cell *matCellDef="let row">
+        <mat-checkbox [checked]="row.included"
+          class="margin-right"
+          (change)="include(row, $event)">
+          {{ row.table_name }}
+        </mat-checkbox>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="row_count">
+      <th mat-header-cell *matHeaderCellDef>Row count</th>
+      <td mat-cell *matCellDef="let row">
+        <div class="mini-input margin-right">
+          <mat-form-field class="mini-input">
+            <input matInput
+              type="number"
+              [value]="row.row_count"
+              [disabled]="!row.included"
+              (change)="changeRowCount(row, $event.target.value)">
+          </mat-form-field>
+        </div>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="seed">
+      <th mat-header-cell *matHeaderCellDef>Seed</th>
+      <td mat-cell *matCellDef="let row">
+        <div class="mini-input">
+          <mat-form-field class="mini-input">
+            <input matInput
+              type="number"
+              [value]="row.seed"
+              [disabled]="!row.included"
+              (change)="changeSeed(row, $event.target.value)">
+          </mat-form-field>
+        </div>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+</mat-card>

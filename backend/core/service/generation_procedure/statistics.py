@@ -1,4 +1,4 @@
-from core.service.generation_procedure.requisition import TableCountRequisition
+from core.service.generation_procedure.requisition import ExportRequisition
 
 
 class ProcedureTableStatistics:
@@ -36,10 +36,10 @@ class ProcedureTableStatistics:
 
 
 class ProcedureStatistics:
-    def __init__(self, requisition: TableCountRequisition):
+    def __init__(self, requisition: ExportRequisition):
         self._table_results = {
-            table_name: ProcedureTableStatistics(table_name, count)
-            for table_name, count in requisition.items()
+            req.table_name: ProcedureTableStatistics(req.table_name, req.row_count)
+            for req in requisition.rows
         }
 
     def get_table_statistics(self, table_name) -> ProcedureTableStatistics:

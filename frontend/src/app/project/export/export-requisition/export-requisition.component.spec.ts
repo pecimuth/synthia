@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TableCountComponent } from './table-count.component';
+import { ExportRequisitionComponent } from './export-requisition.component';
 
-describe('TableCountComponent', () => {
-  let component: TableCountComponent;
-  let fixture: ComponentFixture<TableCountComponent>;
+describe('ExportRequisitionComponent', () => {
+  let component: ExportRequisitionComponent;
+  let fixture: ComponentFixture<ExportRequisitionComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ TableCountComponent ]
+      declarations: [ ExportRequisitionComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(TableCountComponent);
+    fixture = TestBed.createComponent(ExportRequisitionComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

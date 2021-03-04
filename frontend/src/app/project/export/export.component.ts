@@ -1,11 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DataSourceView } from 'src/app/api/models/data-source-view';
+import { ExportRequisitionWrite } from 'src/app/api/models/export-requisition-write';
 import { ProjectView } from 'src/app/api/models/project-view';
-import { TableCountsWrite } from 'src/app/api/models/table-counts-write';
-import { Snack } from 'src/app/service/constants';
+import { SnackService } from 'src/app/service/snack.service';
 import { ActiveProjectService } from '../service/active-project.service';
 import { ExportService } from '../service/export.service';
 
@@ -17,7 +16,7 @@ import { ExportService } from '../service/export.service';
 export class ExportComponent implements OnInit {
 
   project: ProjectView;
-  tableCounts: TableCountsWrite;
+  requisition: ExportRequisitionWrite;
   outputChoice: DataSourceView | string;
 
   private unsubscribe$ = new Subject();
@@ -25,7 +24,7 @@ export class ExportComponent implements OnInit {
   constructor(
     private activeProject: ActiveProjectService,
     private exportService: ExportService,
-    private snackBar: MatSnackBar
+    private snackService: SnackService
   ) { }
 
   ngOnInit(): void {
@@ -39,8 +38,8 @@ export class ExportComponent implements OnInit {
     this.unsubscribe$.complete();
   }
 
-  tableCountsChanged(tableCounts: TableCountsWrite) {
-    this.tableCounts = tableCounts;
+  requisitionChanged(requisition: ExportRequisitionWrite) {
+    this.requisition = requisition;
   }
 
   outputChoiceChanged(outputChoice: DataSourceView | string) {
@@ -48,10 +47,10 @@ export class ExportComponent implements OnInit {
   }
 
   generate() {
-    this.exportService.export(this.outputChoice, this.tableCounts)
+    this.exportService.export(this.outputChoice, this.requisition)
       .subscribe(
-        () => this.snackBar.open('Export completed', Snack.OK, Snack.CONFIG),
-        () => this.snackBar.open('Something went wrong', Snack.OK, Snack.CONFIG)
+        () => this.snackService.snack('Export completed'),
+        (err) => this.snackService.errorIntoSnack(err)
       );
   }
 }

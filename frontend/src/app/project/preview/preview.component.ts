@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { filter, switchMap, takeUntil } from 'rxjs/operators';
+import { ExportRequisitionWrite } from 'src/app/api/models/export-requisition-write';
 import { PreviewView } from 'src/app/api/models/preview-view';
 import { ProjectView } from 'src/app/api/models/project-view';
-import { TableCountsWrite } from 'src/app/api/models/table-counts-write';
 import { ProjectService } from 'src/app/api/services';
 import { ActiveProjectService } from '../service/active-project.service';
 
@@ -34,17 +34,24 @@ export class PreviewComponent implements OnInit {
           this.project = project;
           return this.projectService.postApiProjectIdPreview({
             id: project.id,
-            tableCounts: this.makeTableCounts()
+            requisition: this.makeRequisition()
           });
         })
       )
       .subscribe((preview) => this.preview = preview);
   }
 
-  private makeTableCounts(): TableCountsWrite {
-    const result = {};
-    this.project.tables.forEach((table) => result[table.name] = N_PREVIEW_ROWS);
-    return {rows_by_table_name: result};
+  private makeRequisition(): ExportRequisitionWrite {
+    const result: ExportRequisitionWrite = {
+      rows: this.project.tables.map((table) => {
+        return {
+          table_name: table.name,
+          row_count: N_PREVIEW_ROWS,
+          seed: 1
+        };
+      })
+    };
+    return result;
   }
 
   ngOnDestroy() {

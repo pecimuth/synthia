@@ -8,11 +8,12 @@ from werkzeug.utils import secure_filename
 
 from core.model.project import Project
 from core.service.generation_procedure.controller import ProcedureController
+from core.service.generation_procedure.requisition import ExportRequisition
 from core.service.output_driver import PreviewOutputDriver
 from core.service.output_driver.file_driver import JsonOutputDriver, ZippedCsvOutputDriver
 from web.controller.util import find_user_project, bad_request, PROJECT_NOT_FOUND, BAD_REQUEST_SCHEMA, TOKEN_SECURITY, \
-    FILE_SCHEMA, file_attachment_headers
-from web.view.project import ProjectListView, ProjectView, PreviewView, TableCountsWrite, ExportFileRequestWrite
+    FILE_SCHEMA, file_attachment_headers, validate_json, error_into_message
+from web.view.project import ProjectListView, ProjectView, PreviewView, ExportFileRequestWrite, ExportRequisitionWrite
 from web.controller.auth import login_required
 from web.service.database import get_db_session
 
@@ -114,6 +115,8 @@ def delete_schema_from_project(proj: Project, session: Session):
 @project.route('/project/<id>/preview', methods=('POST',))
 @login_required
 @with_project_by_id
+@validate_json(ExportRequisitionWrite)
+@error_into_message
 @swag_from({
     'tags': ['Project'],
     'security': TOKEN_SECURITY,
@@ -126,11 +129,11 @@ def delete_schema_from_project(proj: Project, session: Session):
             'type': 'integer'
         },
         {
-            'name': 'table_counts',
+            'name': 'requisition',
             'in': 'body',
-            'description': 'Which tables and how many rows',
+            'description': 'Which tables, how many rows and seeds',
             'required': True,
-            'schema': TableCountsWrite
+            'schema': ExportRequisitionWrite
         }
     ],
     'responses': {
@@ -142,11 +145,10 @@ def delete_schema_from_project(proj: Project, session: Session):
     }
 })
 def generate_project_preview(proj: Project):
-    # TODO error checking, move to a service
-    name_counts = request.json['rows_by_table_name']
+    requisition = ExportRequisition()
+    requisition.extend(request.json['rows'])
     preview_driver = PreviewOutputDriver()
-    controller = ProcedureController(proj, name_counts, preview_driver)
-    # TODO handle errors
+    controller = ProcedureController(proj, requisition, preview_driver)
     preview = controller.run()
     return PreviewView().dump({'tables': preview.get_dict()})
 
@@ -154,6 +156,8 @@ def generate_project_preview(proj: Project):
 @project.route('/project/<id>/export', methods=('POST',))
 @login_required
 @with_project_by_id
+@validate_json(ExportFileRequestWrite)
+@error_into_message
 @swag_from({
     'tags': ['Project'],
     'security': TOKEN_SECURITY,
@@ -166,9 +170,9 @@ def generate_project_preview(proj: Project):
             'type': 'integer'
         },
         {
-            'name': 'export_request',
+            'name': 'requisition',
             'in': 'body',
-            'description': 'Export request',
+            'description': 'Export requisition',
             'required': True,
             'object': ExportFileRequestWrite
         }
@@ -179,17 +183,17 @@ def generate_project_preview(proj: Project):
     }
 })
 def export_project(proj: Project):
-    # TODO error checking, move to a service
-    name_counts = request.json['table_counts']['rows_by_table_name']
     output_request = request.json['output_format']
     if output_request == 'csv':
         file_driver = ZippedCsvOutputDriver()
     elif output_request == 'json':
         file_driver = JsonOutputDriver()
     else:
-        return bad_request('Unsupported format')
-    controller = ProcedureController(proj, name_counts, file_driver)
-    # TODO handle errors
+        return bad_request('Unsupported output format')
+
+    requisition = ExportRequisition()
+    requisition.extend(request.json['rows'])
+    controller = ProcedureController(proj, requisition, file_driver)
     controller.run()
     file_name = file_driver.add_extension(secure_filename(proj.name))
 

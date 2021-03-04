@@ -27,7 +27,6 @@ import { ResourceListComponent } from './resource/resource-list/resource-list.co
 import { PreviewComponent } from './preview/preview.component';
 import { ExportComponent } from './export/export.component';
 import { ResourceComponent } from './resource/resource.component';
-import { TableCountComponent } from './export/table-count/table-count.component';
 import { OutputChoiceComponent } from './export/output-choice/output-choice.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
@@ -42,6 +41,7 @@ import { DialogModule } from '../dialog/dialog.module';
 import { CreateTableFormComponent } from './table/create-table-form/create-table-form.component';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { GeneratorFieldComponent } from './table/generator-field/generator-field.component';
+import { ExportRequisitionComponent } from './export/export-requisition/export-requisition.component';
 
 
 @NgModule({
@@ -56,14 +56,14 @@ import { GeneratorFieldComponent } from './table/generator-field/generator-field
     PreviewComponent,
     ExportComponent,
     ResourceComponent,
-    TableCountComponent,
     OutputChoiceComponent,
     GeneratorChoiceComponent,
     ConstraintListComponent,
     NullFrequencyFieldComponent,
     CreateColumnFormComponent,
     CreateTableFormComponent,
-    GeneratorFieldComponent
+    GeneratorFieldComponent,
+    ExportRequisitionComponent
   ],
   imports: [
     CommonModule,
