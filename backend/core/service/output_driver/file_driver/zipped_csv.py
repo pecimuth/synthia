@@ -4,54 +4,15 @@ import json
 from zipfile import ZIP_DEFLATED, ZipFile
 
 from abc import abstractmethod
-from typing import Union
+from typing import Union, Optional
 
 from sqlalchemy import Table
 
 from core.model.meta_table import MetaTable
 from core.service.generation_procedure.database import GeneratedRow, GeneratedDatabase, GeneratedTable
 from core.service.output_driver import OutputDriver
+from core.service.output_driver.file_driver.base import FileOutputDriver
 from core.service.types import json_serialize_default
-
-
-class FileOutputDriver(OutputDriver):
-    is_interactive = False
-
-    def __init__(self):
-        super(FileOutputDriver, self).__init__()
-        self._database: Union[GeneratedDatabase, None] = None
-
-    def start_run(self):
-        pass
-
-    def end_run(self, database: GeneratedDatabase):
-        self._database = database
-
-    def switch_table(self, table: Table, meta_table: MetaTable):
-        pass
-
-    def insert_row(self, row: GeneratedRow) -> Union[GeneratedRow, None]:
-        return row
-
-    @abstractmethod
-    def dumps(self):
-        pass
-
-    @classmethod
-    @abstractmethod
-    def add_extension(cls, file_name_base: str) -> str:
-        pass
-
-
-class JsonOutputDriver(FileOutputDriver):
-    mime_type = 'application/json'
-
-    def dumps(self):
-        return json.dumps(self._database.get_dict(), indent=2, sort_keys=True, default=json_serialize_default)
-
-    @classmethod
-    def add_extension(cls, file_name_base: str) -> str:
-        return '{}.json'.format(file_name_base)
 
 
 class ZippedCsvOutputDriver(FileOutputDriver):

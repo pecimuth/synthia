@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 from typing import List, Type
 
 from sqlalchemy.orm.attributes import flag_modified
@@ -39,6 +40,12 @@ class GeneratorSettingFacade:
             instance = facade.make_generator_instance()
             instances.append(instance)
         return instances
+
+    @staticmethod
+    def seed_all(instances: GeneratorList, seed: int):
+        random_inst = random.Random(seed)
+        for instance in instances:
+            instance.seed(random_inst.random())
 
     @classmethod
     def _create_generator_setting(cls, meta_column: MetaColumn, factory: Type[ColumnGenerator]) -> GeneratorSetting:

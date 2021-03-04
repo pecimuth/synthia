@@ -35,7 +35,7 @@ export class ExportService {
       id: projectId,
       requisition: {
         rows: requisition.rows,
-        output_format: outputChoice as any
+        driver_name: outputChoice
       }
     };
 

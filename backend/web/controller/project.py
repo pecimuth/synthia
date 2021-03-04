@@ -10,10 +10,11 @@ from core.model.project import Project
 from core.service.generation_procedure.controller import ProcedureController
 from core.service.generation_procedure.requisition import ExportRequisition
 from core.service.output_driver import PreviewOutputDriver
-from core.service.output_driver.file_driver import JsonOutputDriver, ZippedCsvOutputDriver
+from core.service.output_driver.file_driver.facade import FileOutputDriverFacade
 from web.controller.util import find_user_project, bad_request, PROJECT_NOT_FOUND, BAD_REQUEST_SCHEMA, TOKEN_SECURITY, \
     FILE_SCHEMA, file_attachment_headers, validate_json, error_into_message
-from web.view.project import ProjectListView, ProjectView, PreviewView, ExportFileRequestWrite, ExportRequisitionWrite
+from web.view.project import ProjectListView, ProjectView, PreviewView, ExportRequisitionWrite, \
+    ExportFileRequisitionWrite
 from web.controller.auth import login_required
 from web.service.database import get_db_session
 
@@ -156,7 +157,7 @@ def generate_project_preview(proj: Project):
 @project.route('/project/<id>/export', methods=('POST',))
 @login_required
 @with_project_by_id
-@validate_json(ExportFileRequestWrite)
+@validate_json(ExportFileRequisitionWrite)
 @error_into_message
 @swag_from({
     'tags': ['Project'],
@@ -174,7 +175,7 @@ def generate_project_preview(proj: Project):
             'in': 'body',
             'description': 'Export requisition',
             'required': True,
-            'object': ExportFileRequestWrite
+            'object': ExportFileRequisitionWrite
         }
     ],
     'responses': {
@@ -183,14 +184,8 @@ def generate_project_preview(proj: Project):
     }
 })
 def export_project(proj: Project):
-    output_request = request.json['output_format']
-    if output_request == 'csv':
-        file_driver = ZippedCsvOutputDriver()
-    elif output_request == 'json':
-        file_driver = JsonOutputDriver()
-    else:
-        return bad_request('Unsupported output format')
-
+    driver_name = request.json['driver_name']
+    file_driver = FileOutputDriverFacade.make_driver(driver_name)
     requisition = ExportRequisition()
     requisition.extend(request.json['rows'])
     controller = ProcedureController(proj, requisition, file_driver)

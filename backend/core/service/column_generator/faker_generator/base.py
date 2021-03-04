@@ -16,8 +16,11 @@ class FakerGenerator(Generic[OutputType], SingleColumnGenerator[OutputType]):
 
     def __init__(self, generator_setting: GeneratorSetting):
         super().__init__(generator_setting)
-        self._fake = Faker()
+        self._fake: Faker = Faker()
         self._functor = getattr(self._fake, self.provider)
+
+    def seed(self, seed: float):
+        self._fake.seed_instance(seed)
 
     @classmethod
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:

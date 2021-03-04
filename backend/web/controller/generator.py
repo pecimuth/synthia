@@ -9,12 +9,14 @@ from core.model.meta_table import MetaTable
 from core.model.project import Project
 from core.service.column_generator.base import RegisteredGenerator
 from core.service.column_generator.setting_facade import GeneratorSettingFacade
+from core.service.output_driver.file_driver.facade import FileOutputDriverFacade
 from web.controller.auth import login_required
 from web.controller.util import TOKEN_SECURITY, BAD_REQUEST_SCHEMA, bad_request, \
     GENERATOR_SETTING_NOT_FOUND, OK_REQUEST_SCHEMA, ok_request, validate_json, find_user_meta_table, \
     patch_all_from_json, INVALID_INPUT, find_column_in_table, error_into_message
 from web.service.database import get_db_session
-from web.view.generator import GeneratorListView, GeneratorSettingWrite, GeneratorSettingView, GeneratorSettingCreate
+from web.view.generator import GeneratorListView, GeneratorSettingWrite, GeneratorSettingView, GeneratorSettingCreate, \
+    OutputFileDriverListView
 
 generator = Blueprint('generator', __name__, url_prefix='/api')
 
@@ -32,6 +34,23 @@ generator = Blueprint('generator', __name__, url_prefix='/api')
 def get_generators():
     generators = RegisteredGenerator.__subclasses__()
     return GeneratorListView().dump({'items': generators})
+
+
+@generator.route('/output-file-drivers')
+@swag_from({
+    'tags': ['Generator'],
+    'responses': {
+        200: {
+            'description': 'List of output file drivers',
+            'schema': OutputFileDriverListView
+        }
+    }
+})
+def get_output_file_drivers():
+    output = {
+        'items': FileOutputDriverFacade.get_driver_name_list()
+    }
+    return OutputFileDriverListView().dump(output)
 
 
 def with_generator_setting_by_id(view):

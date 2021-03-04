@@ -1,4 +1,3 @@
-import random
 from typing import Optional, Dict, List
 
 from core.model.generator_setting import GeneratorSetting
@@ -105,7 +104,7 @@ class ForeignKeyGenerator(RegisteredGenerator, MultiColumnGenerator):
         }
 
     def _from_random_row(self, rows: GeneratedTable) -> OutputDict:
-        row = random.choice(rows)
+        row = self._random.choice(rows)
         return {
             name: row[ref_column.name]
             for name, ref_column in self._ref_column.items()

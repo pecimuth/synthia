@@ -1,5 +1,3 @@
-import random
-
 from core.service.column_generator.base import SingleColumnGenerator, RegisteredGenerator
 from core.service.column_generator.decorator import parameter
 from core.service.data_source.data_provider import DataProvider
@@ -22,4 +20,4 @@ class BernoulliGenerator(RegisteredGenerator, SingleColumnGenerator[bool]):
         return samples / successes
 
     def make_scalar(self, generated_database: GeneratedDatabase) -> bool:
-        return random.random() <= self.success_probability
+        return self._random.random() <= self.success_probability

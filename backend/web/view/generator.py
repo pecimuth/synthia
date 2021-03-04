@@ -62,3 +62,7 @@ class GeneratorView(Schema):
 
 class GeneratorListView(Schema):
     items = List(Nested(GeneratorView()))
+
+
+class OutputFileDriverListView(Schema):
+    items = List(Str())

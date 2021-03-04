@@ -1,4 +1,3 @@
-import random
 import string
 
 from core.model.meta_column import MetaColumn
@@ -19,16 +18,16 @@ class StringGenerator(RegisteredGenerator, SingleColumnGenerator[str]):
         return 10
 
     def make_scalar(self, generated_database: GeneratedDatabase) -> str:
-        length = random.randint(self.min_length, self.max_length)
+        length = self._random.randint(self.min_length, self.max_length)
         return self._random_string_of_length(length)
 
     @classmethod
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
         return True
 
-    @classmethod
-    def _random_string_of_length(cls, length: int) -> str:
-        return ''.join(random.choice(string.ascii_letters) for _ in range(length))
+    def _random_string_of_length(self, length: int) -> str:
+        sequence = (self._random.choice(string.ascii_letters) for _ in range(length))
+        return ''.join(sequence)
 
     def estimate_params(self, provider: DataProvider):
         super().estimate_params(provider)

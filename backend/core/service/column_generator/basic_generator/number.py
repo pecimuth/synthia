@@ -1,4 +1,3 @@
-import random
 from math import sqrt
 from typing import Optional
 
@@ -28,7 +27,7 @@ class IntegerGenerator(RegisteredGenerator, SingleColumnGenerator[int]):
         return provider.estimate_max()
 
     def make_scalar(self, generated_database: GeneratedDatabase) -> int:
-        return random.randint(self.min, self.max)
+        return self._random.randint(self.min, self.max)
 
     @classmethod
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
@@ -58,7 +57,7 @@ class FloatGenerator(RegisteredGenerator, SingleColumnGenerator[float]):
         return True
 
     def make_scalar(self, generated_database: GeneratedDatabase) -> float:
-        return random.uniform(self.min, self.max)
+        return self._random.uniform(self.min, self.max)
 
 
 class GaussianGenerator(RegisteredGenerator, SingleColumnGenerator[float]):
@@ -83,4 +82,4 @@ class GaussianGenerator(RegisteredGenerator, SingleColumnGenerator[float]):
         return sqrt(variance)
 
     def make_scalar(self, generated_database: GeneratedDatabase) -> float:
-        return random.gauss(self.mu, self.sigma)
+        return self._random.gauss(self.mu, self.sigma)

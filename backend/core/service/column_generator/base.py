@@ -40,6 +40,7 @@ class ColumnGenerator(Generic[OutputType], ABC):
 
     def __init__(self, generator_setting: GeneratorSetting):
         assert generator_setting.name == self.name()
+        self._random = random.Random()
         self._generator_setting = generator_setting
         self._generator_setting.params = \
             normalized_params(self, self.param_list, self._generator_setting.params)
@@ -62,6 +63,9 @@ class ColumnGenerator(Generic[OutputType], ABC):
     @abstractmethod
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
         pass
+
+    def seed(self, seed: float):
+        self._random.seed(seed)
 
     @abstractmethod
     def make_dict(self, generated_database: GeneratedDatabase) -> OutputDict:
@@ -162,7 +166,7 @@ class SingleColumnGenerator(Generic[OutputType], ColumnGenerator[OutputType]):
         pass
 
     def make_scalar_or_null(self, generated_database: GeneratedDatabase) -> Optional[OutputType]:
-        if self.supports_null and random.random() < self._null_frequency:
+        if self.supports_null and self._random.random() < self._null_frequency:
             return None
         return self.make_scalar(generated_database)
 

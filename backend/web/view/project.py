@@ -2,6 +2,7 @@ from marshmallow import Schema
 from marshmallow.fields import Integer, Str, Nested, List, Dict
 from marshmallow.validate import OneOf
 
+from core.service.output_driver.file_driver.facade import FileOutputDriverFacade
 from web.view.data_source import DataSourceView
 from web.view.table import TableView
 
@@ -27,8 +28,8 @@ class ExportRequisitionWrite(Schema):
     rows = List(Nested(ExportRequisitionRow()))
 
 
-class ExportFileRequestWrite(ExportRequisitionWrite):
-    output_format = Str(validate=OneOf(['csv', 'json']))
+class ExportFileRequisitionWrite(ExportRequisitionWrite):
+    driver_name = Str(validate=OneOf(FileOutputDriverFacade.get_driver_name_list()))
 
 
 class PreviewView(Schema):
