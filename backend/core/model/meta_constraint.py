@@ -1,8 +1,11 @@
+from typing import List
+
 from sqlalchemy import Column, Integer, String, ForeignKey, Index
 from sqlalchemy.orm import relationship
 
 from core.model import base
 from core.model.column_constraint import ColumnConstraint
+from core.model.meta_column import MetaColumn
 from core.model.reference_constraint import ReferenceConstraint
 
 
@@ -40,8 +43,14 @@ class MetaConstraint(base):
     )
 
     def __repr__(self):
-        return '<MetaConstraint(id={},name={},table_id={})>'.format(
+        def col_list(cols: List[MetaColumn]) -> str:
+            comma_sep = ','.join(map(lambda col: col.name, cols))
+            return '[{}]'.format(comma_sep)
+
+        return '<MetaConstraint(id={},name={},table_id={},con_cols={},ref_cols={})>'.format(
             self.id,
             self.name,
-            self.table.id
+            self.table.id,
+            col_list(self.constrained_columns),
+            col_list(self.referenced_columns)
         )

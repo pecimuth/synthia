@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 from marshmallow import Schema, post_load
 from marshmallow.fields import Integer, Str, Nested, List, Dict
 from marshmallow.validate import OneOf
@@ -60,6 +62,16 @@ class ProjectSaveView(Schema):
         return Project(**data)
 
 
+@dataclass
+class SavedProject:
+    project: Project
+    requisition: ExportRequisition
+
+
 class SaveView(Schema):
     project = Nested(ProjectSaveView())
     requisition = Nested(ExportRequisitionView())
+
+    @post_load
+    def make_saved_project(self, data, **kwargs):
+        return SavedProject(**data)

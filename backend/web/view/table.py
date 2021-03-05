@@ -49,3 +49,7 @@ class TableCreate(TableWrite):
 
 class TableListView(Schema):
     items = List(Nested(TableView()))
+
+    @post_load
+    def make_table_list(self, data, **kwargs):
+        return list(data['items'])
