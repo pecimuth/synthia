@@ -1,20 +1,20 @@
 import functools
 
 from flasgger import swag_from
-from flask import Blueprint, g, request
+from flask import Blueprint, request
 from sqlalchemy.orm.exc import NoResultFound
 
+from core.facade.generator import GeneratorFacade
 from core.model.generator_setting import GeneratorSetting
-from core.model.meta_table import MetaTable
-from core.model.project import Project
 from core.service.column_generator.base import RegisteredGenerator
 from core.service.column_generator.setting_facade import GeneratorSettingFacade
 from core.service.output_driver.file_driver.facade import FileOutputDriverFacade
 from web.controller.auth import login_required
 from web.controller.util import TOKEN_SECURITY, BAD_REQUEST_SCHEMA, bad_request, \
-    GENERATOR_SETTING_NOT_FOUND, OK_REQUEST_SCHEMA, ok_request, validate_json, find_user_meta_table, \
-    patch_all_from_json, INVALID_INPUT, find_column_in_table, error_into_message
+    GENERATOR_SETTING_NOT_FOUND, OK_REQUEST_SCHEMA, ok_request, validate_json, \
+    patch_all_from_json, error_into_message
 from web.service.database import get_db_session
+from web.service.injector import inject
 from web.view.generator import GeneratorListView, GeneratorSettingWrite, GeneratorSettingView, GeneratorSettingCreate, \
     OutputFileDriverListView
 
@@ -56,17 +56,9 @@ def get_output_file_drivers():
 def with_generator_setting_by_id(view):
     @functools.wraps(view)
     def wrapped_view(id: int):
+        facade = inject(GeneratorFacade)
         try:
-            generator_setting: GeneratorSetting = get_db_session().\
-                query(GeneratorSetting).\
-                join(GeneratorSetting.table).\
-                join(MetaTable.project).\
-                join(Project.user).\
-                filter(
-                    GeneratorSetting.id == id,
-                    Project.user == g.user
-                ).\
-                one()
+            generator_setting = facade.find_setting(id)
         except NoResultFound:
             return bad_request(GENERATOR_SETTING_NOT_FOUND)
         return view(generator_setting)
@@ -98,30 +90,15 @@ def with_generator_setting_by_id(view):
     }
 })
 def create_generator_setting():
-    meta_column = None
-    try:
-        meta_table = find_user_meta_table(request.json['table_id'])
-        if 'column_id' in request.json:
-            meta_column = find_column_in_table(
-                meta_table,
-                request.json['column_id']
-            )
-    except NoResultFound:
-        return bad_request(INVALID_INPUT)
-
-    generator_setting = GeneratorSetting(
-        table=meta_table,
-        name=request.json['name'],
-        params=request.json['params'],
-        null_frequency=request.json['null_frequency']
+    facade = inject(GeneratorFacade)
+    generator_setting = facade.create_generator_setting(
+        request.json['table_id'],
+        request.json.get('column_id'),
+        request.json['name'],
+        request.json['params'],
+        request.json['null_frequency']
     )
-    if meta_column is not None:
-        meta_column.generator_setting = generator_setting
-        facade = GeneratorSettingFacade(generator_setting)
-        facade.maybe_estimate_params()
-    db_session = get_db_session()
-    db_session.add(generator_setting)
-    db_session.commit()
+    get_db_session().commit()
     return GeneratorSettingView().dump(generator_setting)
 
 

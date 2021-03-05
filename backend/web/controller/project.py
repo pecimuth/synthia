@@ -2,19 +2,17 @@ import functools
 import json
 
 from flask import Blueprint, g, request, Response
-from sqlalchemy.orm import Session
 from flasgger import swag_from
 from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.utils import secure_filename
 
+from core.facade.project import ProjectFacade
 from core.model.project import Project
 from core.service.data_source import DataSourceConstants
-from core.service.generation_procedure.controller import ProcedureController
-from core.service.output_driver import PreviewOutputDriver
-from core.service.output_driver.file_driver.facade import FileOutputDriverFacade
 from core.service.types import json_serialize_default
-from web.controller.util import find_user_project, bad_request, PROJECT_NOT_FOUND, BAD_REQUEST_SCHEMA, TOKEN_SECURITY, \
+from web.controller.util import bad_request, PROJECT_NOT_FOUND, BAD_REQUEST_SCHEMA, TOKEN_SECURITY, \
     FILE_SCHEMA, file_attachment_headers, validate_json, error_into_message
+from web.service.injector import inject
 from web.view.project import ProjectListView, ProjectView, PreviewView, ExportRequisitionView, \
     ExportFileRequisitionView, SaveView
 from web.controller.auth import login_required
@@ -63,18 +61,18 @@ def get_projects():
     }
 })
 def create_project():
-    proj = Project(name=request.form['name'], user=g.user)
-    db_session = get_db_session()
-    db_session.add(proj)
-    db_session.commit()
+    facade = inject(ProjectFacade)
+    proj = facade.create_project(request.form['name'])
+    get_db_session().commit()
     return ProjectView().dump(proj)
 
 
 def with_project_by_id(view):
     @functools.wraps(view)
     def wrapped_view(id):
+        facade = inject(ProjectFacade)
         try:
-            proj = find_user_project(id)
+            proj = facade.find_project(id)
         except NoResultFound:
             return bad_request(PROJECT_NOT_FOUND)
         return view(proj)
@@ -106,13 +104,6 @@ def with_project_by_id(view):
 })
 def get_project(proj: Project):
     return ProjectView().dump(proj)
-
-
-def delete_schema_from_project(proj: Project, session: Session):
-    for table in proj.tables:
-        for col in table.columns:
-            session.delete(col)
-        session.delete(table)
 
 
 @project.route('/project/<id>/preview', methods=('POST',))
@@ -149,10 +140,9 @@ def delete_schema_from_project(proj: Project, session: Session):
 })
 def generate_project_preview(proj: Project):
     requisition = ExportRequisitionView().load(request.json)
-    preview_driver = PreviewOutputDriver()
-    controller = ProcedureController(proj, requisition, preview_driver)
-    preview = controller.run()
-    return PreviewView().dump({'tables': preview.get_dict()})
+    facade = inject(ProjectFacade)
+    tables = facade.generate_preview(requisition)
+    return PreviewView().dump({'tables': tables})
 
 
 @project.route('/project/<id>/export', methods=('POST',))
@@ -186,11 +176,9 @@ def generate_project_preview(proj: Project):
 })
 def export_project(proj: Project):
     requisition, driver_name = ExportFileRequisitionView().load(request.json)
-    file_driver = FileOutputDriverFacade.make_driver(driver_name)
-    controller = ProcedureController(proj, requisition, file_driver)
-    controller.run()
+    facade = inject(ProjectFacade)
+    file_driver = facade.generate_file_export(requisition, driver_name)
     file_name = file_driver.add_extension(secure_filename(proj.name))
-
     return Response(
         file_driver.dumps(),
         mimetype=file_driver.mime_type,

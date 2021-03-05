@@ -5,8 +5,6 @@ from flask import g, request
 from marshmallow import Schema
 
 from core.model.data_source import DataSource
-from core.model.meta_column import MetaColumn
-from core.model.meta_table import MetaTable
 from core.model.project import Project
 from core.service.exception import SomeError
 from web.service.database import get_db_session
@@ -110,17 +108,6 @@ def validate_json(schema_factory: Type[Schema]):
     return decorator
 
 
-# utility selectors
-def find_user_project(project_id: int) -> Project:
-    db_session = get_db_session()
-    return db_session.query(Project).\
-        filter(
-            Project.id == project_id,
-            Project.user == g.user
-        ).\
-        one()
-
-
 def find_user_data_source(data_source_id: int) -> DataSource:
     db_session = get_db_session()
     return db_session.query(DataSource).\
@@ -128,27 +115,5 @@ def find_user_data_source(data_source_id: int) -> DataSource:
         filter(
             DataSource.id == data_source_id,
             Project.user_id == g.user.id
-        ).\
-        one()
-
-
-def find_user_meta_table(meta_table_id: int) -> MetaTable:
-    db_session = get_db_session()
-    return db_session.query(MetaTable).\
-        join(MetaTable.project).\
-        filter(
-            MetaTable.id == meta_table_id,
-            Project.user_id == g.user.id
-        ).\
-        one()
-
-
-def find_column_in_table(meta_table: MetaTable, meta_column_id: int) -> MetaColumn:
-    db_session = get_db_session()
-    return db_session.query(MetaColumn).\
-        join(MetaTable.project).\
-        filter(
-            MetaColumn.id == meta_column_id,
-            MetaColumn.table == meta_table
         ).\
         one()

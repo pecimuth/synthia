@@ -1,26 +1,27 @@
 from datetime import timedelta, datetime
-from typing import Union
+from typing import NewType
 
 import jwt
+from sqlalchemy.orm import Session
 
 from core.model.user import User
-from web.service.database import get_db_session
+
+SecretKey = NewType('SecretKey', str)
 
 
 class TokenService:
     ACCESS_TOKEN_VALIDITY = timedelta(days=7)
     TOKEN_ALGORITHM = 'HS256'
 
-    def __init__(self, secret_key: str, user: Union[User, None] = None):
-        self._user = user
+    def __init__(self, secret_key: SecretKey, db_session: Session):
+        self._db_session = db_session
         self._secret_key = secret_key
 
-    def create_token(self) -> str:
-        assert self._user is not None
+    def create_token(self, user: User) -> str:
         payload = {
             'exp': datetime.utcnow() + self.ACCESS_TOKEN_VALIDITY,
             'iat': datetime.utcnow(),
-            'sub': self._user.id
+            'sub': user.id
         }
         return jwt.encode(
             payload,
@@ -35,5 +36,6 @@ class TokenService:
             algorithms=[self.TOKEN_ALGORITHM]
         )
         user_id = payload['sub']
-        self._user = get_db_session().query(User).filter(User.id == user_id).one()
-        return self._user
+        return self._db_session.query(User).\
+            filter(User.id == user_id).\
+            one()

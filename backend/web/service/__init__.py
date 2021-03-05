@@ -4,6 +4,8 @@ from core import model
 from web.service.database import get_db_engine, close_db
 import click
 
+from web.service.injector import pop_injector
+
 
 @click.command('recreate-database')
 @with_appcontext
@@ -16,3 +18,4 @@ def recreate_database_command():
 def init_app(app: Flask):
     app.cli.add_command(recreate_database_command)
     app.teardown_appcontext(close_db)
+    app.teardown_appcontext(pop_injector)

@@ -1,32 +1,47 @@
 import functools
-import os
 
 from flasgger import swag_from
 from flask import Blueprint, request, current_app, Response
 from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.utils import secure_filename
 
+from core.facade.data_source import DataSourceFacade
+from core.facade.project import ProjectFacade
 from core.model.data_source import DataSource
+from core.model.project import Project
 from core.service.data_source import DataSourceConstants
 from core.service.data_source.database_common import DatabaseConnectionManager
 from core.service.data_source.file_common import FileDataSourceFactory, is_file_allowed
-from core.service.data_source.schema import DataSourceSchemaImport
 from core.service.deserializer import create_mock_meta
-from core.service.generation_procedure.controller import ProcedureController
-from core.service.output_driver.database import DatabaseOutputDriver
 from web.controller.auth import login_required
-from web.controller.util import BAD_REQUEST_SCHEMA, bad_request, find_user_project, PROJECT_NOT_FOUND, INVALID_INPUT, \
+from web.controller.util import BAD_REQUEST_SCHEMA, bad_request, PROJECT_NOT_FOUND, \
     DATA_SOURCE_NOT_FOUND, ok_request, find_user_data_source, OK_REQUEST_SCHEMA, error_into_message, TOKEN_SECURITY, \
     FILE_SCHEMA, file_attachment_headers, validate_json
 from web.service.database import get_db_session
+from web.service.injector import inject
 from web.view.data_source import DataSourceView, DataSourceDatabaseWrite
 from web.view.project import ProjectView, ExportRequisitionView
 
 source = Blueprint('data_source', __name__, url_prefix='/api')
 
 
+def with_project_from_json(view):
+    @functools.wraps(view)
+    def wrapped_view():
+        facade = inject(ProjectFacade)
+        project_id = request.json['project_id']
+        try:
+            proj = facade.find_project(project_id)
+        except NoResultFound:
+            return bad_request(PROJECT_NOT_FOUND)
+        return view(proj)
+    return wrapped_view
+
+
 @source.route('/data-source-database', methods=('POST',))
 @login_required
+@validate_json(DataSourceDatabaseWrite)
+@with_project_from_json
 @swag_from({
     'tags': ['DataSource'],
     'security': TOKEN_SECURITY,
@@ -47,16 +62,7 @@ source = Blueprint('data_source', __name__, url_prefix='/api')
         400: BAD_REQUEST_SCHEMA
     }
 })
-def create_data_source_database():
-    validation_errors = DataSourceDatabaseWrite().validate(request.json)
-    if validation_errors:
-        return bad_request(INVALID_INPUT)
-
-    try:
-        proj = find_user_project(request.json['project_id'])
-    except NoResultFound:
-        return bad_request(PROJECT_NOT_FOUND)
-
+def create_data_source_database(proj: Project):
     data_source = DataSource(
         project=proj,
         driver=DataSourceConstants.DRIVER_POSTGRES,
@@ -74,6 +80,7 @@ def create_data_source_database():
 
 @source.route('/data-source-mock-database', methods=('POST',))
 @login_required
+@with_project_from_json
 @swag_from({
     'tags': ['DataSource'],
     'security': TOKEN_SECURITY,
@@ -94,12 +101,7 @@ def create_data_source_database():
         400: BAD_REQUEST_SCHEMA
     }
 })
-def create_data_source_mock_database():
-    try:
-        proj = find_user_project(request.form['project_id'])
-    except NoResultFound:
-        return bad_request(PROJECT_NOT_FOUND)
-
+def create_data_source_mock_database(proj: Project):
     file_name = 'cookies.db'
     factory = FileDataSourceFactory(proj, file_name, current_app.config['PROJECT_STORAGE'])
     try:
@@ -122,6 +124,7 @@ def create_data_source_mock_database():
 
 @source.route('/data-source-file', methods=('POST',))
 @login_required
+@with_project_from_json
 @swag_from({
     'tags': ['DataSource'],
     'security': TOKEN_SECURITY,
@@ -149,12 +152,7 @@ def create_data_source_mock_database():
         400: BAD_REQUEST_SCHEMA
     }
 })
-def create_data_source_file():
-    try:
-        proj = find_user_project(request.form['project_id'])
-    except NoResultFound:
-        return bad_request(PROJECT_NOT_FOUND)
-
+def create_data_source_file(proj: Project):
     file_param = 'data_file'
     if file_param not in request.files or request.files[file_param].filename == '':
         return bad_request('The file is required')
@@ -208,15 +206,8 @@ def with_data_source_by_id(view):
     }
 })
 def download_data_source_file(data_source: DataSource):
-    if data_source.file_path is None:
-        return bad_request('Data source has no file')
-    try:
-        with open(data_source.file_path, 'rb') as file:
-            content = file.read()
-    except FileNotFoundError:
-        return bad_request('File not found')
     return Response(
-        content,
+        DataSourceFacade.read_file_content(data_source),
         mimetype=data_source.mime_type,
         headers=file_attachment_headers(data_source.file_name)
     )
@@ -243,16 +234,9 @@ def download_data_source_file(data_source: DataSource):
     }
 })
 def delete_data_source(data_source: DataSource):
-    if data_source.file_path is not None:
-        try:
-            os.remove(data_source.file_path)
-        except OSError:
-            pass
-
-    # TODO may not be deleted?
-    db_session = get_db_session()
-    db_session.delete(data_source)
-    db_session.commit()
+    facade = inject(DataSourceFacade)
+    facade.delete(data_source)
+    get_db_session().commit()
     return ok_request('Deleted the data source')
 
 
@@ -281,10 +265,9 @@ def delete_data_source(data_source: DataSource):
     }
 })
 def import_data_source_schema(data_source: DataSource):
-    schema_import = DataSourceSchemaImport(data_source.project)
-    db_session = get_db_session()
-    schema_import.import_schema(data_source, db_session)
-    db_session.commit()
+    facade = inject(DataSourceFacade)
+    facade.import_schema(data_source)
+    get_db_session().commit()
     return ProjectView().dump(data_source.project)
 
 
@@ -318,11 +301,6 @@ def import_data_source_schema(data_source: DataSource):
     }
 })
 def export_to_data_source(data_source: DataSource):
-    if data_source.driver is None:
-        return bad_request('The data source is not a database')
-
     requisition = ExportRequisitionView().load(request.json)
-    database_driver = DatabaseOutputDriver(data_source)
-    controller = ProcedureController(data_source.project, requisition, database_driver)
-    controller.run()
+    DataSourceFacade.export_to_data_source(data_source, requisition)
     return ok_request('Successfully filled the database')
