@@ -80,7 +80,6 @@ def create_data_source_database(proj: Project):
 
 @source.route('/data-source-mock-database', methods=('POST',))
 @login_required
-@with_project_from_json
 @swag_from({
     'tags': ['DataSource'],
     'security': TOKEN_SECURITY,
@@ -101,7 +100,14 @@ def create_data_source_database(proj: Project):
         400: BAD_REQUEST_SCHEMA
     }
 })
-def create_data_source_mock_database(proj: Project):
+def create_data_source_mock_database():
+    facade = inject(ProjectFacade)
+    project_id = request.form['project_id']
+    try:
+        proj = facade.find_project(project_id)
+    except NoResultFound:
+        return bad_request(PROJECT_NOT_FOUND)
+
     file_name = 'cookies.db'
     factory = FileDataSourceFactory(proj, file_name, current_app.config['PROJECT_STORAGE'])
     try:

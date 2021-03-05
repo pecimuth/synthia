@@ -24,4 +24,3 @@ def auth_header(user, injector) -> dict:
     return {
         'Authorization': 'Bearer {}'.format(token)
     }
-
