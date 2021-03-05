@@ -4,26 +4,30 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import sessionmaker, Session
-from flask import current_app, g
+from flask import current_app, g, Flask
 
 from core.service.data_source.database_common import database_connection_manager_instance
 from core.service.types import json_serialize_default
 
 
+def create_db_engine(app: Flask) -> Engine:
+    url = URL(
+        drivername=app.config['DATABASE_DRIVER'],
+        username=app.config['DATABASE_USER'],
+        password=app.config['DATABASE_PASSWORD'],
+        host=app.config['DATABASE_HOST'],
+        port=app.config['DATABASE_PORT'],
+        database=app.config['DATABASE_DB']
+    )
+    return create_engine(
+        url,
+        json_serializer=lambda obj: json.dumps(obj, default=json_serialize_default)
+    )
+
+
 def get_db_engine() -> Engine:
     if 'db_engine' not in g:
-        url = URL(
-            drivername=current_app.config['DATABASE_DRIVER'],
-            username=current_app.config['DATABASE_USER'],
-            password=current_app.config['DATABASE_PASSWORD'],
-            host=current_app.config['DATABASE_HOST'],
-            port=current_app.config['DATABASE_PORT'],
-            database=current_app.config['DATABASE_DB']
-        )
-        return create_engine(
-            url,
-            json_serializer=lambda obj: json.dumps(obj, default=json_serialize_default)
-        )
+        g.db_engine = create_db_engine(current_app)
     return g.db_engine
 
 

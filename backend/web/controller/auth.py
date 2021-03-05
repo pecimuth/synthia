@@ -46,13 +46,15 @@ auth = Blueprint('auth', __name__, url_prefix='/api/auth')
     }
 })
 def register():
+    db_session = get_db_session()
     facade = inject(UserFacade)
     email = request.form.get('email')
     pwd = request.form.get('pwd')
     user = facade.register(email, pwd)
+    db_session.flush()
     token = facade.get_token(user)
     try:
-        get_db_session().commit()
+        db_session.commit()
     except IntegrityError:
         return bad_request('This email is already registered')
     return UserAndTokenView().dump({'user': user, 'token': token})

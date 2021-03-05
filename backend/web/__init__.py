@@ -7,7 +7,7 @@ from . import controller
 import os
 
 
-def create_app() -> Flask:
+def create_app(**kwargs) -> Flask:
     app = Flask(
         __name__,
         instance_relative_config=True
@@ -33,6 +33,7 @@ def create_app() -> Flask:
         DATABASE_PORT=os.environ.get('DATABASE_PORT'),
         ORIGIN=os.environ.get('ORIGIN')
     )
+    app.config.from_mapping(**kwargs)
 
     Swagger(app)
     CORS(app, origins=app.config['ORIGIN'], supports_credentials=True)

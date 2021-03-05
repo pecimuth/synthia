@@ -17,4 +17,9 @@ setup(
         'apispec',
         'flask_cors'
     ],
+    extras_require={
+        'dev': [
+            'pytest'
+        ]
+    }
 )
