@@ -1,9 +1,11 @@
+from typing import Type
+
 from marshmallow import Schema, ValidationError, post_load
 from marshmallow.fields import Integer, Str, Dict, Float, Bool, Raw, Nested, List, Method
 from marshmallow.validate import Range
 
 from core.model.generator_setting import GeneratorSetting
-from core.service.column_generator.base import RegisteredGenerator, ColumnGenerator
+from core.service.column_generator.base import RegisteredGenerator, ColumnGenerator, MultiColumnGenerator
 from core.service.output_driver.file_driver.base import FileOutputDriver
 
 
@@ -53,17 +55,20 @@ class GeneratorView(Schema):
     category = Method('get_category_value')
     only_for_type = Method('get_only_for_type')
     supports_null = Bool()
-    is_multi_column = Bool()
+    is_multi_column = Method('get_is_multi_column')
     param_list = List(Nested(GeneratorParam()))
 
-    def get_name(self, obj: ColumnGenerator):
+    def get_name(self, obj: Type[ColumnGenerator]):
         return obj.name()
 
-    def get_category_value(self, obj: ColumnGenerator):
+    def get_category_value(self, obj: Type[ColumnGenerator]):
         return obj.category.value
 
-    def get_only_for_type(self, obj: ColumnGenerator):
+    def get_only_for_type(self, obj: Type[ColumnGenerator]):
         return obj.only_for_type()
+
+    def get_is_multi_column(self, obj: Type[ColumnGenerator]):
+        return issubclass(obj, MultiColumnGenerator)
 
 
 class GeneratorListView(Schema):

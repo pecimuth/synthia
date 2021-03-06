@@ -30,7 +30,6 @@ class GeneratorCategory(Enum):
 
 class ColumnGenerator(Generic[OutputType], ABC):
     category: GeneratorCategory = GeneratorCategory.GENERAL
-    is_multi_column: bool
     is_database_generated = False
     supports_null: bool
 
@@ -130,7 +129,6 @@ class RegisteredGenerator(ABC):
 
 
 class SingleColumnGenerator(Generic[OutputType], ColumnGenerator[OutputType]):
-    is_multi_column = False
     supports_null = True
 
     def __init__(self, generator_setting: GeneratorSetting):
@@ -178,7 +176,6 @@ class SingleColumnGenerator(Generic[OutputType], ColumnGenerator[OutputType]):
 
 
 class MultiColumnGenerator(Generic[OutputType], ColumnGenerator[OutputType], ABC):
-    is_multi_column = True
     supports_null = False
 
     @classmethod
@@ -192,6 +189,5 @@ class MultiColumnGenerator(Generic[OutputType], ColumnGenerator[OutputType], ABC
     def should_unite_with(self, meta_column: MetaColumn) -> bool:
         return self.is_recommended_for(meta_column)
 
-    @abstractmethod
     def unite_with(self, meta_column: MetaColumn):
-        pass
+        meta_column.generator_setting = self._generator_setting

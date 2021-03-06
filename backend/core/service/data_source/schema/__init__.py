@@ -24,8 +24,6 @@ class DataSourceSchemaImport:
     def import_schema(self, data_source: DataSource, db_session: Session):
         provider = self._create_schema_provider(data_source)
         new_tables = provider.read_structure()
-        generators = self._assign_generators(new_tables)
-        self._estimate_all(generators)
         table_by_name = {
             table.name: table
             for table in self._project.tables
@@ -36,6 +34,11 @@ class DataSourceSchemaImport:
         db_session.flush()
         for imported_table in new_tables:
             imported_table.project = self._project
+        db_session.commit()
+        # generator assignment must come after commit
+        # so that columns and constraints are properly bound
+        generators = self._assign_generators(new_tables)
+        self._estimate_all(generators)
 
     def _create_schema_provider(self, data_source: DataSource) -> SchemaProvider:
         if data_source.driver is not None:

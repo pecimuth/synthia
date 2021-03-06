@@ -1,6 +1,7 @@
 from typing import Any, List
 
-from sqlalchemy import MetaData, Table, Column, ForeignKeyConstraint, PrimaryKeyConstraint, UniqueConstraint
+from sqlalchemy import MetaData, Table, Column, ForeignKeyConstraint, PrimaryKeyConstraint, UniqueConstraint, \
+    CheckConstraint
 
 from core.model.meta_column import MetaColumn
 from core.model.meta_constraint import MetaConstraint
@@ -65,6 +66,8 @@ class StructureDeserializer:
                     *constrained_columns,
                     name=meta_constraint.name
                 )
+            elif meta_constraint.constraint_type == MetaConstraint.CHECK:
+                constraint = CheckConstraint(meta_constraint.check_expression)
             else:
                 raise SomeError('Unknown constraint type')
             constraints.append(constraint)

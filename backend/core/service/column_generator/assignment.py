@@ -52,11 +52,11 @@ class GeneratorAssignment:
         if not cls._type_matches(column_gen, meta_column):
             return False
         if generator_setting.columns:
-            return column_gen.is_multi_column
+            return isinstance(column_gen, MultiColumnGenerator)
         return True
 
     def _maybe_unite(self, factory: Type[ColumnGenerator], meta_column: MetaColumn) -> bool:
-        if not factory.is_multi_column or not issubclass(factory, MultiColumnGenerator):
+        if not issubclass(factory, MultiColumnGenerator):
             return False
         for multi_gen in self._multi:
             if multi_gen.name == factory.name and multi_gen.should_unite_with(meta_column):
@@ -73,5 +73,7 @@ class GeneratorAssignment:
                 continue
             facade = GeneratorSettingFacade.from_meta_column(meta_column, factory)
             instance = facade.make_generator_instance()
+            if isinstance(instance, MultiColumnGenerator):
+                self._multi.append(instance)
             self._instances.append(instance)
         return self._instances

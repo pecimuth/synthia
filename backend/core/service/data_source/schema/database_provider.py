@@ -3,10 +3,12 @@ from typing import List, Union, Dict
 from sqlalchemy import Column, Table, MetaData, Constraint, CheckConstraint, UniqueConstraint, PrimaryKeyConstraint, \
     ForeignKeyConstraint
 
+from core.model.column_constraint import ColumnConstraint
 from core.model.data_source import DataSource
 from core.model.meta_column import MetaColumn
 from core.model.meta_constraint import MetaConstraint
 from core.model.meta_table import MetaTable
+from core.model.reference_constraint import ReferenceConstraint
 from core.service.data_source.database_common import DatabaseConnectionManager
 from core.service.data_source.identifier import Identifier
 from core.service.data_source.schema.base_provider import SchemaProvider
@@ -66,15 +68,16 @@ class DatabaseSchemaProvider(SchemaProvider):
     def _make_meta_constraint(self, meta_table: MetaTable, constraint: Constraint) -> MetaConstraint:
         meta_constraint = MetaConstraint(
             name=constraint.name,
-            table=meta_table,
-            constrained_columns=[],
-            referenced_columns=[]
+            table=meta_table
         )
         if hasattr(constraint, 'columns'):
             column_by_name = self._column[meta_table.name]
-            for column in constraint.columns:
+            for index, column in enumerate(constraint.columns):
                 meta_column = column_by_name[column.name]
-                meta_constraint.constrained_columns.append(meta_column)
+                column_constraint = ColumnConstraint(column=meta_column,
+                                                     constraint=meta_constraint,
+                                                     index=index)
+                meta_constraint.column_constraint_pairs.append(column_constraint)
         if isinstance(constraint, CheckConstraint):
             meta_constraint.constraint_type = MetaConstraint.CHECK
             meta_constraint.check_expression = str(constraint.sqltext)
@@ -84,10 +87,13 @@ class DatabaseSchemaProvider(SchemaProvider):
             meta_constraint.constraint_type = MetaConstraint.PRIMARY
         elif isinstance(constraint, ForeignKeyConstraint):
             meta_constraint.constraint_type = MetaConstraint.FOREIGN
-            for foreign_key in constraint.elements:
+            for index, foreign_key in enumerate(constraint.elements):
                 column_by_name = self._column[foreign_key.column.table.name]
                 meta_column = column_by_name[foreign_key.column.name]
-                meta_constraint.referenced_columns.append(meta_column)
+                ref_constraint = ReferenceConstraint(column=meta_column,
+                                                     constraint=meta_constraint,
+                                                     index=index)
+                meta_constraint.reference_constraint_pairs.append(ref_constraint)
         else:
             raise DataSourceError('Unknown constraint type', self._data_source)
         return meta_constraint

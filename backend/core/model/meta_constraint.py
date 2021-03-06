@@ -26,15 +26,14 @@ class MetaConstraint(base):
     constrained_columns = relationship(
         'MetaColumn',
         secondary=ColumnConstraint.__table__,
-        order_by=ColumnConstraint.__table__.c.id,
-        back_populates='constraints',
-        passive_deletes=True
+        order_by=ColumnConstraint.__table__.c.index,
+        viewonly=True
     )
     referenced_columns = relationship(
         'MetaColumn',
         secondary=ReferenceConstraint.__table__,
-        order_by=ReferenceConstraint.__table__.c.id,
-        passive_deletes=True
+        order_by=ReferenceConstraint.__table__.c.index,
+        viewonly=True
     )
     check_expression = Column(String, nullable=True)
 
