@@ -6,7 +6,6 @@ from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import sessionmaker, Session
 from flask import current_app, g, Flask
 
-from core.service.data_source.database_common import database_connection_manager_instance
 from core.service.types import json_serialize_default
 
 
@@ -47,4 +46,3 @@ def close_db(e=None):
     session: Session = g.pop('db_session', None)
     if session is not None:
         session.close()
-    database_connection_manager_instance().clean_up()

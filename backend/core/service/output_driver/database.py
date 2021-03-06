@@ -6,23 +6,26 @@ from sqlalchemy.engine import Connection
 from core.model.data_source import DataSource
 from core.model.meta_constraint import MetaConstraint
 from core.model.meta_table import MetaTable
-from core.service.data_source.database_common import get_shared_connection
+from core.service.data_source.database_common import DatabaseConnectionManager
 from core.service.generation_procedure.database import GeneratedRow, GeneratedDatabase
+from core.service.injector import Injector
 from core.service.output_driver import OutputDriver
 
 
 class DatabaseOutputDriver(OutputDriver):
     is_interactive = True
 
-    def __init__(self, data_source: DataSource):
+    def __init__(self, data_source: DataSource, injector: Injector):
         super(DatabaseOutputDriver, self).__init__()
         self._data_source = data_source
+        self._injector = injector
         self._conn: Optional[Connection] = None
         self._current_table: Optional[Table] = None
         self._primary_constraint: Optional[MetaConstraint] = None
 
     def start_run(self):
-        self._conn = get_shared_connection(self._data_source)
+        conn_manager = self._injector.get(DatabaseConnectionManager)
+        self._conn = conn_manager.get_connection(self._data_source)
 
     def end_run(self, database: GeneratedDatabase):
         self._conn = None

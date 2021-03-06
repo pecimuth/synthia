@@ -7,21 +7,23 @@ from core.model.data_source import DataSource
 from core.model.meta_column import MetaColumn
 from core.model.meta_constraint import MetaConstraint
 from core.model.meta_table import MetaTable
-from core.service.data_source.database_common import get_shared_engine
+from core.service.data_source.database_common import DatabaseConnectionManager
 from core.service.data_source.identifier import Identifier
 from core.service.data_source.schema.base_provider import SchemaProvider
 from core.service.exception import SomeError, DataSourceError
+from core.service.injector import Injector
 from core.service.types import get_column_type
 
 
 class DatabaseSchemaProvider(SchemaProvider):
-    def __init__(self, data_source: DataSource):
-        super().__init__(data_source)
+    def __init__(self, data_source: DataSource, injector: Injector):
+        super().__init__(data_source, injector)
         self._table_list: Union[List[MetaTable], None] = []
         self._column: Dict[str, Dict[str, MetaColumn]] = {}
 
     def read_structure(self) -> List[MetaTable]:
-        engine = get_shared_engine(self._data_source)
+        connection_manager = self._injector.get(DatabaseConnectionManager)
+        engine = connection_manager.get_engine(self._data_source)
         meta = MetaData()
         meta.reflect(bind=engine)
         self._column = {}

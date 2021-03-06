@@ -4,7 +4,7 @@ from sqlalchemy import MetaData, select, Column, func
 from sqlalchemy.engine import Connection
 
 from core.service.data_source.data_provider.base_provider import DataProvider
-from core.service.data_source.database_common import get_shared_connection, get_shared_engine
+from core.service.data_source.database_common import DatabaseConnectionManager
 from core.service.data_source.identifier import Identifiers, Identifier
 from core.service.exception import DataSourceIdentifierError
 
@@ -21,7 +21,8 @@ class DatabaseDataProvider(DataProvider):
 
     @property
     def _conn(self) -> Connection:
-        return get_shared_connection(self._data_source)
+        conn_manager = self._injector.get(DatabaseConnectionManager)
+        return conn_manager.get_connection(self._data_source)
 
     @property
     def _first_column(self) -> Column:
@@ -33,7 +34,8 @@ class DatabaseDataProvider(DataProvider):
             yield row
 
     def _get_column(self, idf: Identifier) -> Column:
-        engine = get_shared_engine(self._data_source)
+        conn_manager = self._injector.get(DatabaseConnectionManager)
+        engine = conn_manager.get_engine(self._data_source)
         meta = MetaData()
         meta.reflect(bind=engine)
         if idf.table not in meta.tables:

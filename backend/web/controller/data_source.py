@@ -308,5 +308,6 @@ def import_data_source_schema(data_source: DataSource):
 })
 def export_to_data_source(data_source: DataSource):
     requisition = ExportRequisitionView().load(request.json)
-    DataSourceFacade.export_to_data_source(data_source, requisition)
+    facade = inject(DataSourceFacade)
+    facade.export_to_data_source(data_source, requisition)
     return ok_request('Successfully filled the database')

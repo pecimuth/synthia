@@ -27,7 +27,7 @@ class JsonDataProvider(DataProvider):
     def _yield_column(self, json_obj: Any, idf: Identifier) -> Iterator[Any]:
         if isinstance(json_obj, dict):
             if idf.table not in json_obj:
-                raise DataSourceIdentifierError('table not found', self._data_source, idf)
+                raise DataSourceIdentifierError('table not found', self._data_source, repr(idf))
             table = json_obj[idf.table]
         else:
             if not isinstance(json_obj, list):
@@ -35,5 +35,5 @@ class JsonDataProvider(DataProvider):
             table = json_obj
         for row in table:
             if idf.column not in row:
-                raise DataSourceIdentifierError('column not found', self._data_source, idf)
+                raise DataSourceIdentifierError('column not found', self._data_source, repr(idf))
             yield row[idf.column]

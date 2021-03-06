@@ -8,6 +8,7 @@ class Injector:
 
     def __init__(self):
         self._instances: dict = {}
+        self.provide(Injector, self)
 
     def get(self, typ: Type[T]) -> T:
         if typ in self._instances:
@@ -26,3 +27,12 @@ class Injector:
             inst = self.get(param.annotation)
             dependencies.append(inst)
         return typ(*dependencies)
+
+    def __contains__(self, item: Type[T]) -> bool:
+        return item in self._instances
+
+    def clean_up(self):
+        while self._instances:
+            typ, inst = self._instances.popitem()
+            if hasattr(inst, 'clean_up') and callable(inst.clean_up):
+                inst.clean_up()

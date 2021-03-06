@@ -13,11 +13,13 @@ from core.service.data_source.schema.base_provider import SchemaProvider
 from core.service.data_source.schema.database_provider import DatabaseSchemaProvider
 from core.service.data_source.schema.json_provider import JsonSchemaProvider
 from core.service.exception import DataSourceError
+from core.service.injector import Injector
 
 
 class DataSourceSchemaImport:
-    def __init__(self, project: Project):
+    def __init__(self, project: Project, injector: Injector):
         self._project = project
+        self._injector = injector
 
     def import_schema(self, data_source: DataSource, db_session: Session):
         provider = self._create_schema_provider(data_source)
@@ -35,12 +37,11 @@ class DataSourceSchemaImport:
         for imported_table in new_tables:
             imported_table.project = self._project
 
-    @classmethod
-    def _create_schema_provider(cls, data_source: DataSource) -> SchemaProvider:
+    def _create_schema_provider(self, data_source: DataSource) -> SchemaProvider:
         if data_source.driver is not None:
-            return DatabaseSchemaProvider(data_source)
+            return DatabaseSchemaProvider(data_source, self._injector)
         if data_source.mime_type == DataSourceConstants.MIME_TYPE_JSON:
-            return JsonSchemaProvider(data_source)
+            return JsonSchemaProvider(data_source, self._injector)
         raise DataSourceError('no appropriate schema provider found', data_source)
 
     @classmethod

@@ -6,14 +6,16 @@ from typing import Iterator, Callable, Any, Tuple, Optional
 
 from core.model.data_source import DataSource
 from core.service.data_source.identifier import Identifiers
+from core.service.injector import Injector
 
 DEFAULT_ROW_LIMIT = 100
 
 
 class DataProvider(ABC):
-    def __init__(self, data_source: DataSource, identifiers: Identifiers):
+    def __init__(self, data_source: DataSource, identifiers: Identifiers, injector: Injector):
         self._data_source = data_source
         self._identifiers = identifiers
+        self._injector = injector
 
     @abstractmethod
     def scalar_data(self) -> Iterator[Any]:

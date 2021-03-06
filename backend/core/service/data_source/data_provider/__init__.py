@@ -7,23 +7,24 @@ from core.service.data_source.data_provider.database_provider import DatabaseDat
 from core.service.data_source.data_provider.json_provider import JsonDataProvider
 from core.service.data_source.identifier import Identifiers, identifier_from_string
 from core.service.exception import DataSourceError, SomeError
+from core.service.injector import Injector
 
 
 class DataProviderFactory:
-    def __init__(self, meta_columns: List[MetaColumn]):
+    def __init__(self, meta_columns: List[MetaColumn], injector: Injector):
         self._meta_columns = meta_columns
+        self._injector = injector
 
     def find_provider(self):
         data_source = self._single_data_source()
         identifiers = self._make_identifiers()
         return self._create_data_provider(data_source, identifiers)
 
-    @classmethod
-    def _create_data_provider(cls, data_source: DataSource, identifiers: Identifiers) -> DataProvider:
+    def _create_data_provider(self, data_source: DataSource, identifiers: Identifiers) -> DataProvider:
         if data_source.driver is not None:
-            return DatabaseDataProvider(data_source, identifiers)
+            return DatabaseDataProvider(data_source, identifiers, self._injector)
         elif data_source.mime_type == DataSourceConstants.MIME_TYPE_JSON:
-            return JsonDataProvider(data_source, identifiers)
+            return JsonDataProvider(data_source, identifiers, self._injector)
         raise DataSourceError('no appropriate data provider', data_source)
 
     def _single_data_source(self) -> DataSource:

@@ -26,4 +26,6 @@ def inject(typ: Type[T]) -> T:
 
 
 def pop_injector(e=None):
-    g.pop('injector', None)
+    injector = g.pop('injector', None)
+    if injector is not None:
+        injector.clean_up()

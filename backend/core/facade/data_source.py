@@ -8,24 +8,25 @@ from core.service.data_source.schema import DataSourceSchemaImport
 from core.service.exception import DataSourceError
 from core.service.generation_procedure.controller import ProcedureController
 from core.service.generation_procedure.requisition import ExportRequisition
+from core.service.injector import Injector
 from core.service.output_driver.database import DatabaseOutputDriver
 
 
 class DataSourceFacade:
-    def __init__(self, db_session: Session, user: User):
+    def __init__(self, db_session: Session, user: User, injector: Injector):
         self._db_session = db_session
         self._user = user
+        self._injector = injector
 
-    @staticmethod
-    def export_to_data_source(data_source: DataSource, requisition: ExportRequisition):
+    def export_to_data_source(self, data_source: DataSource, requisition: ExportRequisition):
         if data_source.driver is None:
             return DataSourceError('The data source is not a database', data_source)
-        database_driver = DatabaseOutputDriver(data_source)
+        database_driver = DatabaseOutputDriver(data_source, self._injector)
         controller = ProcedureController(data_source.project, requisition, database_driver)
         controller.run()
 
     def import_schema(self, data_source: DataSource):
-        schema_import = DataSourceSchemaImport(data_source.project)
+        schema_import = DataSourceSchemaImport(data_source.project, self._injector)
         schema_import.import_schema(data_source, self._db_session)
 
     def delete(self, data_source: DataSource):

@@ -3,10 +3,8 @@ from typing import Dict
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine, Connection
 from sqlalchemy.engine.url import URL
-from sqlalchemy.pool import SingletonThreadPool
 
 from core.model.data_source import DataSource
-from core.service.data_source import DataSourceConstants
 
 
 class DatabaseConnectionManager:
@@ -24,8 +22,6 @@ class DatabaseConnectionManager:
             port=data_source.port,
             database=data_source.db
         )
-        if data_source.driver == DataSourceConstants.DRIVER_SQLITE:
-            return create_engine(url, poolclass=SingletonThreadPool)
         return create_engine(url)
 
     def get_engine(self, data_source: DataSource) -> Engine:
@@ -47,24 +43,3 @@ class DatabaseConnectionManager:
             _, conn = self._connection.popitem()
             conn.close()
         self._engine.clear()
-
-
-def database_connection_manager_instance() -> DatabaseConnectionManager:
-    attr = 'instance'
-    if not hasattr(database_connection_manager_instance, attr):
-        setattr(
-            database_connection_manager_instance,
-            attr,
-            DatabaseConnectionManager()
-        )
-    return getattr(database_connection_manager_instance, attr)
-
-
-def get_shared_connection(data_source: DataSource) -> Connection:
-    manager = database_connection_manager_instance()
-    return manager.get_connection(data_source)
-
-
-def get_shared_engine(data_source: DataSource) -> Engine:
-    manager = database_connection_manager_instance()
-    return manager.get_engine(data_source)
