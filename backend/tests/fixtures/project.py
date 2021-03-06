@@ -8,7 +8,7 @@ from core.model.user import User
 
 
 @dataclass
-class ProjectUser:
+class UserProject:
     user: User
     project: Project
 
@@ -17,13 +17,13 @@ PROJECT_NAME = 'My Test Project'
 
 
 @pytest.fixture
-def project(injector, session, user) -> ProjectUser:
+def user_project(injector, session, user) -> UserProject:
     facade = injector.get(ProjectFacade)
     project = facade.create_project(PROJECT_NAME)
     session.commit()
-    yield ProjectUser(
+    yield UserProject(
         user=user,
         project=project
     )
     session.delete(project)
-    session.commit()
+    session.flush()

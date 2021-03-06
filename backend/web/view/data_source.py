@@ -5,15 +5,15 @@ from marshmallow.fields import Str, Integer, Nested, List
 class DataSourceView(Schema):
     id = Integer()
 
-    file_name = Str()
-    mime_type = Str()
+    file_name = Str(allow_none=True)
+    mime_type = Str(allow_none=True)
 
-    driver = Str()
-    db = Str()
+    driver = Str(allow_none=True)
+    db = Str(allow_none=True)
 
-    usr = Str()
-    host = Str()
-    port = Integer()
+    usr = Str(allow_none=True)
+    host = Str(allow_none=True)
+    port = Integer(allow_none=True)
 
 
 class DataSourceDatabaseWrite(Schema):

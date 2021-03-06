@@ -31,7 +31,7 @@ class GeneratorAssignment:
         for column_gen in cls._generators_for_type(meta_column.col_type):
             if column_gen.is_recommended_for(meta_column):
                 return column_gen
-        raise ColumnGeneratorError('no suitable generator found', meta_column)
+        raise ColumnGeneratorError('No suitable generator found', meta_column)
 
     @classmethod
     def maybe_assign(cls, generator_setting: GeneratorSetting, meta_column: MetaColumn) -> bool:

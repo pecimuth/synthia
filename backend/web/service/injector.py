@@ -3,6 +3,7 @@ from typing import TypeVar, Type
 from flask import g, current_app
 from sqlalchemy.orm import Session
 
+from core.facade.project import ProjectStorage
 from core.service.auth.token import SecretKey
 from core.service.injector import Injector
 from web.service.database import get_db_session
@@ -14,6 +15,7 @@ def get_injector() -> Injector:
     injector = Injector()
     injector.provide(Session, get_db_session())
     injector.provide(SecretKey, current_app.config['SECRET_KEY'])
+    injector.provide(ProjectStorage, current_app.config['PROJECT_STORAGE'])
     g.injector = injector
     return injector
 

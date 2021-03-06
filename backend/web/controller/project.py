@@ -141,7 +141,7 @@ def get_project(proj: Project):
 def generate_project_preview(proj: Project):
     requisition = ExportRequisitionView().load(request.json)
     facade = inject(ProjectFacade)
-    tables = facade.generate_preview(requisition)
+    tables = facade.generate_preview(proj, requisition)
     return PreviewView().dump({'tables': tables})
 
 
@@ -177,7 +177,7 @@ def generate_project_preview(proj: Project):
 def export_project(proj: Project):
     requisition, driver_name = ExportFileRequisitionView().load(request.json)
     facade = inject(ProjectFacade)
-    file_driver = facade.generate_file_export(requisition, driver_name)
+    file_driver = facade.generate_file_export(proj, requisition, driver_name)
     file_name = file_driver.add_extension(secure_filename(proj.name))
     return Response(
         file_driver.dumps(),

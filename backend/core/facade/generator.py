@@ -13,6 +13,7 @@ from core.model.user import User
 from core.service.column_generator.assignment import GeneratorAssignment
 from core.service.column_generator.setting_facade import GeneratorSettingFacade
 from core.service.exception import SomeError
+from core.service.injector import Injector
 
 
 class GeneratorFacade:
@@ -20,11 +21,13 @@ class GeneratorFacade:
                  db_session: Session,
                  user: User,
                  table_facade: TableFacade,
-                 column_facade: ColumnFacade):
+                 column_facade: ColumnFacade,
+                 injector: Injector):
         self._db_session = db_session
         self._user = user
         self._table_facade = table_facade
         self._column_facade = column_facade
+        self._injector = injector
 
     def find_setting(self, generator_setting_id: int) -> GeneratorSetting:
         return self._db_session.\
@@ -75,7 +78,7 @@ class GeneratorFacade:
         if meta_column is not None:
             meta_column.generator_setting = generator_setting
             facade = GeneratorSettingFacade(generator_setting)
-            facade.maybe_estimate_params()
+            facade.maybe_estimate_params(self._injector)
         self._db_session.add(generator_setting)
         return generator_setting
 
@@ -89,5 +92,5 @@ class GeneratorFacade:
             return False
 
         facade = GeneratorSettingFacade(generator_setting)
-        facade.maybe_estimate_params()
+        facade.maybe_estimate_params(self._injector)
         return True

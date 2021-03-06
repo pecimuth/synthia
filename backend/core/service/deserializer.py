@@ -1,7 +1,6 @@
 from typing import Any, List
 
-from sqlalchemy import MetaData, Table, Column, Integer, String, DateTime, ForeignKey, ForeignKeyConstraint, Index, \
-    PrimaryKeyConstraint
+from sqlalchemy import MetaData, Table, Column, ForeignKeyConstraint, PrimaryKeyConstraint, UniqueConstraint
 
 from core.model.meta_column import MetaColumn
 from core.model.meta_constraint import MetaConstraint
@@ -62,10 +61,9 @@ class StructureDeserializer:
                     name=meta_constraint.name
                 )
             elif meta_constraint.constraint_type == MetaConstraint.UNIQUE:
-                constraint = Index(
-                    constrained_columns,
-                    name=meta_constraint.name,
-                    unique=True
+                constraint = UniqueConstraint(
+                    *constrained_columns,
+                    name=meta_constraint.name
                 )
             else:
                 raise SomeError('Unknown constraint type')
@@ -77,30 +75,3 @@ class StructureDeserializer:
         for table in self._proj.tables:
             self._deserialize_table(table, meta)
         return meta
-
-
-def create_mock_meta() -> MetaData:
-    meta = MetaData()
-    Table(
-        'cookie',
-        meta,
-        Column('id', Integer, primary_key=True),
-        Column('name', String, nullable=False),
-        Column('price', Integer)
-    )
-    Table(
-        'order',
-        meta,
-        Column('id', Integer, primary_key=True),
-        Column('place', String),
-        Column('created_at', DateTime)
-    )
-    Table(
-        'order_item',
-        meta,
-        Column('id', Integer, primary_key=True),
-        Column('order_id', Integer, ForeignKey('order.id'), nullable=False),
-        Column('cookie_id', Integer, ForeignKey('cookie.id'), nullable=False),
-        Column('quantity', Integer, nullable=False)
-    )
-    return meta

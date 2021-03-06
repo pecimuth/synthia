@@ -1,3 +1,4 @@
+from core.model.meta_column import MetaColumn
 from core.service.column_generator.base import SingleColumnGenerator, RegisteredGenerator
 from core.service.column_generator.decorator import parameter
 from core.service.data_source.data_provider import DataProvider
@@ -21,3 +22,7 @@ class BernoulliGenerator(RegisteredGenerator, SingleColumnGenerator[bool]):
 
     def make_scalar(self, generated_database: GeneratedDatabase) -> bool:
         return self._random.random() <= self.success_probability
+
+    @classmethod
+    def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
+        return True

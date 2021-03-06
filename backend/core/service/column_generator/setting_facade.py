@@ -11,6 +11,7 @@ from core.model.meta_table import MetaTable
 from core.service.column_generator.base import ColumnGenerator, RegisteredGenerator
 
 from core.service.data_source.data_provider import DataProviderFactory
+from core.service.injector import Injector
 
 GeneratorList = List[ColumnGenerator]
 
@@ -62,14 +63,14 @@ class GeneratorSettingFacade:
         generator_factory = RegisteredGenerator.get_by_name(self._generator_setting.name)
         return generator_factory(self._generator_setting)
 
-    def maybe_estimate_params(self):
+    def maybe_estimate_params(self, injector: Injector):
         gen_instance = self.make_generator_instance()  # normalizes params
         if not self._has_data_source():
             return
-        self.estimate_params(gen_instance)
+        self.estimate_params(gen_instance, injector)
 
-    def estimate_params(self, gen_instance: ColumnGenerator):
-        factory = DataProviderFactory(self._generator_setting.columns)
+    def estimate_params(self, gen_instance: ColumnGenerator, injector: Injector):
+        factory = DataProviderFactory(self._generator_setting.columns, injector)
         provider = factory.find_provider()
         gen_instance.estimate_params(provider)
         flag_modified(self._generator_setting, 'params')  # register the param change

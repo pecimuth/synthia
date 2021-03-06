@@ -7,6 +7,11 @@ class SomeError(Exception):
         self.message = message
 
 
+class FileNotAllowedError(SomeError):
+    def __init__(self):
+        super().__init__('File not allowed')
+
+
 class GeneratorRegistrationError(SomeError):
     def __init__(self):
         super().__init__('Registered generator must be a column generator')
@@ -32,7 +37,7 @@ class DataSourceIdentifierError(DataSourceError):
 
 class ColumnGeneratorError(SomeError):
     def __init__(self, message: str, meta_column: MetaColumn):
-        super().__init__(message)
+        super().__init__('{}: {}'.format(meta_column.name, message))
         self.meta_column = meta_column
 
 

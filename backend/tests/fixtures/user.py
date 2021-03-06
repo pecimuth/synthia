@@ -12,9 +12,10 @@ def user(injector, session) -> User:
     facade = injector.get(UserFacade)
     user = facade.register('foo', USER_PASSWORD)
     session.commit()
+    injector.provide(User, user)
     yield user
     session.delete(user)
-    session.commit()
+    session.flush()
 
 
 @pytest.fixture

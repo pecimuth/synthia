@@ -7,6 +7,7 @@ from flask.testing import FlaskClient
 from sqlalchemy.orm import Session
 
 from core import model
+from core.facade.project import ProjectStorage
 from core.service.auth.token import SecretKey
 from core.service.injector import Injector
 from web import create_app
@@ -14,7 +15,7 @@ from web.service import get_db_engine
 from web.service.database import create_db_engine
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='class')
 def client() -> FlaskClient:
     db_fd, db_file = tempfile.mkstemp()
     project_storage = tempfile.mkdtemp()
@@ -40,12 +41,13 @@ def client() -> FlaskClient:
     shutil.rmtree(project_storage)
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='class')
 def session(client) -> Session:
     engine = create_db_engine(client.application)
     session = Session(bind=engine)
     try:
         yield session
+        session.commit()
     finally:
         session.close()
 
@@ -55,4 +57,5 @@ def injector(client, session) -> Injector:
     injector = Injector()
     injector.provide(Session, session)
     injector.provide(SecretKey, client.application.config['SECRET_KEY'])
+    injector.provide(ProjectStorage, client.application.config['PROJECT_STORAGE'])
     return injector

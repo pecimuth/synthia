@@ -14,7 +14,7 @@ from web.controller.util import TOKEN_SECURITY, BAD_REQUEST_SCHEMA, bad_request,
     GENERATOR_SETTING_NOT_FOUND, OK_REQUEST_SCHEMA, ok_request, validate_json, \
     patch_all_from_json, error_into_message
 from web.service.database import get_db_session
-from web.service.injector import inject
+from web.service.injector import inject, get_injector
 from web.view.generator import GeneratorListView, GeneratorSettingWrite, GeneratorSettingView, GeneratorSettingCreate, \
     OutputFileDriverListView
 
@@ -140,7 +140,7 @@ def patch_generator_setting(generator_setting: GeneratorSetting):
     facade = GeneratorSettingFacade(generator_setting)
 
     if estimate_params:
-        facade.maybe_estimate_params()
+        facade.maybe_estimate_params(get_injector())
     else:
         facade.make_generator_instance()  # normalizes params
 

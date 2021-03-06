@@ -1,18 +1,14 @@
 import functools
 
 from flasgger import swag_from
-from flask import Blueprint, request, current_app, Response
+from flask import Blueprint, request, Response
 from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.utils import secure_filename
 
 from core.facade.data_source import DataSourceFacade
 from core.facade.project import ProjectFacade
 from core.model.data_source import DataSource
-from core.model.project import Project
 from core.service.data_source import DataSourceConstants
-from core.service.data_source.database_common import DatabaseConnectionManager
-from core.service.data_source.file_common import FileDataSourceFactory, is_file_allowed
-from core.service.deserializer import create_mock_meta
 from web.controller.auth import login_required
 from web.controller.util import BAD_REQUEST_SCHEMA, bad_request, PROJECT_NOT_FOUND, \
     DATA_SOURCE_NOT_FOUND, ok_request, find_user_data_source, OK_REQUEST_SCHEMA, error_into_message, TOKEN_SECURITY, \
@@ -25,23 +21,9 @@ from web.view.project import ProjectView, ExportRequisitionView
 source = Blueprint('data_source', __name__, url_prefix='/api')
 
 
-def with_project_from_json(view):
-    @functools.wraps(view)
-    def wrapped_view():
-        facade = inject(ProjectFacade)
-        project_id = request.json['project_id']
-        try:
-            proj = facade.find_project(project_id)
-        except NoResultFound:
-            return bad_request(PROJECT_NOT_FOUND)
-        return view(proj)
-    return wrapped_view
-
-
 @source.route('/data-source-database', methods=('POST',))
 @login_required
 @validate_json(DataSourceDatabaseWrite)
-@with_project_from_json
 @swag_from({
     'tags': ['DataSource'],
     'security': TOKEN_SECURITY,
@@ -62,7 +44,13 @@ def with_project_from_json(view):
         400: BAD_REQUEST_SCHEMA
     }
 })
-def create_data_source_database(proj: Project):
+def create_data_source_database():
+    facade = inject(ProjectFacade)
+    project_id = request.json['project_id']
+    try:
+        proj = facade.find_project(project_id)
+    except NoResultFound:
+        return bad_request(PROJECT_NOT_FOUND)
     data_source = DataSource(
         project=proj,
         driver=DataSourceConstants.DRIVER_POSTGRES,
@@ -80,6 +68,7 @@ def create_data_source_database(proj: Project):
 
 @source.route('/data-source-mock-database', methods=('POST',))
 @login_required
+@error_into_message
 @swag_from({
     'tags': ['DataSource'],
     'security': TOKEN_SECURITY,
@@ -101,36 +90,18 @@ def create_data_source_database(proj: Project):
     }
 })
 def create_data_source_mock_database():
-    facade = inject(ProjectFacade)
     project_id = request.form['project_id']
+    data_source_facade = inject(DataSourceFacade)
     try:
-        proj = facade.find_project(project_id)
+        data_source = data_source_facade.create_mock_database(project_id)
     except NoResultFound:
         return bad_request(PROJECT_NOT_FOUND)
-
-    file_name = 'cookies.db'
-    factory = FileDataSourceFactory(proj, file_name, current_app.config['PROJECT_STORAGE'])
-    try:
-        data_source = factory.create_data_source()
-        with open(factory.file_path, 'w'):
-            pass
-    except OSError:
-        return bad_request('The file could not be saved')
-
-    engine = DatabaseConnectionManager.create_database_source_engine(data_source)
-    mock_meta = create_mock_meta()
-    mock_meta.bind = engine
-    mock_meta.create_all()
-
-    db_session = get_db_session()
-    db_session.add(data_source)
-    db_session.commit()
+    get_db_session().commit()
     return DataSourceView().dump(data_source)
 
 
 @source.route('/data-source-file', methods=('POST',))
 @login_required
-@with_project_from_json
 @swag_from({
     'tags': ['DataSource'],
     'security': TOKEN_SECURITY,
@@ -158,25 +129,24 @@ def create_data_source_mock_database():
         400: BAD_REQUEST_SCHEMA
     }
 })
-def create_data_source_file(proj: Project):
+def create_data_source_file():
     file_param = 'data_file'
     if file_param not in request.files or request.files[file_param].filename == '':
         return bad_request('The file is required')
 
+    project_id = request.form['project_id']
     file = request.files[file_param]
     file_name = secure_filename(file.filename)
-    factory = FileDataSourceFactory(proj, file_name, current_app.config['PROJECT_STORAGE'])
-    if not is_file_allowed(file_name):
-        return bad_request('This kind of file is not allowed')
+    data_source_facade = inject(DataSourceFacade)
     try:
-        data_source = factory.create_data_source()
-        file.save(factory.file_path)
+        data_source = data_source_facade.create_data_source_for_file(project_id, file_name)
+        file.save(data_source.file_path)
     except OSError:
         return bad_request('The file could not be saved')
+    except NoResultFound:
+        return bad_request(PROJECT_NOT_FOUND)
 
-    db_session = get_db_session()
-    db_session.add(data_source)
-    db_session.commit()
+    get_db_session().commit()
     return DataSourceView().dump(data_source)
 
 

@@ -51,8 +51,7 @@ class DataSourceSchemaImport:
             table_instances = facade.assign()
             yield from table_instances
 
-    @classmethod
-    def _estimate_all(cls, generators: Iterable[ColumnGenerator]):
+    def _estimate_all(self, generators: Iterable[ColumnGenerator]):
         for column_gen in generators:
             facade = GeneratorSettingFacade(column_gen.setting)
-            facade.estimate_params(column_gen)
+            facade.estimate_params(column_gen, self._injector)
