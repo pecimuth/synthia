@@ -6,13 +6,13 @@ from core.model.meta_table import MetaTable
 from core.service.data_source.file_common import strip_file_extensions
 from core.service.data_source.identifier import Identifier
 from core.service.data_source.schema import SchemaProvider
+from core.service.data_source.schema.type_deduction import TypeDeduction
 from core.service.exception import DataSourceError
-from core.service.types import get_value_type
+from core.service.types import Types, AnyBasicType
 
-JsonRow = Dict[str, Any]
+JsonRow = Dict[str, AnyBasicType]
 JsonTable = List[JsonRow]
 JsonTableDict = Dict[str, JsonTable]
-JsonTableType = Dict[str, str]
 
 
 class JsonSchemaProvider(SchemaProvider):
@@ -34,38 +34,21 @@ class JsonSchemaProvider(SchemaProvider):
         return strip_file_extensions(self._data_source.file_name)
 
     @classmethod
-    def _is_json_table(cls, obj) -> bool:
-        if not isinstance(obj, list):
+    def _is_json_row(cls, row) -> bool:
+        if isinstance(row, dict):
             return False
-        table_type = None
-        for row in obj:
-            row_type = cls._row_to_type(row)
-            if table_type is None:
-                table_type = row_type
-            elif not cls._is_consistent(table_type, row_type):
+        for key, val in row.items():
+            if not isinstance(val, (str, int, float, type(None))):
                 return False
         return True
 
     @classmethod
-    def _row_to_type(cls, row: JsonRow) -> JsonTableType:
-        return {
-            column: get_value_type(value)
-            for column, value in row.items()
-        }
-
-    def _type_to_column(self, table_name: str, col_name: str, type_literal: str) -> MetaColumn:
-        return MetaColumn(
-            name=col_name,
-            col_type=type_literal,
-            nullable=False,
-            primary_key=False,
-            data_source=self._data_source,
-            reflected_column_idf=repr(Identifier(table_name, col_name))
-        )
-
-    @classmethod
-    def _is_consistent(cls, lhs: JsonTableType, rhs: JsonTableType) -> bool:
-        return lhs.keys() == rhs.keys()  # TODO check types
+    def _is_json_table(cls, obj) -> bool:
+        if not isinstance(obj, list):
+            return False
+        for row in obj:
+            cls._is_json_row(row)
+        return True
 
     @classmethod
     def _is_json_table_dict(cls, obj) -> bool:
@@ -73,16 +56,32 @@ class JsonSchemaProvider(SchemaProvider):
             return False
         return all(map(cls._is_json_table, obj.values()))
 
+    def _make_column(self,
+                     table_name: str,
+                     col_name: str,
+                     type_name: Types,
+                     nullable: bool) -> MetaColumn:
+        return MetaColumn(
+            name=col_name,
+            col_type=type_name,
+            nullable=nullable,
+            data_source=self._data_source,
+            reflected_column_idf=repr(Identifier(table_name, col_name))
+        )
+
     def _parse_table(self, obj: JsonTable, table_name: str) -> MetaTable:
-        table_type = {}
-        if len(obj) > 0:
-            table_type = self._row_to_type(obj[0])
+        type_deduction = TypeDeduction()
+        for row in obj:
+            type_deduction.next_row(row)
         return MetaTable(
             name=table_name,
             data_source=self._data_source,
             columns=[
-                self._type_to_column(table_name, col_name, type_name)
-                for col_name, type_name in table_type.items()
+                self._make_column(table_name,
+                                  col_name,
+                                  type_name,
+                                  type_deduction.is_nullable(col_name))
+                for col_name, type_name in type_deduction.get_types().items()
             ]
         )
 

@@ -67,6 +67,8 @@ def get_python_type(type_literal: Types) -> Type[AnyBasicType]:
         return str
     elif type_literal == Types.DATETIME:
         return datetime
+    elif type_literal == Types.NONE:
+        return None
     raise SomeError('unknown type {}'.format(type_literal))
 
 
@@ -77,15 +79,15 @@ def convert_value_to_type(value: AnyBasicType, type_literal: Types) -> AnyBasicT
 
 
 def get_value_type(value: AnyBasicType) -> Types:
-    if isinstance(value, int):
-        return Types.INTEGER
-    elif isinstance(value, str):
+    if isinstance(value, str):
         return Types.STRING
     elif isinstance(value, bool):
-        return Types.BOOl
+        return Types.BOOL
+    elif isinstance(value, int):
+        return Types.INTEGER
     elif isinstance(value, float):
         return Types.FLOAT
-    elif isinstance(value, type(None)):
+    elif value is None:
         return Types.NONE
     elif isinstance(value, datetime):
         return Types.DATETIME
@@ -101,7 +103,7 @@ def class_to_types(cls) -> Types:
         return Types.BOOL
     elif cls == float:
         return Types.FLOAT
-    elif cls == type(None):
+    elif cls is None:
         return Types.NONE
     elif cls == datetime:
         return Types.DATETIME

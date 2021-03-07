@@ -1,4 +1,6 @@
+from io import BytesIO
 from itertools import zip_longest
+from typing import Tuple
 
 from flask.testing import FlaskClient
 from sqlalchemy import MetaData, Table, Column, CheckConstraint, PrimaryKeyConstraint, ForeignKeyConstraint, \
@@ -6,23 +8,23 @@ from sqlalchemy import MetaData, Table, Column, CheckConstraint, PrimaryKeyConst
 
 from core.service.mock_schema import mock_book_author_publisher
 from core.service.types import get_column_type
-from tests.fixtures.data_source import UserMockDatabase
+from tests.fixtures.data_source import UserMockDatabase, UserMockJson
 from tests.fixtures.project import UserProject
 from web.view.data_source import DataSourceView
 from web.view.project import ProjectView
 
 
-def validate_project_view(project_view: dict, meta: MetaData):
+def validate_project_view(project_view: dict, meta: MetaData, check_constraints: bool = True):
     assert not ProjectView().validate(project_view)
     table_set = set()
     for table_view in project_view['tables']:
         name = table_view['name']
         table_set.add(name)
-        validate_table(table_view, meta.tables.get(name))
+        validate_table(table_view, meta.tables.get(name), check_constraints)
     assert table_set == meta.tables.keys()
 
 
-def validate_table(table_view: dict, table: Table):
+def validate_table(table_view: dict, table: Table, check_constraints: bool = True):
     column_set = set()
     for column_view in table_view['columns']:
         name = column_view['name']
@@ -31,6 +33,8 @@ def validate_table(table_view: dict, table: Table):
         assert column_view['col_type'] == get_column_type(column)
         column_set.add(name)
     assert column_set == set(map(lambda c: c.name, table.columns))
+    if not check_constraints:
+        return
     constraint_dict = dict()
     for constraint_view in table_view['constraints']:
         name = constraint_view['name']
@@ -77,3 +81,31 @@ class TestDataSource:
         json = response.get_json()
         meta = mock_book_author_publisher()
         validate_project_view(json, meta)
+
+    def test_upload_json(self,
+                         client: FlaskClient,
+                         user_project: UserProject,
+                         mock_json_file: Tuple[BytesIO, str],
+                         auth_header: dict):
+        data = {
+            'project_id': str(user_project.project.id),
+            'data_file': mock_json_file
+        }
+        response = client.post(
+            '/api/data-source-file',
+            data=data,
+            headers=auth_header,
+            content_type='multipart/form-data'
+        )
+        json = response.get_json()
+        assert not DataSourceView().validate(json)
+
+    def test_import_from_json(self,
+                              client: FlaskClient,
+                              user_mock_json: UserMockJson,
+                              mock_json_meta: MetaData,
+                              auth_header: dict):
+        url = '/api/data-source/{}/import'.format(user_mock_json.data_source.id)
+        response = client.post(url, headers=auth_header)
+        json = response.get_json()
+        validate_project_view(json, mock_json_meta, False)
