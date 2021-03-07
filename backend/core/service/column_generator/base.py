@@ -149,7 +149,7 @@ class SingleColumnGenerator(Generic[OutputType], ColumnGenerator[OutputType]):
 
     @classmethod
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
-        return False
+        return cls.name().lower() in meta_column.name.replace('_', '').lower()
 
     @property
     def _null_frequency(self) -> float:

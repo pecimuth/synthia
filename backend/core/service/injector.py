@@ -1,6 +1,13 @@
+from abc import ABC, abstractmethod
 from inspect import signature
 from itertools import islice
 from typing import TypeVar, Type
+
+
+class HasCleanUp(ABC):
+    @abstractmethod
+    def clean_up(self):
+        pass
 
 
 class Injector:
@@ -34,5 +41,5 @@ class Injector:
     def clean_up(self):
         while self._instances:
             typ, inst = self._instances.popitem()
-            if hasattr(inst, 'clean_up') and callable(inst.clean_up):
+            if isinstance(inst, HasCleanUp):
                 inst.clean_up()

@@ -5,9 +5,10 @@ from sqlalchemy.engine import Engine, Connection
 from sqlalchemy.engine.url import URL
 
 from core.model.data_source import DataSource
+from core.service.injector import HasCleanUp
 
 
-class DatabaseConnectionManager:
+class DatabaseConnectionManager(HasCleanUp):
     def __init__(self):
         self._engine: Dict[int, Engine] = {}
         self._connection: Dict[int, Connection] = {}
