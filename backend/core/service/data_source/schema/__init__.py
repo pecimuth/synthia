@@ -10,6 +10,7 @@ from core.service.column_generator.base import ColumnGenerator
 from core.service.column_generator.setting_facade import GeneratorSettingFacade
 from core.service.data_source import DataSourceConstants
 from core.service.data_source.schema.base_provider import SchemaProvider
+from core.service.data_source.schema.csv_provider import CsvSchemaProvider
 from core.service.data_source.schema.database_provider import DatabaseSchemaProvider
 from core.service.data_source.schema.json_provider import JsonSchemaProvider
 from core.service.exception import DataSourceError
@@ -43,8 +44,10 @@ class DataSourceSchemaImport:
     def _create_schema_provider(self, data_source: DataSource) -> SchemaProvider:
         if data_source.driver is not None:
             return DatabaseSchemaProvider(data_source, self._injector)
-        if data_source.mime_type == DataSourceConstants.MIME_TYPE_JSON:
+        elif data_source.mime_type == DataSourceConstants.MIME_TYPE_JSON:
             return JsonSchemaProvider(data_source, self._injector)
+        elif data_source.mime_type == DataSourceConstants.MIME_TYPE_CSV:
+            return CsvSchemaProvider(data_source, self._injector)
         raise DataSourceError('no appropriate schema provider found', data_source)
 
     @classmethod

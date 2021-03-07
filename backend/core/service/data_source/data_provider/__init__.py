@@ -3,6 +3,7 @@ from core.model.data_source import DataSource
 from core.model.meta_column import MetaColumn
 from core.service.data_source import DataSourceConstants
 from core.service.data_source.data_provider.base_provider import DataProvider
+from core.service.data_source.data_provider.csv_provider import CsvDataProvider
 from core.service.data_source.data_provider.database_provider import DatabaseDataProvider
 from core.service.data_source.data_provider.json_provider import JsonDataProvider
 from core.service.data_source.identifier import Identifiers, identifier_from_string
@@ -25,6 +26,8 @@ class DataProviderFactory:
             return DatabaseDataProvider(data_source, identifiers, self._injector)
         elif data_source.mime_type == DataSourceConstants.MIME_TYPE_JSON:
             return JsonDataProvider(data_source, identifiers, self._injector)
+        elif data_source.mime_type == DataSourceConstants.MIME_TYPE_CSV:
+            return CsvDataProvider(data_source, identifiers, self._injector)
         raise DataSourceError('no appropriate data provider', data_source)
 
     def _single_data_source(self) -> DataSource:

@@ -12,7 +12,7 @@ from core.model.reference_constraint import ReferenceConstraint
 from core.service.data_source.database_common import DatabaseConnectionManager
 from core.service.data_source.identifier import Identifier
 from core.service.data_source.schema.base_provider import SchemaProvider
-from core.service.exception import SomeError, DataSourceError
+from core.service.exception import DataSourceError
 from core.service.injector import Injector
 from core.service.types import get_column_type
 
@@ -50,13 +50,9 @@ class DatabaseSchemaProvider(SchemaProvider):
         meta_table = MetaTable(name=table.name, columns=[])
         self._column[table.name] = {}
         for col in table.c.values():
-            try:
-                meta_column = self._make_meta_column(table, col)
-                meta_table.columns.append(meta_column)
-                self._column[table.name][col.name] = meta_column
-            except SomeError:
-                # TODO maybe add a message
-                pass
+            meta_column = self._make_meta_column(table, col)
+            meta_table.columns.append(meta_column)
+            self._column[table.name][col.name] = meta_column
         return meta_table
 
     def _add_meta_constraints(self, meta: MetaData):
