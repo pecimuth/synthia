@@ -9,6 +9,7 @@ from core.service.generation_procedure.database import GeneratedRow, GeneratedDa
 
 class OutputDriver(ABC):
     is_interactive: bool
+    cli_command: str
 
     @abstractmethod
     def start_run(self):

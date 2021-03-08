@@ -1,4 +1,3 @@
-import json
 from typing import Optional, Dict, Iterable, Tuple
 
 from core.model.generator_setting import GeneratorSetting
@@ -8,13 +7,11 @@ from web.view.project import SavedProject, SaveView
 
 
 class ProjectReconstruction:
-    def __init__(self, string_project: str):
-        self._string_project = string_project
-        self._raw_saved_project = None
+    def __init__(self, raw_saved_project):
+        self._raw_saved_project = raw_saved_project
         self._saved_project: Optional[SavedProject] = None
 
     def parse(self) -> SavedProject:
-        self._raw_saved_project = json.loads(self._string_project)
         self._saved_project = SaveView().load(self._raw_saved_project)
         self._reconstruct_constraints()
         self._reconstruct_generators()
@@ -34,10 +31,13 @@ class ProjectReconstruction:
         col = self._cols_by_id()
         for meta_table, raw_table in self._table_pairs():
             for meta_constraint, raw_constraint in zip(meta_table.constraints, raw_table['constraints']):
-                for constrained_column in raw_constraint['constrained_columns']:
-                    meta_constraint.constrained_columns.append(col[constrained_column['id']])
-                for referenced_column in raw_constraint['referenced_columns']:
-                    meta_constraint.referenced_columns.append(col[referenced_column['id']])
+                for col_id in raw_constraint['constrained_column_ids']:
+                    meta_column = col[col_id]
+                    meta_constraint.constrained_columns.append(meta_column)
+                    meta_column.constraints.append(meta_constraint)
+                for col_id in raw_constraint['referenced_column_ids']:
+                    meta_column = col[col_id]
+                    meta_constraint.referenced_columns.append(meta_column)
 
     def _gens_by_id(self) -> Dict[int, GeneratorSetting]:
         gen: Dict[int, GeneratorSetting] = {}
@@ -48,8 +48,7 @@ class ProjectReconstruction:
 
     def _reconstruct_generators(self):
         gen = self._gens_by_id()
-        for meta_table, raw_table in self._table_pairs():
-            for meta_column, raw_column in zip(meta_table.columns, raw_table['columns']):
-                generator_setting = raw_column['generator_setting']
-                if generator_setting is not None:
-                    meta_column.generator_setting = gen[generator_setting['id']]
+        for meta_table in self._saved_project.project.tables:
+            for meta_column in meta_table.columns:
+                if meta_column.generator_setting_id is not None:
+                    meta_column.generator_setting = gen[meta_column.generator_setting_id]

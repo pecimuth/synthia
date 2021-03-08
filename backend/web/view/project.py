@@ -8,7 +8,7 @@ from core.model.project import Project
 from core.service.generation_procedure.requisition import ExportRequisition, ExportRequisitionRow
 from core.service.output_driver.file_driver.facade import FileOutputDriverFacade
 from web.view.data_source import DataSourceView
-from web.view.table import TableView
+from web.view.table import TableView, SavedTableView
 
 
 class ProjectView(Schema):
@@ -52,10 +52,10 @@ class PreviewView(Schema):
     tables = Dict(keys=Str(), values=List(Dict(keys=Str())))
 
 
-class ProjectSaveView(Schema):
+class SavedProjectView(Schema):
     id = Integer()
     name = Str()
-    tables = List(Nested(TableView()))
+    tables = List(Nested(SavedTableView()))
 
     @post_load
     def make_project(self, data, **kwargs):
@@ -69,7 +69,7 @@ class SavedProject:
 
 
 class SaveView(Schema):
-    project = Nested(ProjectSaveView())
+    project = Nested(SavedProjectView())
     requisition = Nested(ExportRequisitionView())
 
     @post_load

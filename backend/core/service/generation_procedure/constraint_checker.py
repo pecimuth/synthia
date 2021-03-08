@@ -45,7 +45,7 @@ class ConstraintChecker:
         if constraint.constraint_type != MetaConstraint.FOREIGN:
             return False
         for ref_column in constraint.referenced_columns:
-            if ref_column.table_id != self._meta_table.id:
+            if ref_column.table.id != self._meta_table.id:
                 return False
         return True
 

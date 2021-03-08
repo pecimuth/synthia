@@ -34,7 +34,7 @@ class DataSourceFacade:
     def export_to_data_source(self, data_source: DataSource, requisition: ExportRequisition):
         if data_source.driver is None:
             return DataSourceError('The data source is not a database', data_source)
-        database_driver = DatabaseOutputDriver(data_source, self._injector)
+        database_driver = DatabaseOutputDriver(data_source, self._conn_manager)
         controller = ProcedureController(data_source.project, requisition, database_driver)
         controller.run()
 

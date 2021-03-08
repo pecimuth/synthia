@@ -30,11 +30,7 @@ class ProcedureController:
         self._output_driver.start_run()
         for table, meta_table in self._sorted_tables():
             self._output_driver.switch_table(table, meta_table)
-            try:
-                self._table_loop(meta_table)
-            except SomeError:
-                # TODO log
-                pass
+            self._table_loop(meta_table)
         self._output_driver.end_run(self._database)
         return self._database
 

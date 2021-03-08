@@ -11,9 +11,10 @@ from core.service.generation_procedure.database import GeneratedRow, GeneratedDa
 from core.service.output_driver.file_driver.base import FileOutputDriver
 
 
-class ZippedCsvOutputDriver(FileOutputDriver):
+class ZippedCsvOutputDriver(FileOutputDriver[bytes]):
     mime_type = 'application/zip'
     display_name = 'Zipped CSV'
+    cli_command = 'zip'
 
     def __init__(self):
         super(ZippedCsvOutputDriver, self).__init__()
@@ -51,7 +52,7 @@ class ZippedCsvOutputDriver(FileOutputDriver):
         self._writer.writerow(row)
         return row
 
-    def dumps(self):
+    def dump(self) -> bytes:
         self._zip_file.close()
         return self._zip_io.getvalue()
 

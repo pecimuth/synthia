@@ -31,9 +31,10 @@ class LiteralCompiler(dialect.statement_compiler):
         return super(LiteralCompiler, self).render_literal_value(value, typ)
 
 
-class InsertScriptOutputDriver(FileOutputDriver):
+class InsertScriptOutputDriver(FileOutputDriver[str]):
     mime_type = 'application/sql'
     display_name = 'INSERT Script'
+    cli_command = 'script'
 
     def __init__(self):
         super().__init__()
@@ -57,7 +58,7 @@ class InsertScriptOutputDriver(FileOutputDriver):
         super(FileOutputDriver, self).end_run(database)
         self._current_table = None
 
-    def dumps(self):
+    def dump(self) -> str:
         return self._io.getvalue()
 
     @classmethod

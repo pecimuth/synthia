@@ -7,15 +7,28 @@ from core.service.data_source.identifier import Identifier
 from web.view.generator import GeneratorSettingView
 
 
+class ColumnIdView(Schema):
+    id = Integer()
+
+    @post_load
+    def make_meta_column(self, data, **kwargs):
+        return MetaColumn(**data)
+
+
 class ColumnBriefView(Schema):
+    id = Integer()
+    name = Str()
+
+
+class TableBriefView(Schema):
     id = Integer()
     name = Str()
 
 
 class ColumnTableBriefView(Schema):
     id = Integer()
-    table_id = Integer()
     name = Str()
+    table = Nested(TableBriefView())
 
 
 class ColumnView(Schema):
@@ -43,3 +56,15 @@ class ColumnCreate(ColumnWrite):
     nullable = Bool()
     generator_setting_id = Integer(allow_none=True)
     table_id = Integer()
+
+
+class SavedColumnView(Schema):
+    id = Integer()
+    name = Str()
+    col_type = Str()
+    nullable = Bool()
+    generator_setting_id = Integer()
+
+    @post_load
+    def make_meta_column(self, data, **kwargs):
+        return MetaColumn(**data)

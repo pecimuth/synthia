@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Union
+from typing import Union, TypeVar, Generic
 
 from sqlalchemy import Table
 
@@ -7,8 +7,10 @@ from core.model.meta_table import MetaTable
 from core.service.generation_procedure.database import GeneratedRow, GeneratedDatabase
 from core.service.output_driver import OutputDriver
 
+DumpType = TypeVar('DumpType', str, bytes)
 
-class FileOutputDriver(OutputDriver):
+
+class FileOutputDriver(Generic[DumpType], OutputDriver):
     mime_type: str
     display_name: str
     is_interactive = False
@@ -38,7 +40,7 @@ class FileOutputDriver(OutputDriver):
         return row
 
     @abstractmethod
-    def dumps(self):
+    def dump(self) -> DumpType:
         pass
 
     @classmethod

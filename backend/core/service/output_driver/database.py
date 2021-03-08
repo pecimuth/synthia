@@ -3,29 +3,27 @@ from typing import Union, Optional
 from sqlalchemy import Table
 from sqlalchemy.engine import Connection
 
-from core.model.data_source import DataSource
 from core.model.meta_constraint import MetaConstraint
 from core.model.meta_table import MetaTable
-from core.service.data_source.database_common import DatabaseConnectionManager
+from core.service.data_source.database_common import DatabaseConnectionManager, DataSourceOrUrl
 from core.service.generation_procedure.database import GeneratedRow, GeneratedDatabase
-from core.service.injector import Injector
 from core.service.output_driver import OutputDriver
 
 
 class DatabaseOutputDriver(OutputDriver):
     is_interactive = True
+    cli_command = 'insert'
 
-    def __init__(self, data_source: DataSource, injector: Injector):
+    def __init__(self, data_source_url: DataSourceOrUrl, conn_manager: DatabaseConnectionManager):
         super(DatabaseOutputDriver, self).__init__()
-        self._data_source = data_source
-        self._injector = injector
+        self._data_source_url = data_source_url
+        self._conn_manager = conn_manager
         self._conn: Optional[Connection] = None
         self._current_table: Optional[Table] = None
         self._primary_constraint: Optional[MetaConstraint] = None
 
     def start_run(self):
-        conn_manager = self._injector.get(DatabaseConnectionManager)
-        self._conn = conn_manager.get_connection(self._data_source)
+        self._conn = self._conn_manager.get_connection(self._data_source_url)
 
     def end_run(self, database: GeneratedDatabase):
         self._conn = None

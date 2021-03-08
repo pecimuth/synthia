@@ -4,11 +4,12 @@ from core.service.output_driver.file_driver.base import FileOutputDriver
 from core.service.types import json_serialize_default
 
 
-class JsonOutputDriver(FileOutputDriver):
+class JsonOutputDriver(FileOutputDriver[str]):
     mime_type = 'application/json'
     display_name = 'JSON'
+    cli_command = 'json'
 
-    def dumps(self):
+    def dump(self) -> str:
         return json.dumps(self._database.get_dict(),
                           indent=2,
                           sort_keys=True,
