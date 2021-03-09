@@ -1,8 +1,10 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DataSourceView } from 'src/app/api/models/data-source-view';
 import { DataSourceService } from 'src/app/api/services';
+import { DatabaseSourceFormComponent } from 'src/app/dialog/database-source-form/database-source-form.component';
 import { SnackService } from 'src/app/service/snack.service';
 import { DataSourceFacadeService } from '../service/data-source-facade.service';
 
@@ -20,7 +22,8 @@ export class ResourceComponent implements OnInit, OnDestroy {
   
   constructor(
     private dataSourceFacade: DataSourceFacadeService,
-    private snackService: SnackService
+    private snackService: SnackService,
+    private dialog: MatDialog
   ) { }
 
   ngOnInit(): void {
@@ -63,5 +66,9 @@ export class ResourceComponent implements OnInit, OnDestroy {
         () => null,
         (err) => this.snackService.errorIntoSnack(err, 'Failed to download the file')
       );
+  }
+
+  editDatabase() {
+    this.dialog.open(DatabaseSourceFormComponent, {data: this.dataSource});
   }
 }

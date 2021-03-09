@@ -11,7 +11,7 @@
         <mat-icon>more_vert</mat-icon>
       </button>
       <mat-menu #resourceContext="matMenu">
-        <button *ngIf="dataSource.driver && !dataSource.file_name" mat-menu-item>
+        <button *ngIf="dataSource.driver && !dataSource.file_name" mat-menu-item (click)="editDatabase()">
           <mat-icon>edit</mat-icon>
           Edit
         </button>

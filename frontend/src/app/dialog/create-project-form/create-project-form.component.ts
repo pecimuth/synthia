@@ -25,7 +25,10 @@ export class CreateProjectFormComponent implements OnInit {
 
   ngOnInit() {}
 
-  onSubmit() {
+  submit() {
+    if (!this.projectForm.valid) {
+      return;
+    }
     this.projectFacade
       .createProject(this.projectForm.value['name'])
       .subscribe(

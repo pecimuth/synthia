@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
+import { DataSourceDatabaseCreate } from 'src/app/api/models/data-source-database-create';
 import { DataSourceDatabaseWrite } from 'src/app/api/models/data-source-database-write';
 import { DataSourceView } from 'src/app/api/models/data-source-view';
 import { MessageView } from 'src/app/api/models/message-view';
@@ -45,13 +46,24 @@ export class DataSourceFacadeService {
       );
   }
 
-  createDatabase(dataSourceDatabase: DataSourceDatabaseWrite): Observable<DataSourceView> {
+  createDatabase(dataSourceDatabase: DataSourceDatabaseCreate): Observable<DataSourceView> {
     const project = this.activeProject.project$.value;
     dataSourceDatabase.project_id = project.id;
 
     return this.dataSourceService.postApiDataSourceDatabase(dataSourceDatabase)
       .pipe(
         tap((dataSource) => this.activeProject.addDataSource(dataSource))
+      );
+  }
+
+  patchDatabase(dataSourceId: number, dataSource: DataSourceDatabaseWrite): Observable<DataSourceView> {
+    const params = {
+      id: dataSourceId,
+      dataSourceDatabase: dataSource
+    };
+    return this.dataSourceService.patchApiDataSourceDatabaseId(params)
+      .pipe(
+        tap((dataSource) => this.activeProject.patchDataSource(dataSource))
       );
   }
 

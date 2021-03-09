@@ -20,11 +20,11 @@ export class FileSourceFormComponent implements OnInit {
 
   ngOnInit() {}
 
-  onSubmit() {
+  submit() {
     this.dataSourceFacade.createFileSource(this.fileInput.nativeElement.files[0])
       .subscribe(
         () => this.dialogRef.close(),
-        (err) => this.snackService.errorIntoSnack(err, 'Failed to upload a file')
+        (err) => this.snackService.errorIntoSnack(err, 'Failed to upload the file')
       );
   }
 }

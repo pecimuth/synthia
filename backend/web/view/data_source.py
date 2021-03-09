@@ -1,5 +1,8 @@
 from marshmallow import Schema
 from marshmallow.fields import Str, Integer, Nested, List
+from marshmallow.validate import OneOf
+
+from core.service.data_source import DataSourceConstants
 
 
 class DataSourceView(Schema):
@@ -16,16 +19,26 @@ class DataSourceView(Schema):
     port = Integer(allow_none=True)
 
 
-class DataSourceDatabaseWrite(Schema):
+class DataSourceDatabaseCreate(Schema):
     project_id = Integer()
 
-    driver = Str()
+    driver = Str(validate=OneOf([DataSourceConstants.DRIVER_POSTGRES]))
     db = Str()
 
     usr = Str()
     pwd = Str()
     host = Str()
     port = Integer()
+
+
+class DataSourceDatabaseWrite(Schema):
+    driver = Str(validate=OneOf([DataSourceConstants.DRIVER_POSTGRES]), required=False)
+    db = Str(required=False)
+
+    usr = Str(required=False)
+    pwd = Str(required=False)
+    host = Str(required=False)
+    port = Integer(required=False)
 
 
 class DataSourceListView(Schema):

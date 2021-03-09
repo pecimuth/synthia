@@ -1,12 +1,12 @@
 <h2>Upload a file</h2>
 
 <div class="margin">
-  <input #fileInput type="file">
+  <input #fileInput type="file" name="file">
 </div>
 
 <div class="margin-between">
   <button mat-flat-button mat-dialog-close type="button">Cancel</button>
 </div>
 <div class="margin-between">
-  <button mat-raised-button color="primary" type="submit" (click)="onSubmit()">Save</button>
+  <button mat-raised-button color="primary" type="submit" (click)="submit()">Save</button>
 </div>

@@ -8,22 +8,36 @@ from werkzeug.utils import secure_filename
 from core.facade.data_source import DataSourceFacade
 from core.facade.project import ProjectFacade
 from core.model.data_source import DataSource
-from core.service.data_source import DataSourceConstants
 from web.controller.auth import login_required
 from web.controller.util import BAD_REQUEST_SCHEMA, bad_request, PROJECT_NOT_FOUND, \
     DATA_SOURCE_NOT_FOUND, ok_request, find_user_data_source, OK_REQUEST_SCHEMA, error_into_message, TOKEN_SECURITY, \
-    FILE_SCHEMA, file_attachment_headers, validate_json
+    FILE_SCHEMA, file_attachment_headers, validate_json, patch_all_from_json
 from web.service.database import get_db_session
 from web.service.injector import inject
-from web.view.data_source import DataSourceView, DataSourceDatabaseWrite
+from web.view.data_source import DataSourceView, DataSourceDatabaseWrite, DataSourceDatabaseCreate
 from web.view.project import ProjectView, ExportRequisitionView
 
 source = Blueprint('data_source', __name__, url_prefix='/api')
 
 
+def patch_database_data_source(data_source: DataSource):
+    patch_all_from_json(data_source, ['driver', 'db', 'usr', 'pwd', 'host', 'port'])
+
+
+def with_data_source_by_id(view):
+    @functools.wraps(view)
+    def wrapped_view(id: int):
+        try:
+            data_source = find_user_data_source(id)
+        except NoResultFound:
+            return bad_request(DATA_SOURCE_NOT_FOUND)
+        return view(data_source)
+    return wrapped_view
+
+
 @source.route('/data-source-database', methods=('POST',))
 @login_required
-@validate_json(DataSourceDatabaseWrite)
+@validate_json(DataSourceDatabaseCreate)
 @swag_from({
     'tags': ['DataSource'],
     'security': TOKEN_SECURITY,
@@ -33,7 +47,7 @@ source = Blueprint('data_source', __name__, url_prefix='/api')
             'in': 'body',
             'description': 'Database credentials',
             'required': True,
-            'schema': DataSourceDatabaseWrite
+            'schema': DataSourceDatabaseCreate
         }
     ],
     'responses': {
@@ -51,18 +65,48 @@ def create_data_source_database():
         proj = facade.find_project(project_id)
     except NoResultFound:
         return bad_request(PROJECT_NOT_FOUND)
-    data_source = DataSource(
-        project=proj,
-        driver=DataSourceConstants.DRIVER_POSTGRES,
-        db=request.json['db'],
-        usr=request.json['usr'],
-        pwd=request.json['pwd'],
-        host=request.json['host'],
-        port=request.json['port']
-    )
+    data_source = DataSource(project=proj)
+    patch_database_data_source(data_source)
     db_session = get_db_session()
     db_session.add(data_source)
     db_session.commit()
+    return DataSourceView().dump(data_source)
+
+
+@source.route('/data-source-database/<id>', methods=('PATCH',))
+@login_required
+@validate_json(DataSourceDatabaseWrite)
+@with_data_source_by_id
+@swag_from({
+    'tags': ['DataSource'],
+    'security': TOKEN_SECURITY,
+    'parameters': [
+        {
+            'name': 'id',
+            'in': 'path',
+            'description': 'Data source ID',
+            'required': True,
+            'type': 'integer'
+        },
+        {
+            'name': 'data_source_database',
+            'in': 'body',
+            'description': 'Database credentials',
+            'required': True,
+            'schema': DataSourceDatabaseWrite
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'Patched data source',
+            'schema': DataSourceView
+        },
+        400: BAD_REQUEST_SCHEMA
+    }
+})
+def patch_data_source_database(data_source: DataSource):
+    patch_database_data_source(data_source)
+    get_db_session().commit()
     return DataSourceView().dump(data_source)
 
 
@@ -148,17 +192,6 @@ def create_data_source_file():
 
     get_db_session().commit()
     return DataSourceView().dump(data_source)
-
-
-def with_data_source_by_id(view):
-    @functools.wraps(view)
-    def wrapped_view(id: int):
-        try:
-            data_source = find_user_data_source(id)
-        except NoResultFound:
-            return bad_request(DATA_SOURCE_NOT_FOUND)
-        return view(data_source)
-    return wrapped_view
 
 
 @source.route('/data-source-file/<id>/download')
