@@ -1,7 +1,7 @@
 from datetime import date, datetime, timedelta
 from io import StringIO
 
-from typing import Union, Optional
+from typing import Optional
 
 from sqlalchemy import Table
 from sqlalchemy.dialects import postgresql
@@ -44,7 +44,7 @@ class InsertScriptOutputDriver(FileOutputDriver[str]):
     def switch_table(self, table: Table, meta_table: MetaTable):
         self._current_table = table
 
-    def insert_row(self, row: GeneratedRow) -> Union[GeneratedRow, None]:
+    def insert_row(self, row: GeneratedRow) -> Optional[GeneratedRow]:
         stmt = self._current_table.insert().values(row)
         self._io.write(self._stringify_stmt(stmt))
         self._io.write('\n')

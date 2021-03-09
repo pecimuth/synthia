@@ -2,6 +2,7 @@ from typing import List, Union, Dict
 
 from sqlalchemy import Column, Table, MetaData, Constraint, CheckConstraint, UniqueConstraint, PrimaryKeyConstraint, \
     ForeignKeyConstraint
+from sqlalchemy.exc import SQLAlchemyError
 
 from core.model.column_constraint import ColumnConstraint
 from core.model.data_source import DataSource
@@ -12,7 +13,7 @@ from core.model.reference_constraint import ReferenceConstraint
 from core.service.data_source.database_common import DatabaseConnectionManager
 from core.service.data_source.identifier import Identifier
 from core.service.data_source.schema.base_provider import SchemaProvider
-from core.service.exception import DataSourceError
+from core.service.exception import DataSourceError, DatabaseNotReadable
 from core.service.injector import Injector
 from core.service.types import get_column_type
 
@@ -27,7 +28,10 @@ class DatabaseSchemaProvider(SchemaProvider):
         connection_manager = self._injector.get(DatabaseConnectionManager)
         engine = connection_manager.get_engine(self._data_source)
         meta = MetaData()
-        meta.reflect(bind=engine)
+        try:
+            meta.reflect(bind=engine)
+        except SQLAlchemyError:
+            raise DatabaseNotReadable(self._data_source)
         self._column = {}
         self._table_list = [
             self._make_meta_table(tab)

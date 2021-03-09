@@ -1,11 +1,13 @@
-from typing import Union, Optional
+from typing import Optional
 
 from sqlalchemy import Table
 from sqlalchemy.engine import Connection
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from core.model.meta_constraint import MetaConstraint
 from core.model.meta_table import MetaTable
 from core.service.data_source.database_common import DatabaseConnectionManager, DataSourceOrUrl
+from core.service.exception import FatalDatabaseError
 from core.service.generation_procedure.database import GeneratedRow, GeneratedDatabase
 from core.service.output_driver import OutputDriver
 
@@ -40,10 +42,13 @@ class DatabaseOutputDriver(OutputDriver):
                 self._primary_constraint = constraint
                 return
 
-    def insert_row(self, row: GeneratedRow) -> Union[GeneratedRow, None]:
-        # TODO handle error
-        result = self._conn.execute(self._current_table.insert().values(row))
-        # TODO we should do something like this for all generated columns
+    def insert_row(self, row: GeneratedRow) -> Optional[GeneratedRow]:
+        try:
+            result = self._conn.execute(self._current_table.insert().values(row))
+        except IntegrityError:
+            return None
+        except SQLAlchemyError:
+            raise FatalDatabaseError()
         if self._primary_constraint is not None:
             inserted = result.inserted_primary_key
             for index, meta_column in enumerate(self._primary_constraint.constrained_columns):

@@ -2,11 +2,12 @@ from typing import Iterator, Tuple, Any, Optional
 
 from sqlalchemy import MetaData, select, Column, func
 from sqlalchemy.engine import Connection
+from sqlalchemy.exc import SQLAlchemyError
 
 from core.service.data_source.data_provider.base_provider import DataProvider
 from core.service.data_source.database_common import DatabaseConnectionManager
 from core.service.data_source.identifier import Identifiers, Identifier
-from core.service.exception import DataSourceIdentifierError
+from core.service.exception import DataSourceIdentifierError, DatabaseNotReadable, FatalDatabaseError
 
 
 class DatabaseDataProvider(DataProvider):
@@ -28,16 +29,25 @@ class DatabaseDataProvider(DataProvider):
     def _first_column(self) -> Column:
         return self._get_column(self._identifiers[0])
 
+    def _safe_exec(self, *args, **kwargs):
+        try:
+            return self._conn.execute(*args, **kwargs)
+        except SQLAlchemyError:
+            raise FatalDatabaseError()
+
     def _select(self, identifiers: Identifiers) -> Iterator[Tuple]:
         columns = [self._get_column(idf) for idf in identifiers]
-        for row in self._conn.execute(select(columns)):
+        for row in self._safe_exec(select(columns)):
             yield row
 
     def _get_column(self, idf: Identifier) -> Column:
         conn_manager = self._injector.get(DatabaseConnectionManager)
         engine = conn_manager.get_engine(self._data_source)
         meta = MetaData()
-        meta.reflect(bind=engine)
+        try:
+            meta.reflect(bind=engine)
+        except SQLAlchemyError:
+            raise DatabaseNotReadable(self._data_source)
         if idf.table not in meta.tables:
             raise DataSourceIdentifierError('Table not found', self._data_source, repr(idf))
         table = meta.tables[idf.table]
@@ -48,28 +58,28 @@ class DatabaseDataProvider(DataProvider):
     def scalar_data_not_none(self) -> Iterator[Any]:
         column = self._first_column
         query = select([column]).where(column.isnot(None))
-        for row in self._conn.execute(query):
+        for row in self._safe_exec(query):
             yield row[0]
 
     def estimate_min(self) -> Any:
         column = self._first_column
         query = select([func.min(column)])
-        return self._conn.execute(query).scalar()
+        return self._safe_exec(query).scalar()
 
     def estimate_max(self) -> Any:
         column = self._first_column
         query = select([func.max(column)])
-        return self._conn.execute(query).scalar()
+        return self._safe_exec(query).scalar()
 
     def get_null_count(self) -> int:
         column = self._first_column
         query = select([func.count()]).where(column.is_(None))
-        return self._conn.execute(query).scalar()
+        return self._safe_exec(query).scalar()
 
     def get_not_null_count(self) -> int:
         column = self._first_column
         query = select([func.count(column)])
-        return self._conn.execute(query).scalar()
+        return self._safe_exec(query).scalar()
 
     def estimate_null_frequency(self) -> Optional[float]:
         null_count = self.get_null_count()
@@ -82,7 +92,7 @@ class DatabaseDataProvider(DataProvider):
     def estimate_mean(self) -> Optional[float]:
         column = self._first_column
         query = select([func.avg(column)])
-        return self._conn.execute(query).scalar()
+        return self._safe_exec(query).scalar()
 
     def estimate_variance(self) -> Optional[float]:
         column = self._first_column
@@ -90,7 +100,7 @@ class DatabaseDataProvider(DataProvider):
             func.avg(column),
             func.avg(column * column)
         ])
-        avg, square_avg = self._conn.execute(query).fetchone()
+        avg, square_avg = self._safe_exec(query).fetchone()
         if avg is None:
             return None
         return max(square_avg - avg ** 2, 0)

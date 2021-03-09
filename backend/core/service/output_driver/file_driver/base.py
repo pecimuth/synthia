@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Union, TypeVar, Generic
+from typing import TypeVar, Generic, Optional
 
 from sqlalchemy import Table
 
@@ -17,7 +17,7 @@ class FileOutputDriver(Generic[DumpType], OutputDriver):
 
     def __init__(self):
         super(FileOutputDriver, self).__init__()
-        self._database: Union[GeneratedDatabase, None] = None
+        self._database: Optional[GeneratedDatabase] = None
 
     @classmethod
     def driver_name(cls):
@@ -36,7 +36,7 @@ class FileOutputDriver(Generic[DumpType], OutputDriver):
     def switch_table(self, table: Table, meta_table: MetaTable):
         pass
 
-    def insert_row(self, row: GeneratedRow) -> Union[GeneratedRow, None]:
+    def insert_row(self, row: GeneratedRow) -> Optional[GeneratedRow]:
         return row
 
     @abstractmethod

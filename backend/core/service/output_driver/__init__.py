@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Union
+from typing import Optional
 
 from sqlalchemy import Table
 
@@ -24,7 +24,7 @@ class OutputDriver(ABC):
         pass
 
     @abstractmethod
-    def insert_row(self, row: GeneratedRow) -> Union[GeneratedRow, None]:
+    def insert_row(self, row: GeneratedRow) -> Optional[GeneratedRow]:
         pass
 
 
@@ -40,5 +40,5 @@ class PreviewOutputDriver(OutputDriver):
     def switch_table(self, table: Table, meta_table: MetaTable):
         pass
 
-    def insert_row(self, row: GeneratedRow) -> Union[GeneratedRow, None]:
+    def insert_row(self, row: GeneratedRow) -> Optional[GeneratedRow]:
         return row

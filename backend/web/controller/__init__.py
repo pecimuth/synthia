@@ -6,9 +6,11 @@ from web.controller.generator import generator
 from web.controller.table import table
 from web.controller.auth import auth
 from web.controller.project import project
+from web.service.json_encoder import JsonEncoder
 
 
 def init_app(app: Flask):
+    app.json_encoder = JsonEncoder
     app.register_blueprint(auth)
     app.register_blueprint(project)
     app.register_blueprint(table)

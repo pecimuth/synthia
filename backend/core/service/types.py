@@ -10,9 +10,20 @@ from core.service.exception import SomeError
 AnyBasicType = Union[int, float, str, bool, datetime, type(None)]
 
 DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
+"""The format JS works with by default.
+
+Used for storing and parsing generator parameters.
+"""
+
+DATETIME_FORMAT_NICE = '%Y-%m-%d %H:%M:%S'
+"""A good format for printing."""
 
 
 def json_serialize_default(obj):
+    """Default serializer for json.dumps.
+
+    Use it like this: json.dumps(obj, default=json_serialize_default).
+    """
     if isinstance(obj, (datetime, date)):
         return obj.strftime(DATETIME_FORMAT)
     return str(obj)

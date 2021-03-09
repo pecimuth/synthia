@@ -3,6 +3,7 @@ from typing import Type, Any, List, Dict
 
 from flask import g, request
 from marshmallow import Schema
+from sqlalchemy.exc import SQLAlchemyError
 
 from core.model.data_source import DataSource
 from core.model.project import Project

@@ -8,6 +8,16 @@ class SomeError(Exception):
         self.message = message
 
 
+class DatabaseConnectionError(SomeError):
+    def __init__(self):
+        super().__init__('Could not connect to the database')
+
+
+class FatalDatabaseError(SomeError):
+    def __init__(self):
+        super().__init__('Fatal database error')
+
+
 class FileNotAllowedError(SomeError):
     def __init__(self):
         super().__init__('File not allowed')
@@ -30,6 +40,11 @@ class DataSourceError(SomeError):
     def __init__(self, message: str, data_source: DataSource):
         super().__init__(message)
         self.data_source = data_source
+
+
+class DatabaseNotReadable(DataSourceError):
+    def __init__(self, data_source: DataSource):
+        super().__init__('Unable to reflect the database', data_source)
 
 
 class DataSourceIdentifierError(DataSourceError):

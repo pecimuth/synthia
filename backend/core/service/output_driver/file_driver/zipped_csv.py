@@ -2,7 +2,7 @@ from io import StringIO, BytesIO
 import csv
 from zipfile import ZIP_DEFLATED, ZipFile
 
-from typing import Union
+from typing import Optional
 
 from sqlalchemy import Table
 
@@ -48,7 +48,7 @@ class ZippedCsvOutputDriver(FileOutputDriver[bytes]):
         self._writer.writeheader()
         self._last_table_name = meta_table.name
 
-    def insert_row(self, row: GeneratedRow) -> Union[GeneratedRow, None]:
+    def insert_row(self, row: GeneratedRow) -> Optional[GeneratedRow]:
         self._writer.writerow(row)
         return row
 

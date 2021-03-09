@@ -31,4 +31,3 @@ class ExportRequisition:
 
     def __repr__(self):
         return '<ExportRequisition(rows={})>'.format(self._rows)
-

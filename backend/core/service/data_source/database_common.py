@@ -3,8 +3,10 @@ from typing import Dict, Union
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine, Connection
 from sqlalchemy.engine.url import URL
+from sqlalchemy.exc import SQLAlchemyError
 
 from core.model.data_source import DataSource
+from core.service.exception import DatabaseConnectionError
 from core.service.injector import HasCleanUp
 
 DataSourceOrUrl = Union[DataSource, str]
@@ -41,7 +43,10 @@ class DatabaseConnectionManager(HasCleanUp):
     def get_connection(self, data_source_url: DataSourceOrUrl):
         if data_source_url in self._connection:
             return self._connection[data_source_url]
-        conn = self.get_engine(data_source_url).connect()
+        try:
+            conn = self.get_engine(data_source_url).connect()
+        except SQLAlchemyError:
+            raise DatabaseConnectionError()
         self._connection[data_source_url] = conn
         return conn
 
