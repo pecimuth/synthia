@@ -53,7 +53,7 @@ export class TableComponent implements OnInit, OnDestroy {
   }
 
   deleteColumn(column: ColumnView) {
-    this.columnFacade.deleteColumn(this.table.id, column.id)
+    this.columnFacade.deleteColumn(column.id)
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe(
         () => null,

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { MessageView } from 'src/app/api/models/message-view';
+import { ProjectView } from 'src/app/api/models/project-view';
 import { TableCreate } from 'src/app/api/models/table-create';
 import { TableView } from 'src/app/api/models/table-view';
 import { TableService } from 'src/app/api/services';
@@ -24,10 +24,10 @@ export class TableFacadeService {
       );
   }
 
-  deleteTable(tableId: number): Observable<MessageView> {
+  deleteTable(tableId: number): Observable<ProjectView> {
     return this.tableService.deleteApiTableId(tableId)
       .pipe(
-        tap(() => this.activeProject.deleteTable(tableId))
+        tap((project) => this.activeProject.project$.next(project))
       );
   }
 }

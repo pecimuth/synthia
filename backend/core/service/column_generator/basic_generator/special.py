@@ -118,7 +118,8 @@ class PrimaryKeyGenerator(RegisteredGenerator, SingleColumnGenerator[int]):
     @classmethod
     def is_recommended_for(cls, meta_column: MetaColumn) -> bool:
         for constraint in meta_column.constraints:
-            if constraint.constraint_type == MetaConstraint.PRIMARY:
+            if constraint.constraint_type == MetaConstraint.PRIMARY \
+               and len(constraint.constrained_columns) == 1:
                 return True
         return False
 

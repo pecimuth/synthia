@@ -7,8 +7,8 @@ from core.model import base
 class ReferenceConstraint(base):
     __tablename__ = 'referenceconstraint'
 
-    column_id = Column(Integer, ForeignKey('metacolumn.id'))
-    constraint_id = Column(Integer, ForeignKey('metaconstraint.id'))
+    column_id = Column(Integer, ForeignKey('metacolumn.id', ondelete='CASCADE'))
+    constraint_id = Column(Integer, ForeignKey('metaconstraint.id', ondelete='CASCADE'))
     index = Column(Integer)
 
     column = relationship('MetaColumn',

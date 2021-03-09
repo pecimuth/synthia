@@ -6,15 +6,17 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from core.facade.column import ColumnFacade
 from core.facade.generator import GeneratorFacade
+from core.facade.project import ProjectFacade
 from core.facade.table import TableFacade
 from web.controller.auth import login_required
 from core.model.meta_column import MetaColumn
 from web.controller.util import bad_request, INVALID_INPUT, TOKEN_SECURITY, BAD_REQUEST_SCHEMA, COLUMN_NOT_FOUND, \
-    TABLE_NOT_FOUND, OK_REQUEST_SCHEMA, ok_request, validate_json, patch_all_from_json, \
+    TABLE_NOT_FOUND, validate_json, patch_all_from_json, \
     error_into_message
 from web.service.database import get_db_session
 from web.service.injector import inject
 from web.view.column import ColumnWrite, ColumnView, ColumnCreate
+from web.view.project import ProjectView
 
 column = Blueprint('column', __name__, url_prefix='/api')
 
@@ -124,6 +126,7 @@ def patch_column(meta_column: MetaColumn):
 @column.route('/column/<id>', methods=('DELETE',))
 @login_required
 @with_column_by_id
+@error_into_message
 @swag_from({
     'tags': ['Column'],
     'security': TOKEN_SECURITY,
@@ -137,12 +140,18 @@ def patch_column(meta_column: MetaColumn):
         }
     ],
     'responses': {
-        200: OK_REQUEST_SCHEMA,
+        200: {
+            'description': 'Updated project schema',
+            'schema': ProjectView
+        },
         400: BAD_REQUEST_SCHEMA
     }
 })
 def delete_column(meta_column: MetaColumn):
+    project_id = meta_column.table.project_id
     facade = inject(ColumnFacade)
     facade.delete(meta_column)
     get_db_session().commit()
-    return ok_request('Column deleted')
+    project_facade = inject(ProjectFacade)
+    project = project_facade.find_project(project_id)
+    return ProjectView().dump(project)

@@ -151,17 +151,6 @@ export class ActiveProjectService implements OnDestroy {
     );
   }
 
-  deleteTable(tableId: number) {
-    this.transform(
-      (project) => {
-        return {
-          ...project,
-          tables: project.tables.filter((other) => other.id !== tableId)
-        };
-      }
-    );
-  }
-
   addColumn(tableId: number, column: ColumnView) {
     const transformTable: TableTransformer = (table) => {
       return {
@@ -175,16 +164,6 @@ export class ActiveProjectService implements OnDestroy {
   patchColumn(tableId: number, column: ColumnView) {
     const transform: ColumnTransformer = () => column;
     this.transformColumn(tableId, column.id, transform);
-  }
-
-  deleteColumn(tableId: number, columnId: number) {
-    const transformTable: TableTransformer = (table) => {
-      return {
-        ...table,
-        columns: table.columns.filter((other) => other.id != columnId)
-      };
-    };
-    this.transformTable(tableId, transformTable);
   }
 
   patchGeneratorSetting(tableId: number, setting: GeneratorSettingView) {

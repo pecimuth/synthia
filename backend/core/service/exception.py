@@ -1,4 +1,5 @@
 from core.model.data_source import DataSource
+from core.model.generator_setting import GeneratorSetting
 from core.model.meta_column import MetaColumn
 
 
@@ -18,8 +19,10 @@ class GeneratorRegistrationError(SomeError):
 
 
 class GeneratorSettingError(SomeError):
-    def __init__(self, message: str, generator_setting):
-        super().__init__(message)
+    def __init__(self, message: str, generator_setting: GeneratorSetting):
+        super().__init__('{} ({} generator {})'.format(message,
+                                                       generator_setting.name,
+                                                       generator_setting.id))
         self.generator_setting = generator_setting
 
 

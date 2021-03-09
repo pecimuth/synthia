@@ -15,7 +15,7 @@ export class SnackService {
   }
 
   errorIntoSnack(err: any, defaultMessage: string = 'An error occured') {
-    if (err instanceof HttpErrorResponse && err.error.message) {
+    if (err?.error?.message) {
       this.snack(err.error.message);
     } else {
       this.snack(defaultMessage);

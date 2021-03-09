@@ -15,10 +15,10 @@ export class ResourceComponent implements OnInit, OnDestroy {
 
   @Input() dataSource: DataSourceView;
 
+  showProgress = false;
   private unsubscribe$ = new Subject();
   
   constructor(
-    private dataSourceService: DataSourceService,
     private dataSourceFacade: DataSourceFacadeService,
     private snackService: SnackService
   ) { }
@@ -32,12 +32,19 @@ export class ResourceComponent implements OnInit, OnDestroy {
   }
 
   import() {
-   this.dataSourceFacade.import(this.dataSource.id)
-    .pipe(takeUntil(this.unsubscribe$))
-    .subscribe(
-      () => this.snackService.snack('Successfully imported the schema'),
-      (err) => this.snackService.errorIntoSnack(err, 'Failed to import the schema')
-    );
+    this.showProgress = true;
+    this.dataSourceFacade.import(this.dataSource.id)
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe(
+        () => {
+          this.snackService.snack('Successfully imported the schema');
+          this.showProgress = false;
+        },
+        (err) => {
+          this.snackService.errorIntoSnack(err, 'Failed to import the schema');
+          this.showProgress = false;
+        }
+      );
   }
 
   delete() {

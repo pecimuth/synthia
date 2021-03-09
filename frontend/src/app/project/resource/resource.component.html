@@ -27,14 +27,15 @@
     </div>
   </mat-card-header>
 
-  <mat-card-content *ngIf="dataSource.driver && !dataSource.file_name">
-    <p>
+  <mat-card-content>
+    <p *ngIf="dataSource.driver && !dataSource.file_name">
       <small>User</small>
       {{ dataSource.usr }}
       <br>
       <small>Host</small>
       {{ dataSource.host }}<ng-container *ngIf="dataSource.port">:{{ dataSource.port }}</ng-container>
     </p>
+    <mat-progress-bar *ngIf="showProgress" mode="indeterminate"></mat-progress-bar>
   </mat-card-content>
 
   <div class="action-buttons">

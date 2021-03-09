@@ -1,6 +1,17 @@
+<mat-progress-bar *ngIf="showProgress" mode="indeterminate"></mat-progress-bar>
+
 <ng-container *ngIf="project && preview">
   <app-table-preview
     *ngFor="let table of project.tables"
     [table]="table"
     [preview]="preview.tables[table.name]"></app-table-preview>
 </ng-container>
+
+<mat-card *ngIf="errorMessage" class="margin">
+  <mat-card-header>
+    <mat-card-title class="margin-top">Preview not available</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <p class="margin">{{ errorMessage }}</p>
+  </mat-card-content>
+</mat-card>

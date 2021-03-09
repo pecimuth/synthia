@@ -19,6 +19,7 @@ export class ExportComponent implements OnInit {
   requisition: ExportRequisitionView;
   outputChoice: DataSourceView | string | null;
 
+  showProgress = false;
   private unsubscribe$ = new Subject();
 
   constructor(
@@ -47,11 +48,18 @@ export class ExportComponent implements OnInit {
   }
 
   generate() {
+    this.showProgress = true;
     this.exportService.export(this.outputChoice, this.requisition)
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe(
-        () => this.snackService.snack('Export completed'),
-        (err) => this.snackService.errorIntoSnack(err)
+        () => {
+          this.snackService.snack('Export completed');
+          this.showProgress = false;
+        },
+        (err) => {
+          this.snackService.errorIntoSnack(err);
+          this.showProgress = false;
+        }
       );
   }
 }

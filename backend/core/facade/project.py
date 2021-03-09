@@ -1,4 +1,4 @@
-from typing import Optional, NewType
+from typing import NewType
 
 from sqlalchemy.orm import Session
 

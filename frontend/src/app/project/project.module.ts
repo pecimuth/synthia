@@ -42,6 +42,7 @@ import { CreateTableFormComponent } from './table/create-table-form/create-table
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { GeneratorFieldComponent } from './table/generator-field/generator-field.component';
 import { ExportRequisitionComponent } from './export/export-requisition/export-requisition.component';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 
 @NgModule({
@@ -90,7 +91,8 @@ import { ExportRequisitionComponent } from './export/export-requisition/export-r
     MatMenuModule,
     MatFormFieldModule,
     DialogModule,
-    MatDatepickerModule
+    MatDatepickerModule,
+    MatProgressBarModule
   ]
 })
 export class ProjectModule { }

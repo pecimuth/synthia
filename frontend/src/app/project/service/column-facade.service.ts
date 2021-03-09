@@ -4,7 +4,7 @@ import { tap } from 'rxjs/operators';
 import { ColumnCreate } from 'src/app/api/models/column-create';
 import { ColumnView } from 'src/app/api/models/column-view';
 import { GeneratorSettingView } from 'src/app/api/models/generator-setting-view';
-import { MessageView } from 'src/app/api/models/message-view';
+import { ProjectView } from 'src/app/api/models/project-view';
 import { ColumnService } from 'src/app/api/services';
 import { ActiveProjectService } from './active-project.service';
 
@@ -41,10 +41,10 @@ export class ColumnFacadeService {
       );
   }
 
-  deleteColumn(tableId: number, columnId: number): Observable<MessageView> {
+  deleteColumn(columnId: number): Observable<ProjectView> {
     return this.columnService.deleteApiColumnId(columnId)
       .pipe(
-        tap(() => this.activeProject.deleteColumn(tableId, columnId))
+        tap((project) => this.activeProject.project$.next(project))
       );
   }
 }

@@ -5,8 +5,10 @@ import { ProjectView } from 'src/app/api/models/project-view';
 
 const BASE_COUNT = 10;
 
-interface Inclusion {
+interface InclusionValidity {
   included: boolean;
+  rowCountValid: boolean;
+  seedValid: boolean;
 }
 
 type RequisitionRows = ExportRequisitionView['rows'];
@@ -19,7 +21,7 @@ type RequisitionRow = RequisitionRows[0];
 })
 export class ExportRequisitionComponent implements OnInit {
 
-  requisitionRows: Array<RequisitionRow & Inclusion>;
+  requisitionRows: Array<RequisitionRow & InclusionValidity>;
   allIncluded = true;
   indeterminate = false;
 
@@ -35,6 +37,8 @@ export class ExportRequisitionComponent implements OnInit {
           row_count: BASE_COUNT,
           seed: index,
           included: true,
+          rowCountValid: true,
+          seedValid: true
         };
       });
     this.emit();
@@ -51,7 +55,7 @@ export class ExportRequisitionComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  include(row: RequisitionRow & Inclusion, event: MatCheckboxChange) {
+  include(row: RequisitionRow & InclusionValidity, event: MatCheckboxChange) {
     row.included = event.checked;
     this.allIncluded = row.included && this.requisitionRows.every((other) => other.included);
     this.indeterminate = !this.allIncluded && this.requisitionRows.some((other) => other.included);
@@ -65,29 +69,52 @@ export class ExportRequisitionComponent implements OnInit {
     this.emit();
   }
 
-  changeRowCount(row: RequisitionRow & Inclusion, newCount: string) {
-    row.row_count = parseInt(newCount) || 0;
-    this.emit();
+  changeRowCount(row: RequisitionRow & InclusionValidity, newCount: string) {
+    const parsed = parseInt(newCount);
+    row.rowCountValid = parsed > 0;
+    if (parsed > 0) {
+      row.row_count = parsed;
+      this.emit();
+    } else {
+      this.requisitionChanged.emit();
+    }
   }
 
-  changeSeed(row: RequisitionRow & Inclusion, newSeed: string) {
-    row.seed = parseInt(newSeed) || 0;
-    this.emit();
+  changeSeed(row: RequisitionRow & InclusionValidity, newSeed: string) {
+    const parsed = parseInt(newSeed);
+    row.seedValid = !isNaN(parsed);
+    if (!isNaN(parsed)) {
+      row.seed = parsed;
+      this.emit();
+    } else {
+      this.requisitionChanged.emit();
+    }
   }
 
   private emit() {
     const result: ExportRequisitionView = {
       rows: []
     };
+    let valid = true;
     this.requisitionRows
       .filter((row) => row.included)
       .forEach(
-        (item) => result.rows.push({
-          table_name: item.table_name,
-          row_count: item.row_count,
-          seed: item.seed
-        })
+        (row) => {
+          result.rows.push({
+            table_name: row.table_name,
+            row_count: row.row_count,
+            seed: row.seed
+          });
+          if (!row.seedValid || !row.rowCountValid) {
+            valid = false;
+          }
+        }
       );
-    this. requisitionChanged.emit(result);
+
+    if (valid) {
+      this.requisitionChanged.emit(result);
+    } else {
+      this.requisitionChanged.emit();
+    }
   }
 }

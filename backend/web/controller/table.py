@@ -9,9 +9,10 @@ from core.facade.table import TableFacade
 from core.model.meta_table import MetaTable
 from web.controller.auth import login_required
 from web.controller.util import TOKEN_SECURITY, BAD_REQUEST_SCHEMA, TABLE_NOT_FOUND, \
-    bad_request, OK_REQUEST_SCHEMA, ok_request, PROJECT_NOT_FOUND, validate_json
+    bad_request, PROJECT_NOT_FOUND, validate_json, error_into_message
 from web.service.database import get_db_session
 from web.service.injector import inject
+from web.view.project import ProjectView
 from web.view.table import TableWrite, TableView, TableCreate
 
 table = Blueprint('table', __name__, url_prefix='/api')
@@ -112,6 +113,7 @@ def patch_table(meta_table: MetaTable):
 @table.route('/table/<id>', methods=('DELETE',))
 @login_required
 @with_table_by_id
+@error_into_message
 @swag_from({
     'tags': ['Table'],
     'security': TOKEN_SECURITY,
@@ -125,12 +127,17 @@ def patch_table(meta_table: MetaTable):
         }
     ],
     'responses': {
-        200: OK_REQUEST_SCHEMA,
+        200: {
+            'description': 'Updated project schema',
+            'schema': ProjectView
+        },
         400: BAD_REQUEST_SCHEMA
     }
 })
 def delete_table(meta_table: MetaTable):
-    facade = inject(TableFacade)
-    facade.delete(meta_table)
+    table_facade = inject(TableFacade)
+    table_facade.delete(meta_table)
     get_db_session().commit()
-    return ok_request('Deleted the table')
+    project_facade = inject(ProjectFacade)
+    project = project_facade.find_project(meta_table.project_id)
+    return ProjectView().dump(project)

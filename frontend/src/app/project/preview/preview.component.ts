@@ -17,7 +17,9 @@ export class PreviewComponent implements OnInit {
 
   project: ProjectView;
   preview: PreviewView;
+  errorMessage: string;
 
+  showProgress = false;
   private unsubscribe$ = new Subject();
 
   constructor(
@@ -32,13 +34,28 @@ export class PreviewComponent implements OnInit {
         filter((project) => !!project),
         switchMap((project) => {
           this.project = project;
+          this.showProgress = true;
           return this.projectService.postApiProjectIdPreview({
             id: project.id,
             requisition: this.makeRequisition()
           });
         })
       )
-      .subscribe((preview) => this.preview = preview);
+      .subscribe(
+        (preview) => {
+          this.preview = preview;
+          this.showProgress = false;
+          this.errorMessage = null;
+        },
+        (err) => {
+          if (err?.error?.message) {
+            this.errorMessage = err.error.message;
+          } else {
+            this.errorMessage = 'An error occured';
+          }
+          this.showProgress = false;
+        }
+      );
   }
 
   private makeRequisition(): ExportRequisitionView {
