@@ -72,12 +72,14 @@ class ConstraintChecker:
 
     def check_row(self, row: GeneratedRow) -> bool:
         for constraint in self._meta_table.constraints:
-            if constraint.constraint_type == MetaConstraint.FOREIGN:
-                return self._tuple_is_none(row, constraint.constrained_columns) or \
-                       self._tuple_exists(row, constraint.id, constraint.constrained_columns)
-            elif self._should_check_uniqueness(constraint):
-                return self._tuple_is_none(row, constraint.constrained_columns) \
-                    or not self._tuple_exists(row, constraint.id, constraint.constrained_columns)
+            if constraint.constraint_type == MetaConstraint.FOREIGN \
+               and not self._tuple_is_none(row, constraint.constrained_columns) \
+               and not self._tuple_exists(row, constraint.id, constraint.constrained_columns):
+                return False
+            elif self._should_check_uniqueness(constraint) \
+                    and not self._tuple_is_none(row, constraint.constrained_columns) \
+                    and self._tuple_exists(row, constraint.id, constraint.constrained_columns):
+                return False
         for meta_column in self._meta_table.columns:
             if not meta_column.nullable and \
                meta_column.name in row and \
