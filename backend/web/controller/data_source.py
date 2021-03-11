@@ -10,7 +10,7 @@ from core.facade.project import ProjectFacade
 from core.model.data_source import DataSource
 from web.controller.auth import login_required
 from web.controller.util import BAD_REQUEST_SCHEMA, bad_request, PROJECT_NOT_FOUND, \
-    DATA_SOURCE_NOT_FOUND, ok_request, find_user_data_source, OK_REQUEST_SCHEMA, error_into_message, TOKEN_SECURITY, \
+    DATA_SOURCE_NOT_FOUND, ok_request, OK_REQUEST_SCHEMA, error_into_message, TOKEN_SECURITY, \
     FILE_SCHEMA, file_attachment_headers, validate_json, patch_all_from_json
 from web.service.database import get_db_session
 from web.service.injector import inject
@@ -27,8 +27,9 @@ def patch_database_data_source(data_source: DataSource):
 def with_data_source_by_id(view):
     @functools.wraps(view)
     def wrapped_view(id: int):
+        facade = inject(DataSourceFacade)
         try:
-            data_source = find_user_data_source(id)
+            data_source = facade.find_data_source(id)
         except NoResultFound:
             return bad_request(DATA_SOURCE_NOT_FOUND)
         return view(data_source)

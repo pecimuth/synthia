@@ -6,7 +6,6 @@ from core.model.meta_table import MetaTable
 from core.model.project import Project
 from core.service.column_generator.setting_facade import GeneratorSettingFacade, GeneratorList
 from core.service.deserializer import StructureDeserializer
-from core.service.exception import SomeError
 from core.service.generation_procedure.constraint_checker import ConstraintChecker
 from core.service.generation_procedure.database import GeneratedRow, GeneratedDatabase
 from core.service.generation_procedure.requisition import ExportRequisition

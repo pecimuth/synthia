@@ -1,12 +1,12 @@
 from marshmallow import Schema
-from marshmallow.fields import Str, Integer, Nested, List
+from marshmallow.fields import Str, Int, Nested, List
 from marshmallow.validate import OneOf
 
 from core.service.data_source import DataSourceConstants
 
 
 class DataSourceView(Schema):
-    id = Integer()
+    id = Int()
 
     file_name = Str(allow_none=True)
     mime_type = Str(allow_none=True)
@@ -16,11 +16,11 @@ class DataSourceView(Schema):
 
     usr = Str(allow_none=True)
     host = Str(allow_none=True)
-    port = Integer(allow_none=True)
+    port = Int(allow_none=True)
 
 
 class DataSourceDatabaseCreate(Schema):
-    project_id = Integer()
+    project_id = Int()
 
     driver = Str(validate=OneOf([DataSourceConstants.DRIVER_POSTGRES]))
     db = Str()
@@ -28,7 +28,7 @@ class DataSourceDatabaseCreate(Schema):
     usr = Str()
     pwd = Str()
     host = Str()
-    port = Integer()
+    port = Int()
 
 
 class DataSourceDatabaseWrite(Schema):
@@ -38,7 +38,7 @@ class DataSourceDatabaseWrite(Schema):
     usr = Str(required=False)
     pwd = Str(required=False)
     host = Str(required=False)
-    port = Integer(required=False)
+    port = Int(required=False)
 
 
 class DataSourceListView(Schema):

@@ -1,5 +1,5 @@
 from sqlalchemy import MetaData, Table, Integer, Column, String, DateTime, Boolean, ForeignKeyConstraint, \
-    PrimaryKeyConstraint, Index, UniqueConstraint
+    PrimaryKeyConstraint, UniqueConstraint
 
 
 def mock_book_author_publisher() -> MetaData:

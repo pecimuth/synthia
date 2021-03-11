@@ -1,16 +1,16 @@
 from marshmallow import Schema, post_load
-from marshmallow.fields import Integer, Str, List, Nested, Method
+from marshmallow.fields import Int, Str, List, Nested, Method
 from marshmallow.validate import Regexp
 
 from core.model.meta_constraint import MetaConstraint
 from core.model.meta_table import MetaTable
 from core.service.data_source.identifier import Identifier
-from web.view.column import ColumnBriefView, ColumnTableBriefView, ColumnView, SavedColumnView, ColumnIdView
+from web.view.column import ColumnBriefView, ColumnTableBriefView, ColumnView, SavedColumnView
 from web.view.generator import GeneratorSettingView
 
 
 class ConstraintView(Schema):
-    id = Integer()
+    id = Int()
     name = Str(allow_none=True)
     constraint_type = Str()
     constrained_columns = List(Nested(ColumnBriefView()))
@@ -28,7 +28,7 @@ class ConstraintView(Schema):
 
 
 class TableView(Schema):
-    id = Integer()
+    id = Int()
     name = Str()
     columns = List(Nested(ColumnView()))
     constraints = List(Nested(ConstraintView()))
@@ -44,7 +44,7 @@ class TableWrite(Schema):
 
 
 class TableCreate(TableWrite):
-    project_id = Integer()
+    project_id = Int()
 
 
 class TableListView(Schema):
@@ -56,7 +56,7 @@ class TableListView(Schema):
 
 
 class SavedConstraintView(Schema):
-    id = Integer()
+    id = Int()
     name = Str(allow_none=True)
     constraint_type = Str()
     constrained_column_ids = Method('get_constrained_column_ids', 'identity')
@@ -83,7 +83,7 @@ class SavedConstraintView(Schema):
 
 
 class SavedTableView(Schema):
-    id = Integer()
+    id = Int()
     name = Str()
     columns = List(Nested(SavedColumnView()))
     constraints = List(Nested(SavedConstraintView()))

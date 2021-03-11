@@ -1,5 +1,5 @@
 from marshmallow import Schema
-from marshmallow.fields import Integer, Str, Nested
+from marshmallow.fields import Int, Str, Nested
 
 
 class MessageView(Schema):
@@ -8,7 +8,7 @@ class MessageView(Schema):
 
 
 class UserView(Schema):
-    id = Integer()
+    id = Int()
     email = Str()
 
 

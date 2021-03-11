@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from core.facade.project import ProjectFacade, ProjectStorage
 from core.model.data_source import DataSource
+from core.model.project import Project
 from core.model.user import User
 from core.service.data_source.database_common import DatabaseConnectionManager
 from core.service.data_source.file_common import FileDataSourceFactory, is_file_allowed
@@ -30,6 +31,15 @@ class DataSourceFacade:
         self._project_storage = project_storage
         self._conn_manager = conn_manager
         self._project_facade = project_facade
+
+    def find_data_source(self, data_source_id: int) -> DataSource:
+        return self._db_session.query(DataSource).\
+            join(DataSource.project).\
+            filter(
+                DataSource.id == data_source_id,
+                Project.user == self._user
+            ).\
+            one()
 
     def export_to_data_source(self, data_source: DataSource, requisition: ExportRequisition):
         if data_source.driver is None:

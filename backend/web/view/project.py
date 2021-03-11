@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
 from marshmallow import Schema, post_load
-from marshmallow.fields import Integer, Str, Nested, List, Dict
-from marshmallow.validate import OneOf
+from marshmallow.fields import Int, Str, Nested, List, Dict
+from marshmallow.validate import OneOf, Range
 
 from core.model.project import Project
 from core.service.generation_procedure.requisition import ExportRequisition, ExportRequisitionRow
@@ -12,7 +12,7 @@ from web.view.table import TableView, SavedTableView
 
 
 class ProjectView(Schema):
-    id = Integer()
+    id = Int()
     name = Str()
     tables = List(Nested(TableView()))
     data_sources = List(Nested(DataSourceView()))
@@ -24,8 +24,8 @@ class ProjectListView(Schema):
 
 class ExportRequisitionRowView(Schema):
     table_name = Str()
-    row_count = Integer()
-    seed = Integer()
+    row_count = Int(validate=Range(min=1))
+    seed = Int()
 
     @post_load
     def make_row(self, data, **kwargs):
@@ -53,7 +53,7 @@ class PreviewView(Schema):
 
 
 class SavedProjectView(Schema):
-    id = Integer()
+    id = Int()
     name = Str()
     tables = List(Nested(SavedTableView()))
 

@@ -1,14 +1,10 @@
 import functools
 from typing import Type, Any, List, Dict
 
-from flask import g, request
+from flask import request
 from marshmallow import Schema
-from sqlalchemy.exc import SQLAlchemyError
 
-from core.model.data_source import DataSource
-from core.model.project import Project
 from core.service.exception import SomeError
-from web.service.database import get_db_session
 from web.view import MessageView
 
 
@@ -107,14 +103,3 @@ def validate_json(schema_factory: Type[Schema]):
             return view(*args, **kwargs)
         return wrapped_view
     return decorator
-
-
-def find_user_data_source(data_source_id: int) -> DataSource:
-    db_session = get_db_session()
-    return db_session.query(DataSource).\
-        join(DataSource.project).\
-        filter(
-            DataSource.id == data_source_id,
-            Project.user_id == g.user.id
-        ).\
-        one()

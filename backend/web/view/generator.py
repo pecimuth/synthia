@@ -1,7 +1,7 @@
 from typing import Type
 
 from marshmallow import Schema, ValidationError, post_load
-from marshmallow.fields import Integer, Str, Dict, Float, Bool, Raw, Nested, List, Method
+from marshmallow.fields import Int, Str, Dict, Float, Bool, Raw, Nested, List, Method
 from marshmallow.validate import Range
 
 from core.model.generator_setting import GeneratorSetting
@@ -10,7 +10,7 @@ from core.service.output_driver.file_driver.base import FileOutputDriver
 
 
 class GeneratorSettingView(Schema):
-    id = Integer()
+    id = Int()
     name = Str()
     params = Dict(keys=Str())
     null_frequency = Float()
@@ -33,11 +33,11 @@ class GeneratorSettingWrite(Schema):
 
 
 class GeneratorSettingCreate(Schema):
-    table_id = Integer()
+    table_id = Int()
     name = Str(validate=validate_generator_name)
     params = Dict(keys=Str())
     null_frequency = Float(validate=Range(min=0, max=1))
-    column_id = Integer(required=False)
+    column_id = Int(required=False)
 
 
 class GeneratorParam(Schema):
