@@ -8,14 +8,14 @@
         <mat-checkbox [checked]="allIncluded"
         [indeterminate]="indeterminate"
         class="margin-right"
-        (change)="includeAll($event)">
+        (change)="includeAll($event.checked)">
           Table
         </mat-checkbox>
       </th>
       <td mat-cell *matCellDef="let row">
         <mat-checkbox [checked]="row.included"
           class="margin-right"
-          (change)="include(row, $event)">
+          (change)="include(row, $event.checked)">
           {{ row.table_name }}
         </mat-checkbox>
       </td>

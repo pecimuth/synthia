@@ -32,7 +32,7 @@ export class OutputChoiceComponent implements OnInit {
     this.unsubscribe$.complete();
   }
 
-  onChange(value: DataSourceView | string) {
+  choose(value: DataSourceView | string) {
     this.outputChoiceChanged.emit(value);
   }
 }

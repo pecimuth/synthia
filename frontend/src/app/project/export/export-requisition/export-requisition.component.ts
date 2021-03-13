@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { MatCheckboxChange } from '@angular/material/checkbox';
 import { ExportRequisitionView } from 'src/app/api/models/export-requisition-view';
 import { ProjectView } from 'src/app/api/models/project-view';
 
@@ -14,6 +13,8 @@ interface InclusionValidity {
 type RequisitionRows = ExportRequisitionView['rows'];
 type RequisitionRow = RequisitionRows[0];
 
+type RowInclusionValidity = RequisitionRow & InclusionValidity;
+
 @Component({
   selector: 'app-export-requisition',
   templateUrl: './export-requisition.component.html',
@@ -21,7 +22,7 @@ type RequisitionRow = RequisitionRows[0];
 })
 export class ExportRequisitionComponent implements OnInit {
 
-  requisitionRows: Array<RequisitionRow & InclusionValidity>;
+  requisitionRows: Array<RowInclusionValidity>;
   allIncluded = true;
   indeterminate = false;
 
@@ -55,21 +56,21 @@ export class ExportRequisitionComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  include(row: RequisitionRow & InclusionValidity, event: MatCheckboxChange) {
-    row.included = event.checked;
+  include(row: RowInclusionValidity, included: boolean) {
+    row.included = included;
     this.allIncluded = row.included && this.requisitionRows.every((other) => other.included);
     this.indeterminate = !this.allIncluded && this.requisitionRows.some((other) => other.included);
     this.emit();
   }
 
-  includeAll(event: MatCheckboxChange) {
-    this.allIncluded = event.checked;
-    this.requisitionRows.forEach((row) => row.included = event.checked);
+  includeAll(included: boolean) {
+    this.allIncluded = included
+    this.requisitionRows.forEach((row) => row.included = included);
     this.indeterminate = false;
     this.emit();
   }
 
-  changeRowCount(row: RequisitionRow & InclusionValidity, newCount: string) {
+  changeRowCount(row: RowInclusionValidity, newCount: string) {
     const parsed = parseInt(newCount);
     row.rowCountValid = parsed > 0;
     if (parsed > 0) {
@@ -80,7 +81,7 @@ export class ExportRequisitionComponent implements OnInit {
     }
   }
 
-  changeSeed(row: RequisitionRow & InclusionValidity, newSeed: string) {
+  changeSeed(row: RowInclusionValidity, newSeed: string) {
     const parsed = parseInt(newSeed);
     row.seedValid = !isNaN(parsed);
     if (!isNaN(parsed)) {

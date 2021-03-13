@@ -4,7 +4,7 @@
   </mat-card-header>
   <mat-radio-group
     class="flex-col"
-    (change)="onChange($event.value)"
+    (change)="choose($event.value)"
     [value]="undefined">
     <mat-radio-button
       *ngFor="let driver of fileDrivers.items"
