@@ -39,15 +39,26 @@ export class ExportComponent implements OnInit {
     this.unsubscribe$.complete();
   }
 
-  requisitionChanged(requisition: ExportRequisitionView) {
+  get exportDisabled(): boolean {
+    return !this.requisition || this.outputChoice === undefined;
+  }
+
+  setRequisition(requisition: ExportRequisitionView) {
     this.requisition = requisition;
   }
 
-  outputChoiceChanged(outputChoice: DataSourceView | string) {
+  setOutputChoice(outputChoice: DataSourceView | string) {
     this.outputChoice = outputChoice;
   }
 
-  generate() {
+  /**
+   * Export with the given requisition and output choice,
+   * show the progress bar and display a message at the end.
+   */
+  export() {
+    if (this.exportDisabled) {
+      return;
+    }
     this.showProgress = true;
     this.exportService.export(this.outputChoice, this.requisition)
       .pipe(takeUntil(this.unsubscribe$))

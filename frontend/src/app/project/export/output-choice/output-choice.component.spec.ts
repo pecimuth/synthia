@@ -1,7 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { OutputFileDriverListView } from 'src/app/api/models/output-file-driver-list-view';
 import { GeneratorService } from 'src/app/api/services';
+import { Mock } from 'src/app/test/mock';
 
 import { OutputChoiceComponent } from './output-choice.component';
 
@@ -14,12 +14,7 @@ describe('OutputChoiceComponent', () => {
     ['getApiOutputFileDrivers']
   );
 
-  const outputFileDrivers: OutputFileDriverListView = {
-    items: [
-      {driver_name: 'foo', display_name: 'Foo', mime_type: 'application/foo'},
-      {driver_name: 'bar', display_name: 'Bar', mime_type: 'application/bar'}
-    ]
-  };
+  const outputFileDrivers = Mock.outputFileDrivers();
   generatorServiceSpy.getApiOutputFileDrivers.and.returnValue(of(outputFileDrivers));
 
   beforeEach(async(() => {

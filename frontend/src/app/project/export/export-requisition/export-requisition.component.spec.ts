@@ -1,20 +1,11 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { ExportRequisitionView } from 'src/app/api/models/export-requisition-view';
-import { ProjectView } from 'src/app/api/models/project-view';
-
 import { ExportRequisitionComponent } from './export-requisition.component';
+import { Mock } from 'src/app/test/mock';
 
 describe('ExportRequisitionComponent', () => {
   let component: ExportRequisitionComponent;
   let fixture: ComponentFixture<ExportRequisitionComponent>;
-
-  const project: ProjectView = {
-    tables: [
-      {name: 'Foo'},
-      {name: 'Bar'},
-      {name: 'Baz'}
-    ]
-  };
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -34,6 +25,7 @@ describe('ExportRequisitionComponent', () => {
   });
 
   it('should emit on project assignment', () => {
+    const project = Mock.project();
     component.requisitionChanged.subscribe(
       (requisition: ExportRequisitionView) => {
         expect(requisition?.rows?.length).toBe(project.tables.length);

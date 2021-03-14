@@ -1,14 +1,17 @@
 <mat-progress-bar *ngIf="showProgress" mode="indeterminate"></mat-progress-bar>
 
 <div *ngIf="project" class="row flex-wrap">
-  <app-export-requisition [project]="project" (requisitionChanged)="requisitionChanged($event)"></app-export-requisition>
+  <app-export-requisition [project]="project" (requisitionChanged)="setRequisition($event)"></app-export-requisition>
   <div>
-    <app-output-choice [project]="project" (outputChoiceChanged)="outputChoiceChanged($event)"></app-output-choice>
-    <mat-card class="margin-left margin-top export-card" *ngIf="requisition && outputChoice !== undefined">
+    <app-output-choice [project]="project" (outputChoiceChanged)="setOutputChoice($event)"></app-output-choice>
+    <mat-card class="margin-left margin-top export-card">
       <mat-card-header>
         <mat-card-title class="margin-top">Export</mat-card-title>
       </mat-card-header>
-      <button mat-raised-button color="accent" (click)="generate()">Generate</button>
+      <button mat-raised-button
+              color="accent"
+              (click)="export()"
+              [disabled]="exportDisabled">Generate</button>
     </mat-card>
   </div>
 </div>
