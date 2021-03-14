@@ -1,7 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { SnackService } from 'src/app/service/snack.service';
-import { Spy, Mock } from 'src/app/test';
+import { Spy } from 'src/app/test';
 import { ActiveProjectService } from '../service/active-project.service';
 import { ExportService } from '../service/export.service';
 import { HarnessLoader } from '@angular/cdk/testing';
@@ -14,18 +14,12 @@ describe('ExportComponent', () => {
   let fixture: ComponentFixture<ExportComponent>;
   let loader: HarnessLoader;
 
-  const project = Mock.project();
-  const activeProjectSpy = jasmine.createSpyObj(
-    'ActiveProjectService',
-    [],
-    {'project$': of(project)}
-  );
-
   const exportServiceSpy = jasmine.createSpyObj(
     'ExportService',
     ['export']
   );
 
+  const activeProjectSpy = Spy.activeProjectObservableOnly();
   const snackServiceSpy = Spy.snackService();
 
   beforeEach(async(() => {

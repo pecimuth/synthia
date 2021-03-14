@@ -1,14 +1,29 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialog } from '@angular/material/dialog';
+import { SnackService } from 'src/app/service/snack.service';
+import { Spy } from 'src/app/test';
+import { DataSourceFacadeService } from '../service/data-source-facade.service';
 
 import { ResourceComponent } from './resource.component';
 
 describe('ResourceComponent', () => {
   let component: ResourceComponent;
   let fixture: ComponentFixture<ResourceComponent>;
+  const dialogSpy = Spy.matDialog();
+  const snackServiceSpy = Spy.snackService();
+  const dataSourceFacadeSpy = jasmine.createSpyObj(
+    'DataSourceFacade',
+    ['import', 'delete', 'download']
+  );
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ResourceComponent ]
+      declarations: [ ResourceComponent ],
+      providers: [
+        {provide: MatDialog, useValue: dialogSpy},
+        {provide: SnackService, useValue: snackServiceSpy},
+        {provide: DataSourceFacadeService, useValue: dataSourceFacadeSpy}
+      ]
     })
     .compileComponents();
   }));
