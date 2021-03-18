@@ -13,12 +13,19 @@ DataSourceOrUrl = Union[DataSource, str]
 
 
 class DatabaseConnectionManager(HasCleanUp):
+    """Holds engines and their respective connections.
+
+    The class makes it possible to share the resource by different parts
+    of the application.
+    An engine/connection is identified by its URL or data source object.
+    """
     def __init__(self):
         self._engine: Dict[DataSourceOrUrl, Engine] = {}
         self._connection: Dict[DataSourceOrUrl, Connection] = {}
 
     @classmethod
     def create_database_source_engine(cls, data_source_url: DataSourceOrUrl) -> Engine:
+        """Create and return an engine without storing it."""
         if isinstance(data_source_url, DataSource):
             data_source = data_source_url
             url = URL(
@@ -34,6 +41,7 @@ class DatabaseConnectionManager(HasCleanUp):
         return create_engine(url)
 
     def get_engine(self, data_source_url: DataSourceOrUrl) -> Engine:
+        """Find or create an engine and return it."""
         if data_source_url in self._engine:
             return self._engine[data_source_url]
         engine = self.create_database_source_engine(data_source_url)
@@ -41,6 +49,7 @@ class DatabaseConnectionManager(HasCleanUp):
         return engine
 
     def get_connection(self, data_source_url: DataSourceOrUrl):
+        """Find or establish a connection and return it."""
         if data_source_url in self._connection:
             return self._connection[data_source_url]
         try:
@@ -51,6 +60,7 @@ class DatabaseConnectionManager(HasCleanUp):
         return conn
 
     def clean_up(self):
+        """Close all connections."""
         while self._connection:
             _, conn = self._connection.popitem()
             conn.close()

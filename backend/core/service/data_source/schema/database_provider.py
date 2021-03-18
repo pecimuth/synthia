@@ -1,4 +1,4 @@
-from typing import List, Union, Dict
+from typing import List, Dict, Optional
 
 from sqlalchemy import Column, Table, MetaData, Constraint, CheckConstraint, UniqueConstraint, PrimaryKeyConstraint, \
     ForeignKeyConstraint
@@ -19,9 +19,11 @@ from core.service.types import get_column_type
 
 
 class DatabaseSchemaProvider(SchemaProvider):
+    """Read the schema of a database, including integrity constraints."""
+
     def __init__(self, data_source: DataSource, injector: Injector):
         super().__init__(data_source, injector)
-        self._table_list: Union[List[MetaTable], None] = []
+        self._table_list: Optional[List[MetaTable]] = []
         self._column: Dict[str, Dict[str, MetaColumn]] = {}
 
     def read_structure(self) -> List[MetaTable]:
@@ -51,6 +53,8 @@ class DatabaseSchemaProvider(SchemaProvider):
         return meta_column
 
     def _make_meta_table(self, table: Table) -> MetaTable:
+        """Construct a MetaTable from an SQLAlchemy table, including columns,
+        excluding constraints."""
         meta_table = MetaTable(name=table.name, columns=[])
         self._column[table.name] = {}
         for col in table.c.values():
@@ -60,17 +64,20 @@ class DatabaseSchemaProvider(SchemaProvider):
         return meta_table
 
     def _add_meta_constraints(self, meta: MetaData):
+        """Add constraints to each meta table."""
         for meta_table, table in zip(self._table_list, meta.tables.values()):
             for constraint in table.constraints:
                 meta_constraint = self._make_meta_constraint(meta_table, constraint)
                 meta_table.constraints.append(meta_constraint)
 
     def _make_meta_constraint(self, meta_table: MetaTable, constraint: Constraint) -> MetaConstraint:
+        """Create a MetaConstraint from an SQLAlchemy constraint."""
         meta_constraint = MetaConstraint(
             name=constraint.name,
             table=meta_table
         )
         if hasattr(constraint, 'columns'):
+            # these are constrained columns
             column_by_name = self._column[meta_table.name]
             for index, column in enumerate(constraint.columns):
                 meta_column = column_by_name[column.name]
@@ -87,6 +94,8 @@ class DatabaseSchemaProvider(SchemaProvider):
             meta_constraint.constraint_type = MetaConstraint.PRIMARY
         elif isinstance(constraint, ForeignKeyConstraint):
             meta_constraint.constraint_type = MetaConstraint.FOREIGN
+            # elements are ForeignKey instances, mapping one constrained column
+            # to the referenced column
             for index, foreign_key in enumerate(constraint.elements):
                 column_by_name = self._column[foreign_key.column.table.name]
                 meta_column = column_by_name[foreign_key.column.name]

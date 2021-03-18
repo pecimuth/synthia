@@ -16,6 +16,12 @@ JsonTableDict = Dict[str, JsonTable]
 
 
 class JsonSchemaProvider(SchemaProvider):
+    """Read the structure of a JSON file.
+
+    The JSON must be of type Dict[str, List[Dict[str, AnyBasicType]]].
+    The string in the outer dictionary defines a table name, while the inner
+    string defines a column name. Both must be valid identifiers.
+    """
     def read_structure(self) -> List[MetaTable]:
         with open(self._data_source.file_path) as file:
             obj = json.loads(file.read())

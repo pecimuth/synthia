@@ -7,6 +7,16 @@ ColumnTypes = Dict[str, Types]
 
 
 class TypeDeduction:
+    """Perform type deduction for tabular data.
+
+    Suppose we have the following sequence of values in a column:
+    `None, None, 1, 2, 3`
+    The type is definitely an int, but we only know from the third
+    element. We also detect inconsistent types:
+    `None, 1, 'string'`
+    An exception is raised when the third element is processed.
+    Sequences without None values are assumed to be NOT NULL.
+    """
     Row = Dict[str, AnyBasicType]
 
     def __init__(self):
@@ -14,6 +24,8 @@ class TypeDeduction:
         self._nullable: Set[str] = set()
 
     def next_row(self, row: Row):
+        """Process another row of data, deduce types
+        and check for inconsistencies"""
         column_types = self._deduct_types(row)
         self._update_nullable(row)
         if self._types is None:
@@ -24,12 +36,15 @@ class TypeDeduction:
             self._merge_with(column_types)
 
     def get_types(self) -> ColumnTypes:
+        """Return the deduced types. Columns with None values
+        are assumed to be string."""
         return {
             key: Types.STRING if value == Types.NONE else value
             for key, value in self._types.items()
         }
 
     def is_nullable(self, col_name: str) -> bool:
+        """Return whether the column identified by name is nullable."""
         return col_name in self._nullable
 
     @staticmethod

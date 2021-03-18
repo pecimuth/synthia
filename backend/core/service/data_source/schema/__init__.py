@@ -18,11 +18,23 @@ from core.service.injector import Injector
 
 
 class DataSourceSchemaImport:
+    """Import schema from a data source, update the project structure,
+    assign generators and estimate values in the new tables.
+    """
+
     def __init__(self, project: Project, injector: Injector):
         self._project = project
         self._injector = injector
 
     def import_schema(self, data_source: DataSource, db_session: Session):
+        """Import schema from the data source to the project.
+
+        Tables are compared by name. If the table already exists, it is replaced.
+        If it doesn't, it is added.
+        Commits the current transaction, so that columns and constraints are properly bound.
+        It may be possible to avoid this. However, it seems like the simplest solution.
+        Generator assignment and parameter estimation is performed for the updated tables.
+        """
         provider = self._create_schema_provider(data_source)
         new_tables = provider.read_structure()
         table_by_name = {

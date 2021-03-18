@@ -11,9 +11,18 @@ from core.service.types import Types
 
 
 class CsvSchemaProvider(SchemaProvider):
+    """Read the schema from a CSV file.
+
+    One file produces one table. We differentiate between strings and floats
+    only. String values are required to be enclosed in double quotes.
+    The first row is assumed to define the column names, which must also
+    be double quoted. The file name and column names must be valid identifiers.
+    Missing values are interpreted as empty strings, it is not possible
+    to define None value.
+    """
     def read_structure(self) -> List[MetaTable]:
         with open(self._data_source.file_path) as file:
-            reader = csv.DictReader(file)
+            reader = csv.DictReader(file, quoting=csv.QUOTE_NONNUMERIC)
             type_deduction = TypeDeduction()
             for row in reader:
                 type_deduction.next_row(row)

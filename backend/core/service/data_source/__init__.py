@@ -1,4 +1,7 @@
 class DataSourceConstants:
+    """Common constants including file extensions, mime types
+    and driver names.
+    """
     EXT_CSV = 'csv'
     EXT_JSON = 'json'
     EXT_SQLITE = ['db', 'sql', 'sqlite', 'sqlite3']

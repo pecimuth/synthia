@@ -14,7 +14,14 @@ class SchemaProvider(ABC):
 
     @abstractmethod
     def read_structure(self) -> List[MetaTable]:
+        """Read the schema from the data source and deserialize it.
+
+        The columns have no assigned generators and the tables
+        are not assigned to a project. The implementation of this method
+        should check the validity of table and column identifiers.
+        """
         pass
 
     def get_identifiers(self) -> Iterable[Identifier]:
+        """Return the list of all identifiers in a data source."""
         return structure_to_identifiers(self.read_structure())
