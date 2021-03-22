@@ -1,5 +1,7 @@
 import os
+from typing import Callable
 
+from sqlalchemy import MetaData
 from sqlalchemy.orm import Session
 
 from core.facade.project import ProjectFacade, ProjectStorage
@@ -70,7 +72,11 @@ class DataSourceFacade:
         except FileNotFoundError:
             raise DataSourceError('File not found', data_source)
 
-    def create_mock_database(self, project_id: int, file_name: str = 'books.db') -> DataSource:
+    def create_mock_database(self,
+                             project_id: int,
+                             file_name: str = 'books.db',
+                             mock_factory: Callable[[], MetaData] = lambda: mock_book_author_publisher()
+                             ) -> DataSource:
         if not is_file_allowed(file_name):
             raise FileNotAllowedError()
         project = self._project_facade.find_project(project_id)
@@ -87,7 +93,7 @@ class DataSourceFacade:
             raise DataSourceError('The file could not be saved', data_source)
         # create the schema
         engine = self._conn_manager.get_engine(data_source)
-        mock_meta = mock_book_author_publisher()
+        mock_meta = mock_factory()
         mock_meta.bind = engine
         mock_meta.create_all()
         return data_source

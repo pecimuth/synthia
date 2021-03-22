@@ -41,7 +41,7 @@ def client() -> FlaskClient:
     shutil.rmtree(project_storage)
 
 
-@pytest.fixture(scope='class')
+@pytest.fixture
 def session(client) -> Session:
     engine = create_db_engine(client.application)
     session = Session(bind=engine)

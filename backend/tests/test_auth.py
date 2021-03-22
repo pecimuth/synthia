@@ -44,5 +44,7 @@ class TestAuth:
     def test_not_authenticated(self, client: FlaskClient):
         result = client.get('/api/auth/user')
         assert result.status_code == 400
+
+    def test_bad_token(self, client: FlaskClient):
         result = client.get('/api/auth/user', headers={'Authorization': 'Bearer made.up.token'})
         assert result.status_code == 400

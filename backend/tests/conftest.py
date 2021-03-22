@@ -4,5 +4,6 @@ pytest_plugins = [
     'tests.fixtures.project',
     'tests.fixtures.data_source',
     'tests.fixtures.data_source_csv',
-    'tests.fixtures.data_source_json'
+    'tests.fixtures.data_source_json',
+    'tests.fixtures.data_source_circular'
 ]

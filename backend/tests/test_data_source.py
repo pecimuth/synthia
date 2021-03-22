@@ -70,3 +70,14 @@ class TestDataSource:
         json = response.get_json()
         validator = ProjectViewMetaValidator(json, mock_csv_meta, False)
         validator.validate()
+
+    def test_import_from_circular(self,
+                                  client: FlaskClient,
+                                  user_mock_circular_database: UserMockDataSource,
+                                  circular_meta: MetaData,
+                                  auth_header: dict):
+        url = '/api/data-source/{}/import'.format(user_mock_circular_database.data_source.id)
+        response = client.post(url, headers=auth_header)
+        json = response.get_json()
+        validator = ProjectViewMetaValidator(json, circular_meta)
+        validator.validate()
