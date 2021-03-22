@@ -23,8 +23,8 @@ def user_mock_database(injector, session, user_project) -> UserMockDataSource:
         data_source=data_source,
         **asdict(user_project)
     )
-    facade.delete(data_source)
-    session.flush()
+    if session.is_active:
+        facade.delete(data_source)
 
 
 @pytest.fixture

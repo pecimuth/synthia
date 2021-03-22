@@ -25,5 +25,5 @@ def user_project(injector, session, user) -> UserProject:
         user=user,
         project=project
     )
-    session.delete(project)
-    session.flush()
+    if session.is_active:
+        session.delete(project)

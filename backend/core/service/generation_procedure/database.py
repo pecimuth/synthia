@@ -23,3 +23,6 @@ class GeneratedDatabase:
 
     def get_dict(self) -> Dict[str, GeneratedTable]:
         return self._tables
+
+    def __contains__(self, table_name: str) -> bool:
+        return table_name in self._tables

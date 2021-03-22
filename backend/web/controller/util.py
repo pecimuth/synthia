@@ -5,6 +5,7 @@ from flask import request
 from marshmallow import Schema
 
 from core.service.exception import SomeError
+from web.service.database import get_db_session
 from web.view import MessageView
 
 
@@ -61,6 +62,8 @@ def error_into_message(view):
         try:
             return view(*args, **kwargs)
         except SomeError as e:
+            # rollback may make more sense here
+            get_db_session().commit()
             return bad_request(e.message)
     return wrapped_view
 

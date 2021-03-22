@@ -30,6 +30,8 @@ class ConstraintChecker:
                 continue
             self._unique_tuples[constraint.id] = set()
             ref_table: MetaTable = constraint.referenced_columns[0].table
+            if ref_table.name not in self._database:
+                continue
             for row in self._database.get_table(ref_table.name):
                 self._insert_tuple(row, constraint.id, constraint.referenced_columns)
 

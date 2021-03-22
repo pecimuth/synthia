@@ -14,8 +14,8 @@ def user(injector, session) -> User:
     session.commit()
     injector.provide(User, user)
     yield user
-    session.delete(user)
-    session.flush()
+    if session.is_active:
+        session.delete(user)
 
 
 @pytest.fixture

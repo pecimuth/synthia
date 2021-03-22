@@ -7,6 +7,7 @@ from sqlalchemy import MetaData, Table, Column, Integer, ForeignKey
 from core.facade.data_source import DataSourceFacade
 from tests.fixtures.data_source import UserMockDataSource
 
+CIRCULAR_FK_NAME = 'fid'
 CIRCULAR_TABLES = ('A', 'B', 'C')
 
 
@@ -25,7 +26,7 @@ def circular_meta(request) -> MetaData:
             table_name,
             meta,
             Column('pid', Integer, primary_key=True),
-            Column('fid',
+            Column(CIRCULAR_FK_NAME,
                    Integer,
                    ForeignKey('{}.pid'.format(next_table_name)),
                    nullable=table_name == request.param),
@@ -47,5 +48,13 @@ def user_mock_circular_database(injector,
         data_source=data_source,
         **asdict(user_project)
     )
-    facade.delete(data_source)
-    session.flush()
+    if session.is_active:
+        facade.delete(data_source)
+
+
+@pytest.fixture
+def user_import_circular_database(injector, session, user_mock_circular_database) -> UserMockDataSource:
+    facade = injector.get(DataSourceFacade)
+    facade.import_schema(user_mock_circular_database.data_source)
+    session.commit()
+    return user_mock_circular_database

@@ -142,6 +142,7 @@ def generate_project_preview(proj: Project):
     requisition = ExportRequisitionView().load(request.json)
     facade = inject(ProjectFacade)
     tables = facade.generate_preview(proj, requisition)
+    get_db_session().commit()
     return PreviewView().dump({'tables': tables})
 
 

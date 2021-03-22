@@ -1,9 +1,12 @@
 from flask.testing import FlaskClient
+from sqlalchemy import MetaData, Table
 from sqlalchemy.orm import Session
 
 from core.model.project import Project
+from core.service.generation_procedure.requisition import ExportRequisitionRow
+from tests.fixtures.data_source import UserMockDataSource
 from tests.fixtures.project import UserProject
-from web.view.project import ProjectView, ProjectListView, PreviewView
+from web.view.project import ProjectView, ProjectListView, PreviewView, ExportRequisitionRowView
 
 
 class TestProject:
@@ -43,3 +46,28 @@ class TestProject:
         response = client.post(url, json=data, headers=auth_header)
         json = response.get_json()
         assert not PreviewView().validate(json)
+
+    def test_preview_circular(self,
+                              client: FlaskClient,
+                              user_import_circular_database: UserMockDataSource,
+                              circular_meta: MetaData,
+                              auth_header: dict):
+        # create the preview
+        row_count = 10
+        url = '/api/project/{}/preview'.format(user_import_circular_database.project.id)
+
+        def make_requisition_row(table: Table):
+            row = ExportRequisitionRow(table_name=table.name, row_count=row_count, seed=42)
+            return ExportRequisitionRowView().dump(row)
+        data = {
+            'rows': list(map(make_requisition_row, circular_meta.tables.values()))
+        }
+        response = client.post(url, json=data, headers=auth_header)
+        json = response.get_json()
+        assert not PreviewView().validate(json)
+
+        for table_name in circular_meta.tables.keys():
+            # assert that not all FKs in a table are None
+            rows = json['tables'][table_name]
+            is_fk_none = map(lambda row: row['fid'] is None, rows)
+            assert not all(is_fk_none)

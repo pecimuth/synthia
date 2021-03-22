@@ -4,7 +4,7 @@ import tempfile
 
 import pytest
 from flask.testing import FlaskClient
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 
 from core import model
 from core.facade.project import ProjectStorage
@@ -44,10 +44,12 @@ def client() -> FlaskClient:
 @pytest.fixture
 def session(client) -> Session:
     engine = create_db_engine(client.application)
-    session = Session(bind=engine)
+    maker = sessionmaker(bind=engine, expire_on_commit=False)
+    session = maker()
     try:
         yield session
-        session.commit()
+        if session.is_active:
+            session.commit()
     finally:
         session.close()
 
