@@ -12,7 +12,10 @@ from web.view.data_source import DataSourceView
 
 
 class TestDataSource:
+    """Tests related to the data source endpoints."""
+
     def test_create_mock(self, client: FlaskClient, user_project: UserProject, auth_header: dict):
+        """Try to create the mock database."""
         data = {
             'project_id': user_project.project.id
         }
@@ -24,6 +27,7 @@ class TestDataSource:
                               client: FlaskClient,
                               user_mock_database: UserMockDataSource,
                               auth_header: dict):
+        """Test schema import from the mock database."""
         url = '/api/data-source/{}/import'.format(user_mock_database.data_source.id)
         response = client.post(url, headers=auth_header)
         json = response.get_json()
@@ -36,6 +40,7 @@ class TestDataSource:
                          user_project: UserProject,
                          mock_json_file: Tuple[BytesIO, str],
                          auth_header: dict):
+        """Test upload of a JSON file."""
         data = {
             'project_id': str(user_project.project.id),
             'data_file': mock_json_file
@@ -54,6 +59,7 @@ class TestDataSource:
                               user_mock_json: UserMockDataSource,
                               mock_json_meta: MetaData,
                               auth_header: dict):
+        """Test schema import from a JSON file."""
         url = '/api/data-source/{}/import'.format(user_mock_json.data_source.id)
         response = client.post(url, headers=auth_header)
         json = response.get_json()
@@ -65,6 +71,7 @@ class TestDataSource:
                              user_mock_csv: UserMockDataSource,
                              mock_csv_meta: MetaData,
                              auth_header: dict):
+        """Test schema import from a CSV file."""
         url = '/api/data-source/{}/import'.format(user_mock_csv.data_source.id)
         response = client.post(url, headers=auth_header)
         json = response.get_json()
@@ -76,6 +83,8 @@ class TestDataSource:
                                   user_mock_circular_database: UserMockDataSource,
                                   circular_meta: MetaData,
                                   auth_header: dict):
+        """Test schema import from data source, where the data source
+        is a database with circular schema."""
         url = '/api/data-source/{}/import'.format(user_mock_circular_database.data_source.id)
         response = client.post(url, headers=auth_header)
         json = response.get_json()

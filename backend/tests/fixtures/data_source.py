@@ -11,11 +11,13 @@ from tests.fixtures.project import UserProject
 
 @dataclass
 class UserMockDataSource(UserProject):
+    """User, their project and its data source."""
     data_source: DataSource
 
 
 @pytest.fixture
 def user_mock_database(injector, session, user_project) -> UserMockDataSource:
+    """Create mock database in the user's project."""
     facade = injector.get(DataSourceFacade)
     data_source = facade.create_mock_database(user_project.project.id)
     session.commit()
@@ -29,6 +31,8 @@ def user_mock_database(injector, session, user_project) -> UserMockDataSource:
 
 @pytest.fixture
 def data_source_mock_maker(injector, session, user_project) -> Callable[[BytesIO, str], UserMockDataSource]:
+    """Return a callable, that takes file content and file name and creates
+    a data source in the user's project."""
     def maker(file_content: BytesIO, file_name: str) -> UserMockDataSource:
         facade = injector.get(DataSourceFacade)
         data_source = facade.create_data_source_for_file(user_project.project.id, file_name)

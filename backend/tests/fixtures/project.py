@@ -9,6 +9,7 @@ from core.model.user import User
 
 @dataclass
 class UserProject:
+    """User and their project."""
     user: User
     project: Project
 
@@ -18,6 +19,7 @@ PROJECT_NAME = 'My Test Project'
 
 @pytest.fixture
 def user_project(injector, session, user) -> UserProject:
+    """Create a project for the user."""
     facade = injector.get(ProjectFacade)
     project = facade.create_project(PROJECT_NAME)
     session.commit()

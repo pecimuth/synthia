@@ -17,6 +17,9 @@ from web.service.database import create_db_engine
 
 @pytest.fixture(scope='class')
 def client() -> FlaskClient:
+    """Create the test client with temp storage and temp
+    sqlite database.
+    """
     db_fd, db_file = tempfile.mkstemp()
     project_storage = tempfile.mkdtemp()
     app = create_app(
@@ -43,6 +46,7 @@ def client() -> FlaskClient:
 
 @pytest.fixture
 def session(client) -> Session:
+    """Create a session for the temp database."""
     engine = create_db_engine(client.application)
     maker = sessionmaker(bind=engine, expire_on_commit=False)
     session = maker()
@@ -56,6 +60,10 @@ def session(client) -> Session:
 
 @pytest.fixture
 def injector(client, session) -> Injector:
+    """Create an injector for the testing client/
+
+    Session, SecretKey and ProjectStorage is provided.
+    """
     injector = Injector()
     injector.provide(Session, session)
     injector.provide(SecretKey, client.application.config['SECRET_KEY'])

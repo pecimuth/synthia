@@ -10,6 +10,7 @@ from tests.fixtures.data_source import UserMockDataSource
 
 @pytest.fixture
 def mock_json_file() -> Tuple[BytesIO, str]:
+    """Create JSON file io and filename."""
     obj = {
         'person': [
             {'name': 'Foo Bar', 'age': 12, 'nothing': None, 'flag': True},
@@ -30,6 +31,7 @@ def mock_json_file() -> Tuple[BytesIO, str]:
 
 @pytest.fixture
 def mock_json_meta() -> MetaData:
+    """Return meta for the mock JSON file."""
     meta = MetaData()
     Table(
         'person',
@@ -52,4 +54,5 @@ def mock_json_meta() -> MetaData:
 
 @pytest.fixture
 def user_mock_json(data_source_mock_maker, mock_json_file) -> UserMockDataSource:
+    """Create a data source for the JSON mock file."""
     yield from data_source_mock_maker(*mock_json_file)

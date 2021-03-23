@@ -8,6 +8,11 @@ from web.view.project import ProjectView
 
 
 class ProjectViewMetaValidator:
+    """Validate the structure of a project returned by an endpoint.
+
+    Set of tables, columns and optionally constraints are compared
+    with the provided source meta information.
+    """
     def __init__(self, project_view: dict, meta: MetaData, check_constraints: bool = True):
         self._project_view = project_view
         self._meta = meta

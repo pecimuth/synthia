@@ -39,6 +39,8 @@ def user_mock_circular_database(injector,
                                 session,
                                 user_project,
                                 circular_meta) -> UserMockDataSource:
+    """Create a database and data source with the circular schema,
+    add it to the user's project."""
     facade = injector.get(DataSourceFacade)
     data_source = facade.create_mock_database(user_project.project.id,
                                               file_name='circular.db',
@@ -54,6 +56,8 @@ def user_mock_circular_database(injector,
 
 @pytest.fixture
 def user_import_circular_database(injector, session, user_mock_circular_database) -> UserMockDataSource:
+    """Return the circular data source and import its schema
+    to the user's project."""
     facade = injector.get(DataSourceFacade)
     facade.import_schema(user_mock_circular_database.data_source)
     session.commit()

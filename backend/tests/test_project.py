@@ -10,6 +10,7 @@ from web.view.project import ProjectView, ProjectListView, PreviewView, ExportRe
 
 
 class TestProject:
+    """Tests related to the project endpoints."""
 
     def test_projects(self, client: FlaskClient, auth_header: dict):
         response = client.get('/api/projects', headers=auth_header)
@@ -39,6 +40,7 @@ class TestProject:
         assert response.status_code == 400
 
     def test_preview(self, client: FlaskClient, user_project: UserProject, auth_header: dict):
+        """Test the preview endpoint with an empty requisition."""
         url = '/api/project/{}/preview'.format(user_project.project.id)
         data = {
             'rows': []
@@ -52,6 +54,7 @@ class TestProject:
                               user_import_circular_database: UserMockDataSource,
                               circular_meta: MetaData,
                               auth_header: dict):
+        """Test data generation for circular dependencies."""
         # create the preview
         row_count = 10
         url = '/api/project/{}/preview'.format(user_import_circular_database.project.id)
