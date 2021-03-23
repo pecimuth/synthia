@@ -9,6 +9,8 @@ from core.service.exception import ColumnGeneratorError
 
 
 class GeneratorAssignment:
+    """Utility class providing generator (setting) to column assignment."""
+
     def __init__(self, meta_table: MetaTable):
         self._meta_table = meta_table
         self._instances: List[ColumnGenerator] = []
@@ -18,16 +20,19 @@ class GeneratorAssignment:
     def _type_matches(cls,
                       column_gen: Union[Type[ColumnGenerator], ColumnGenerator],
                       col_type: str) -> bool:
+        """Return whether a generator instance/type is compatible with column type."""
         return column_gen.only_for_type() is None or column_gen.only_for_type() == col_type
 
     @classmethod
     def _generators_for_type(cls, col_type: str) -> Iterable[Type[ColumnGenerator]]:
+        """Return an iterable of generators compatible with given type."""
         for column_gen in RegisteredGenerator.iter():
             if cls._type_matches(column_gen, col_type):
                 yield column_gen
 
     @classmethod
     def _find_for_single_column(cls, meta_column: MetaColumn) -> Type[ColumnGenerator]:
+        """Find the recommended generator for a column."""
         for column_gen in cls._generators_for_type(meta_column.col_type):
             if column_gen.is_recommended_for(meta_column):
                 return column_gen
@@ -35,6 +40,11 @@ class GeneratorAssignment:
 
     @classmethod
     def maybe_assign(cls, generator_setting: GeneratorSetting, meta_column: MetaColumn) -> bool:
+        """Try to assign a generator to a column and return whether it succeeded.
+
+        We check that the types are compatible and if there are already assigned
+        columns, the generator must be multi column.
+        """
         facade = GeneratorSettingFacade(generator_setting)
         column_gen = facade.make_generator_instance()
         if not cls._assignment_allowed(column_gen, generator_setting, meta_column):
@@ -49,6 +59,11 @@ class GeneratorAssignment:
                             column_gen: ColumnGenerator,
                             generator_setting: GeneratorSetting,
                             meta_column: MetaColumn) -> bool:
+        """Return whether generator (and its setting) is assignable to a column.
+
+        The types must match. In case there are columns already assignment,
+        it must be a multi column generator.
+        """
         if not cls._type_matches(column_gen, meta_column):
             return False
         if generator_setting.columns:
@@ -56,6 +71,12 @@ class GeneratorAssignment:
         return True
 
     def _maybe_unite(self, factory: Type[ColumnGenerator], meta_column: MetaColumn) -> bool:
+        """Try to unite a column with an existing multi column generator.
+        Return whether the column was successfully united.
+
+        Checks whether the factory is multi column and sequentially tries
+        each existing instance of the same factory in the current table.
+        """
         if not issubclass(factory, MultiColumnGenerator):
             return False
         for multi_gen in self._multi:
@@ -65,6 +86,7 @@ class GeneratorAssignment:
         return False
 
     def assign(self) -> List[ColumnGenerator]:
+        """Find and assign recommended generators to each column in the table."""
         self._instances.clear()
         self._multi.clear()
         for meta_column in self._meta_table.columns:

@@ -14,9 +14,12 @@ from core.service.data_source.data_provider import DataProviderFactory
 from core.service.injector import Injector
 
 GeneratorList = List[ColumnGenerator]
+"""List of column generator instances."""
 
 
 class GeneratorSettingFacade:
+    """Provides utility functions related to generator settings."""
+
     def __init__(self, generator_setting: GeneratorSetting):
         self._generator_setting = generator_setting
 
@@ -33,6 +36,7 @@ class GeneratorSettingFacade:
 
     @staticmethod
     def instances_from_table(meta_table: MetaTable) -> GeneratorList:
+        """Make generator instances for generator settings in a table."""
         instances = []
         for generator_setting in meta_table.generator_settings:
             if not generator_setting.columns:
@@ -44,12 +48,17 @@ class GeneratorSettingFacade:
 
     @staticmethod
     def seed_all(instances: GeneratorList, seed: int):
+        """Seed all generator instances in a list with a random seed,
+        influenced by the input seed."""
         random_inst = random.Random(seed)
         for instance in instances:
             instance.seed(random_inst.random())
 
     @classmethod
-    def _create_generator_setting(cls, meta_column: MetaColumn, factory: Type[ColumnGenerator]) -> GeneratorSetting:
+    def _create_generator_setting(cls,
+                                  meta_column: MetaColumn,
+                                  factory: Type[ColumnGenerator]) -> GeneratorSetting:
+        """Create a generator setting of given type and assign it to a column."""
         generator_setting = factory.create_setting_instance()
         meta_column.generator_setting = generator_setting
         generator_setting.table = meta_column.table
@@ -60,22 +69,26 @@ class GeneratorSettingFacade:
         return generator_setting
 
     def make_generator_instance(self) -> ColumnGenerator:
+        """Create and return an instance of the generator."""
         generator_factory = RegisteredGenerator.get_by_name(self._generator_setting.name)
         return generator_factory(self._generator_setting)
 
     def maybe_estimate_params(self, injector: Injector):
+        """Estimate the generator (setting) params in case a data source is available."""
         gen_instance = self.make_generator_instance()  # normalizes params
         if not self._has_data_source():
             return
         self.estimate_params(gen_instance, injector)
 
     def estimate_params(self, gen_instance: ColumnGenerator, injector: Injector):
+        """Estimate parameters for the generator instance."""
         factory = DataProviderFactory(self._generator_setting.columns, injector)
         provider = factory.find_provider()
         gen_instance.estimate_params(provider)
         flag_modified(self._generator_setting, 'params')  # register the param change
 
     def _has_data_source(self) -> bool:
+        """Return whether any of the assigned column has a data source defined."""
         for meta_column in self._generator_setting.columns:
             if meta_column.data_source is not None:
                 return True
