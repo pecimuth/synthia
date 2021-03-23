@@ -11,6 +11,8 @@ from core.service.exception import DataSourceIdentifierError, DatabaseNotReadabl
 
 
 class DatabaseDataProvider(DataProvider):
+    """Provide data from a database."""
+
     def scalar_data(self) -> Iterator[Any]:
         idf = self._identifiers[0]
         for tup in self._select([idf]):
@@ -22,25 +24,31 @@ class DatabaseDataProvider(DataProvider):
 
     @property
     def _conn(self) -> Connection:
+        """Return database connection."""
         conn_manager = self._injector.get(DatabaseConnectionManager)
         return conn_manager.get_connection(self._data_source)
 
     @property
     def _first_column(self) -> Column:
+        """Return column (bound to a DB connection) identified by the first identifier."""
         return self._get_column(self._identifiers[0])
 
     def _safe_exec(self, *args, **kwargs):
+        """Execute statement and convert SQLAlchemy exception
+        to FatalDatabaseError so that it can be caught by our handlers."""
         try:
             return self._conn.execute(*args, **kwargs)
         except SQLAlchemyError:
             raise FatalDatabaseError()
 
     def _select(self, identifiers: Identifiers) -> Iterator[Tuple]:
+        """Yield tuples of values  selected by identifiers."""
         columns = [self._get_column(idf) for idf in identifiers]
         for row in self._safe_exec(select(columns)):
             yield row
 
     def _get_column(self, idf: Identifier) -> Column:
+        """Convert identifier to a column bound to a database connection."""
         conn_manager = self._injector.get(DatabaseConnectionManager)
         engine = conn_manager.get_engine(self._data_source)
         meta = MetaData()

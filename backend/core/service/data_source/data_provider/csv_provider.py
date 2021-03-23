@@ -5,6 +5,8 @@ from core.service.data_source.data_provider.base_provider import DataProvider
 
 
 class CsvDataProvider(DataProvider):
+    """Provide data from a CSV file."""
+
     def scalar_data(self) -> Iterator[Any]:
         idf = self._identifiers[0]
         with open(self._data_source.file_path) as file:

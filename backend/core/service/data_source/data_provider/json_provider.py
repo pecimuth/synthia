@@ -7,6 +7,8 @@ from core.service.exception import DataSourceIdentifierError, DataSourceError
 
 
 class JsonDataProvider(DataProvider):
+    """Provide data from a JSON data source."""
+
     def scalar_data(self) -> Iterator[Any]:
         idf = self._identifiers[0]
         json_obj = self._parse_json()
@@ -21,10 +23,12 @@ class JsonDataProvider(DataProvider):
         return zip(scalars)
 
     def _parse_json(self) -> Any:
+        """Open and parse the file, return python object."""
         with open(self._data_source.file_path) as file:
             return json.load(file)
 
     def _yield_column(self, json_obj: Any, idf: Identifier) -> Iterator[Any]:
+        """Yield a column from python object by identifier."""
         if isinstance(json_obj, dict):
             if idf.table not in json_obj:
                 raise DataSourceIdentifierError('table not found', self._data_source, repr(idf))

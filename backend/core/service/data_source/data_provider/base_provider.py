@@ -12,6 +12,8 @@ DEFAULT_ROW_LIMIT = 100
 
 
 class DataProvider(ABC):
+    """Provide data from a data source."""
+
     def __init__(self, data_source: DataSource, identifiers: Identifiers, injector: Injector):
         self._data_source = data_source
         self._identifiers = identifiers
@@ -19,19 +21,30 @@ class DataProvider(ABC):
 
     @abstractmethod
     def scalar_data(self) -> Iterator[Any]:
+        """Return scalar data.
+
+        Most useful for single-column generators.
+        Return values identified by the first element in the list of identifies.
+        """
         pass
 
     @abstractmethod
     def vector_data(self) -> Iterator[Tuple]:
+        """Return vector data.
+
+        Most useful for multi-column generators.
+        Return tuples of values in order of identifiers.
+        """
         pass
 
     def scalar_data_not_none(self) -> Iterator[Any]:
+        """Return scalar data without None values."""
         for sample in self.scalar_data():
             if sample is not None:
                 yield sample
 
     def reduce(self, function: Callable, initial: Any, limit=DEFAULT_ROW_LIMIT) -> Any:
-        # TODO generic types
+        """Reduce on the first limit scalar entries."""
         return reduce(
             function,
             islice(self.scalar_data(), 0, limit),
@@ -39,7 +52,7 @@ class DataProvider(ABC):
         )
 
     def reduce_not_none(self, function: Callable, initial: Any, limit=DEFAULT_ROW_LIMIT) -> Any:
-        # TODO generic types
+        """Reduce on the first limit non-null scalar entries."""
         return reduce(
             function,
             islice(self.scalar_data_not_none(), 0, limit),
@@ -47,6 +60,7 @@ class DataProvider(ABC):
         )
 
     def estimate_min(self):
+        """Return minimum scalar value or None in case there are no values."""
         def safe_min(seq, elem):
             if seq is None:
                 return elem
@@ -54,6 +68,7 @@ class DataProvider(ABC):
         return self.reduce_not_none(safe_min, None)
 
     def estimate_max(self):
+        """Return maximum scalar value or None in case there are no values."""
         def safe_max(seq, elem):
             if seq is None:
                 return elem
@@ -61,16 +76,19 @@ class DataProvider(ABC):
         return self.reduce_not_none(safe_max, None)
 
     def get_count(self) -> int:
+        """Return number of scalar entries."""
         return self.reduce(lambda x, _: x + 1, 0)
 
     def get_null_count(self):
+        """Return number of None scalar entries."""
         def count_nulls(seq, elem):
             if elem is None:
                 return seq + 1
             return seq
         return self.reduce(count_nulls, 0)
 
-    def estimate_null_frequency(self, ) -> Optional[float]:
+    def estimate_null_frequency(self) -> Optional[float]:
+        """Return frequency of None values in scalar entries or None."""
         count = self.get_count()
         if count == 0:
             return None
@@ -78,6 +96,7 @@ class DataProvider(ABC):
         return nulls / count
 
     def estimate_mean(self) -> Optional[float]:
+        """Return mean scalar value or None."""
         sample_sum = 0
         count = 0
         for sample in self.scalar_data_not_none():
@@ -88,6 +107,7 @@ class DataProvider(ABC):
         return sample_sum / count
 
     def estimate_variance(self) -> Optional[float]:
+        """Return an estimate of scalar values or None."""
         sample_sum = 0
         square_sum = 0
         count = 0
