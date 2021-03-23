@@ -41,7 +41,6 @@ class ProcedureController:
         while states:
             it, table, meta_table = states.popleft()
             self._output_driver.switch_table(table, meta_table)
-            print(meta_table.name)
             try:
                 next(it)
                 states.append((it, table, meta_table))

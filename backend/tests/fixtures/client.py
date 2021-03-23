@@ -1,6 +1,7 @@
 import os
 import shutil
 import tempfile
+from typing import Tuple, AnyStr
 
 import pytest
 from flask.testing import FlaskClient
@@ -68,4 +69,14 @@ def injector(client, session) -> Injector:
     injector.provide(Session, session)
     injector.provide(SecretKey, client.application.config['SECRET_KEY'])
     injector.provide(ProjectStorage, client.application.config['PROJECT_STORAGE'])
-    return injector
+    yield injector
+    injector.clean_up()
+
+
+@pytest.fixture
+def temp_output_file() -> Tuple[int, AnyStr]:
+    """Create a temporary file to write output into."""
+    fd, file = tempfile.mkstemp()
+    yield fd, file
+    os.close(fd)
+    os.unlink(file)

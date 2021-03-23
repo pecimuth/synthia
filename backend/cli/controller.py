@@ -2,7 +2,7 @@ import argparse
 import json
 from argparse import Namespace
 from inspect import signature
-from typing import Optional, Type
+from typing import Optional, Type, List
 
 from cli.reconstruction import ProjectReconstruction
 from core.service.data_source.database_common import DatabaseConnectionManager
@@ -14,28 +14,33 @@ from web.view.project import SavedProject
 
 
 class CommandLineController:
+    """Controller for the CLI."""
+
     def __init__(self):
         self._args: Optional[Namespace] = None
         self._saved_project: Optional[SavedProject] = None
         self._driver: Optional[OutputDriver] = None
         self._conn_manager = DatabaseConnectionManager()
 
-    def execute(self):
-        self._parse_args()
+    def execute(self, args: List[str]):
+        """Parse arguments, generate the data and write to the output resource."""
+        self._parse_args(args)
         self._parse_project_file()
         self._generate()
         self._maybe_write_output()
         self._conn_manager.clean_up()
 
-    def _parse_args(self):
+    def _parse_args(self, args: List[str]):
+        """Assemble argument parser and parse the command arguments."""
         parser = argparse.ArgumentParser(description='Generate random data from a project file.')
         subparsers = parser.add_subparsers(required=True)
         self._assemble_insert_command(subparsers)
         for file_driver in FileOutputDriver.__subclasses__():
             self._assemble_file_command(subparsers, file_driver)
-        self._args = parser.parse_args()
+        self._args = parser.parse_args(args)
 
     def _assemble_insert_command(self, subparsers):
+        """Assemble an INSERT command for the parser."""
         insert_parser = subparsers.add_parser(DatabaseOutputDriver.cli_command)
         self._add_project_argument(insert_parser)
         insert_parser.add_argument('url', help='SQLAlchemy database connection string')
@@ -46,6 +51,7 @@ class CommandLineController:
         )
 
     def _assemble_file_command(self, subparsers, file_driver: Type[FileOutputDriver]):
+        """Assemble a command for an output file driver."""
         file_parser = subparsers.add_parser(file_driver.cli_command)
         self._add_project_argument(file_parser)
         sig = signature(file_driver.dump)
@@ -62,17 +68,23 @@ class CommandLineController:
 
     @staticmethod
     def _add_project_argument(parser: argparse.ArgumentParser):
+        """Add positional argument to the parser, taking
+        path to the project file."""
         parser.add_argument('project',
                             help='path to the project file',
                             type=argparse.FileType('r'))
 
     def _parse_project_file(self):
+        """Read the contents of the project file, close the file
+        and reconstruct the project entities.
+        """
         project = json.loads(self._args.project.read())
         self._args.project.close()
         reconstruction = ProjectReconstruction(project)
         self._saved_project = reconstruction.parse()
 
     def _generate(self):
+        """Create the driver, controller and run the generation."""
         self._args.make_driver(self._args)
         controller = ProcedureController(
             self._saved_project.project,
@@ -82,6 +94,9 @@ class CommandLineController:
         controller.run()
 
     def _maybe_write_output(self):
+        """Depending on the type of the output driver,
+        write to the output file or standard output.
+        """
         if not isinstance(self._driver, FileOutputDriver):
             return
         dump = self._driver.dump()

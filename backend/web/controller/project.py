@@ -167,7 +167,7 @@ def generate_project_preview(proj: Project):
             'in': 'body',
             'description': 'Export requisition',
             'required': True,
-            'object': ExportFileRequisitionView
+            'schema': ExportFileRequisitionView
         }
     ],
     'responses': {
@@ -208,7 +208,7 @@ def export_project(proj: Project):
             'in': 'body',
             'description': 'Export requisition',
             'required': True,
-            'object': ExportRequisitionView
+            'schema': ExportRequisitionView
         }
     ],
     'responses': {
