@@ -66,6 +66,7 @@ class TestProject:
         json = response.get_json()
         assert not PreviewView().validate(json)
 
+        print(json)
         for table_name in circular_meta.tables.keys():
             # assert that not all FKs in a table are None
             rows = json['tables'][table_name]

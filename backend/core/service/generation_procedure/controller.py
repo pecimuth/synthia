@@ -9,6 +9,7 @@ from core.service.deserializer import StructureDeserializer
 from core.service.generation_procedure.constraint_checker import ConstraintChecker
 from core.service.generation_procedure.database import GeneratedRow, GeneratedDatabase
 from core.service.generation_procedure.requisition import ExportRequisition
+from core.service.generation_procedure.sorted_tables import SortedTables
 from core.service.generation_procedure.statistics import ProcedureStatistics
 from core.service.output_driver import OutputDriver
 
@@ -40,16 +41,15 @@ class ProcedureController:
         """Return pairs of SQL Alchemy tables and MetaTables
         in order of foreign key dependencies.
         """
-        meta_table_by_name = {
-            table.name: table
-            for table in self._project.tables
-        }
         deserializer = StructureDeserializer(self._project)
         meta = deserializer.deserialize()
-        for table in meta.sorted_tables:
-            if table.name not in self._requisition:
-                continue
-            yield table, meta_table_by_name[table.name]
+        table_by_name = {
+            name: table
+            for name, table in meta.tables.items()
+        }
+        sorted_tables = SortedTables(self._project.tables, self._requisition)
+        for meta_table in sorted_tables.get_order():
+            yield table_by_name[meta_table.name], meta_table
 
     def _table_loop(self, meta_table: MetaTable):
         """Create generators for a given table and fill it with data,
