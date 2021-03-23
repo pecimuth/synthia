@@ -9,11 +9,17 @@ from core.model.user import User
 
 
 class ColumnFacade:
+    """Provide CRUD operations related to MetaColumn."""
+
     def __init__(self, db_session: Session, user: User):
         self._db_session = db_session
         self._user = user
 
     def find_column(self, meta_column_id: int) -> MetaColumn:
+        """Find and return meta column, searched by ID.
+
+        We need to check that it belongs to the logged in user.
+        """
         return self._db_session.\
             query(MetaColumn).\
             join(MetaColumn.table).\
@@ -26,6 +32,7 @@ class ColumnFacade:
             one()
 
     def find_column_in_table(self, meta_table: MetaTable, meta_column_id: int) -> MetaColumn:
+        """Find and return meta column, constrained by ID and its parent table."""
         return self._db_session.query(MetaColumn).\
             join(MetaTable.project).\
             filter(
@@ -35,6 +42,8 @@ class ColumnFacade:
             one()
 
     def delete(self, meta_column: MetaColumn):
+        """Delete the MetaColumn. Related constraints (constraining or referencing)
+        the column are found and deleted, too."""
         column_constraints = \
             self._db_session.query(MetaConstraint.id).\
             join(MetaConstraint.constrained_columns).\

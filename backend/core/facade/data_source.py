@@ -20,6 +20,8 @@ from core.service.output_driver.database import DatabaseOutputDriver
 
 
 class DataSourceFacade:
+    """Provide CRUD operations related to DataSource."""
+
     def __init__(self,
                  db_session: Session,
                  user: User,
@@ -35,6 +37,8 @@ class DataSourceFacade:
         self._project_facade = project_facade
 
     def find_data_source(self, data_source_id: int) -> DataSource:
+        """Find and return a data source by ID. Check that it belongs
+        to the logged in user."""
         return self._db_session.query(DataSource).\
             join(DataSource.project).\
             filter(
@@ -44,6 +48,10 @@ class DataSourceFacade:
             one()
 
     def export_to_data_source(self, data_source: DataSource, requisition: ExportRequisition):
+        """Generate the data a INSERT them to the data source.
+
+        The data source must be a database.
+        """
         if data_source.driver is None:
             return DataSourceError('The data source is not a database', data_source)
         database_driver = DatabaseOutputDriver(data_source, self._conn_manager)
@@ -51,10 +59,12 @@ class DataSourceFacade:
         controller.run()
 
     def import_schema(self, data_source: DataSource):
+        """Import schema from a data source to its project."""
         schema_import = DataSourceSchemaImport(data_source.project, self._injector)
         schema_import.import_schema(data_source, self._db_session)
 
     def delete(self, data_source: DataSource):
+        """Delete a data source and its related file, in case it exists."""
         if data_source.file_path is not None:
             try:
                 os.remove(data_source.file_path)
@@ -64,6 +74,7 @@ class DataSourceFacade:
 
     @staticmethod
     def read_file_content(data_source: DataSource) -> bytes:
+        """Read the bytes from the data source's files."""
         if data_source.file_path is None:
             raise DataSourceError('Data source has no file', data_source)
         try:
@@ -77,6 +88,9 @@ class DataSourceFacade:
                              file_name: str = 'books.db',
                              mock_factory: Callable[[], MetaData] = lambda: mock_book_author_publisher()
                              ) -> DataSource:
+        """Create an SQLite database in the project. Create the database schema.
+        Create and return a data source representing the database.
+        """
         if not is_file_allowed(file_name):
             raise FileNotAllowedError()
         project = self._project_facade.find_project(project_id)
@@ -99,6 +113,10 @@ class DataSourceFacade:
         return data_source
 
     def create_data_source_for_file(self, project_id: int, file_name: str) -> DataSource:
+        """Create and return a data source to be used with a file.
+
+        The file may be created after the call in the assigned file path.
+        """
         if not is_file_allowed(file_name):
             raise FileNotAllowedError()
         project = self._project_facade.find_project(project_id)

@@ -10,6 +10,8 @@ from core.service.auth.token import TokenService
 
 
 class UserFacade:
+    """Provide CRUD operations related to User."""
+
     def __init__(self,
                  db_session: Session,
                  token_service: TokenService):
@@ -17,6 +19,10 @@ class UserFacade:
         self._token_service = token_service
 
     def register(self, email: Optional[str], pwd: Optional[str]) -> User:
+        """Register a new user.
+
+        Password is not considered for an anonymous user.
+        """
         user = User(email=email)
         if email is not None:
             password_service = PasswordService(user)
@@ -27,6 +33,8 @@ class UserFacade:
         return user
 
     def login(self, email: str, pwd: str) -> User:
+        """Login with an email and password. If the credentials
+        are correct, return the user."""
         try:
             user: User = self._db_session.query(User).\
                 filter(User.email == email).\
@@ -44,4 +52,5 @@ class UserFacade:
         return user
 
     def get_token(self, user: User) -> str:
+        """Create an auth token for the user."""
         return self._token_service.create_token(user)

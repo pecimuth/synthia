@@ -8,11 +8,16 @@ from core.model.user import User
 
 
 class TableFacade:
+    """Provide CRUD operations related to MetaTable."""
+
     def __init__(self, db_session: Session, user: User):
         self._db_session = db_session
         self._user = user
 
     def find_meta_table(self, meta_table_id: int) -> MetaTable:
+        """Find and return a meta table by ID. Check that it belongs
+        to the logged in user.
+        """
         return self._db_session.query(MetaTable).\
             join(MetaTable.project).\
             filter(
@@ -22,7 +27,10 @@ class TableFacade:
             one()
 
     def delete(self, meta_table: MetaTable):
-        # delete constraints referencing this table
+        """Delete a meta table and the constraints referencing it.
+
+        The columns, constraints, and generators are deleted by the database.
+        """
         referencing_constraints =\
             self._db_session.query(MetaConstraint.id).\
             join(MetaConstraint.referenced_columns).\

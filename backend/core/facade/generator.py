@@ -12,11 +12,13 @@ from core.model.project import Project
 from core.model.user import User
 from core.service.column_generator.assignment import GeneratorAssignment
 from core.service.column_generator.setting_facade import GeneratorSettingFacade
-from core.service.exception import SomeError
+from core.service.exception import SomeError, ColumnGeneratorError
 from core.service.injector import Injector
 
 
 class GeneratorFacade:
+    """Provide CRUD operations related to GeneratorSetting."""
+
     def __init__(self,
                  db_session: Session,
                  user: User,
@@ -30,6 +32,8 @@ class GeneratorFacade:
         self._injector = injector
 
     def find_setting(self, generator_setting_id: int) -> GeneratorSetting:
+        """Find and return a setting by ID. Make sure that it belongs
+        to the logged in user."""
         return self._db_session.\
             query(GeneratorSetting).\
             join(GeneratorSetting.table).\
@@ -44,6 +48,7 @@ class GeneratorFacade:
     def find_setting_in_table(self,
                               generator_setting_id: int,
                               meta_table: MetaTable) -> GeneratorSetting:
+        """Find and return a setting constrained by ID and its parent table."""
         return self._db_session.\
             query(GeneratorSetting).\
             filter(
@@ -58,6 +63,12 @@ class GeneratorFacade:
                                  name: str,
                                  params: dict,
                                  null_frequency: float) -> GeneratorSetting:
+        """Create and return a generator setting.
+
+        The setting is bound to a given table (its ID).
+        Optionally, it may be bound to a column (by ID) in the table.
+        In case it is bound, the generator params are estimated.
+        """
         meta_column = None
         try:
             meta_table = self._table_facade.find_meta_table(table_id)
@@ -76,13 +87,19 @@ class GeneratorFacade:
             null_frequency=null_frequency
         )
         if meta_column is not None:
-            meta_column.generator_setting = generator_setting
+            if not GeneratorAssignment.maybe_assign(generator_setting, meta_column):
+                raise ColumnGeneratorError(
+                    'The generator is not assignable to this column',
+                    meta_column
+                )
             facade = GeneratorSettingFacade(generator_setting)
             facade.maybe_estimate_params(self._injector)
         self._db_session.add(generator_setting)
         return generator_setting
 
     def update_column_generator(self, meta_column: MetaColumn, generator_setting_id: int) -> bool:
+        """Try to assign a generator setting to a meta column. Estimate the params.
+        Return whether the operation succeeded."""
         generator_setting = self.find_setting_in_table(
             generator_setting_id,
             meta_column.table
