@@ -13,9 +13,13 @@ from core.service.output_driver.file_driver.base import FileOutputDriver
 
 
 dialect = postgresql.dialect()
+"""The insert script syntax is derived from the Postgres dialect."""
 
 
 class LiteralCompiler(dialect.statement_compiler):
+    """Extension of the Postgres literal compiler,
+    which also handles None values, dates, datetimes and timedeltas."""
+
     def visit_bindparam(self,
                         bindparam,
                         within_columns_clause=False,
@@ -32,6 +36,8 @@ class LiteralCompiler(dialect.statement_compiler):
 
 
 class InsertScriptOutputDriver(FileOutputDriver[str]):
+    """Output file driver creating an insert script."""
+
     mime_type = 'application/sql'
     display_name = 'INSERT Script'
     cli_command = 'script'
@@ -52,6 +58,7 @@ class InsertScriptOutputDriver(FileOutputDriver[str]):
 
     @staticmethod
     def _stringify_stmt(stmt: Insert) -> str:
+        """Convert statement to string."""
         return LiteralCompiler(dialect, stmt).process(stmt)
 
     def end_run(self, database: GeneratedDatabase):

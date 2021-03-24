@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import TypeVar, Generic, Optional
+from typing import TypeVar, Generic, Optional, final
 
 from sqlalchemy import Table
 
@@ -8,11 +8,18 @@ from core.service.generation_procedure.database import GeneratedRow, GeneratedDa
 from core.service.output_driver import OutputDriver
 
 DumpType = TypeVar('DumpType', str, bytes)
+"""The file content type of a file output driver."""
 
 
 class FileOutputDriver(Generic[DumpType], OutputDriver):
+    """Generic output driver for files."""
+
     mime_type: str
+    """Mime type of the generated file."""
+
     display_name: str
+    """The name under which the driver shows up in the GUI."""
+
     is_interactive = False
 
     def __init__(self):
@@ -20,7 +27,9 @@ class FileOutputDriver(Generic[DumpType], OutputDriver):
         self._database: Optional[GeneratedDatabase] = None
 
     @classmethod
-    def driver_name(cls):
+    @final
+    def driver_name(cls) -> str:
+        """Return unambiguous identifier of the driver."""
         cls_name: str = cls.__name__
         suffix = 'OutputDriver'
         if cls_name.endswith(suffix):
@@ -41,9 +50,11 @@ class FileOutputDriver(Generic[DumpType], OutputDriver):
 
     @abstractmethod
     def dump(self) -> DumpType:
+        """Return file content."""
         pass
 
     @classmethod
     @abstractmethod
     def add_extension(cls, file_name_base: str) -> str:
+        """Return new file name with an extension appended."""
         pass

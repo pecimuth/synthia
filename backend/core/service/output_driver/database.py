@@ -13,6 +13,8 @@ from core.service.output_driver import OutputDriver
 
 
 class DatabaseOutputDriver(OutputDriver):
+    """Output driver for direct database insertion."""
+
     is_interactive = True
     cli_command = 'insert'
 
@@ -36,6 +38,7 @@ class DatabaseOutputDriver(OutputDriver):
         self._find_primary_constraint(meta_table)
 
     def _find_primary_constraint(self, meta_table: MetaTable):
+        """Find the primary constraint in a table."""
         self._primary_constraint = None
         for constraint in meta_table.constraints:
             if constraint.constraint_type == MetaConstraint.PRIMARY:
@@ -43,6 +46,12 @@ class DatabaseOutputDriver(OutputDriver):
                 return
 
     def insert_row(self, row: GeneratedRow) -> Optional[GeneratedRow]:
+        """Try to insert the row.
+
+        Integrity errors are not fatal, we should return None.
+        SQLAlchemy errors must be converted to our error hierarchy.
+        Primary keys should be fetched from the database.
+        """
         try:
             result = self._conn.execute(self._current_table.insert().values(row))
         except IntegrityError:

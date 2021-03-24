@@ -5,6 +5,8 @@ from core.service.types import json_serialize_default
 
 
 class JsonOutputDriver(FileOutputDriver[str]):
+    """Output file driver for JSON output."""
+
     mime_type = 'application/json'
     display_name = 'JSON'
     cli_command = 'json'
