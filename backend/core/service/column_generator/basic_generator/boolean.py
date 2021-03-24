@@ -6,6 +6,7 @@ from core.service.generation_procedure.database import GeneratedDatabase
 
 
 class BernoulliGenerator(RegisteredGenerator, SingleColumnGenerator[bool]):
+    """Generate booleans from a bernoulli distribution."""
 
     @parameter(min_value=0, max_value=1)
     def success_probability(self) -> float:

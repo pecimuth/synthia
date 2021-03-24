@@ -8,6 +8,9 @@ from core.service.generation_procedure.database import GeneratedDatabase
 
 
 class StringGenerator(RegisteredGenerator, SingleColumnGenerator[str]):
+    """Generate strings of ascii letter of random length, sampled uniformly
+    from an interval.
+    """
 
     @parameter(min_value=1)
     def min_length(self) -> int:
@@ -26,6 +29,7 @@ class StringGenerator(RegisteredGenerator, SingleColumnGenerator[str]):
         return True
 
     def _random_string_of_length(self, length: int) -> str:
+        """Return a random string of given length."""
         sequence = (self._random.choice(string.ascii_letters) for _ in range(length))
         return ''.join(sequence)
 

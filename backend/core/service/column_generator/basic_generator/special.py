@@ -12,19 +12,34 @@ from core.service.types import Types
 
 
 class ForeignKeyGenerator(RegisteredGenerator, MultiColumnGenerator):
+    """General foreign key generator with composite key support."""
 
     def __init__(self, generator_setting: GeneratorSetting):
         super().__init__(generator_setting)
 
         self._constraint: Optional[MetaConstraint] = None
+        """Matching constraint. Constrained columns must be a superset
+        of columns assigned to the generator.
+        """
         self._ref_table: Optional[MetaTable] = None
-        self._ref_column: Dict[str, MetaColumn] = {}
+        """Referenced table."""
+        self._ref_column: Dict[MetaColumn, MetaColumn] = {}
+        """Maps constrained columns to referenced columns."""
 
         columns = generator_setting.columns
         if columns:
             self._find_constraint(columns[0].constraints)
 
     def _find_constraint(self, constraints: List[MetaConstraint]):
+        """Find a FK constraint and referenced table consistent
+        with currently assigned columns.
+
+        Sequentially try all constraints provided in the list.
+        The set of constrained columns must be a superset
+        of columns assigned to the generator. The referenced tables must be consistent.
+        We also need to find the referenced column for each of the constrained columns.
+        If no suitable constraint is found, an error is raised.
+        """
         for constraint in constraints:
             if constraint.constraint_type != MetaConstraint.FOREIGN:
                 continue
@@ -41,6 +56,9 @@ class ForeignKeyGenerator(RegisteredGenerator, MultiColumnGenerator):
         )
 
     def _maybe_add_column(self, constraint: MetaConstraint, meta_column: MetaColumn) -> bool:
+        """Check that the referenced table matches the currently known referenced table.
+        Find the referenced column. Return the status of the operation.
+        """
         if meta_column not in constraint.constrained_columns:
             return False
         index = constraint.constrained_columns.index(meta_column)
@@ -49,7 +67,7 @@ class ForeignKeyGenerator(RegisteredGenerator, MultiColumnGenerator):
             self._ref_table = ref_column.table
         elif self._ref_table != ref_column.table:
             return False
-        self._ref_column[meta_column.name] = ref_column
+        self._ref_column[meta_column] = ref_column
         return True
 
     @classmethod
@@ -64,10 +82,18 @@ class ForeignKeyGenerator(RegisteredGenerator, MultiColumnGenerator):
         return False
 
     def should_unite_with(self, meta_column: MetaColumn) -> bool:
+        """Return whether the column should be assigned to the generator.
+
+        The set of constrained columns should be united.
+        """
         return self._constraint is not None and \
             meta_column in self._constraint.constrained_columns
 
     def unite_with(self, meta_column: MetaColumn):
+        """Assign the column to the generator.
+
+        There must exist a matching constraint. Otherwise an error is raised.
+        """
         super(ForeignKeyGenerator, self).unite_with(meta_column)
         if self._constraint is None:
             return self._find_constraint(meta_column.constraints)
@@ -75,22 +101,32 @@ class ForeignKeyGenerator(RegisteredGenerator, MultiColumnGenerator):
             raise ColumnGeneratorError('These columns do not share a FK', meta_column)
 
     def _all_columns_nullable(self) -> bool:
+        """Are all assigned columns nullable?"""
         return all(map(lambda meta_column: meta_column.nullable, self._meta_columns))
 
     def _none_dict(self) -> Dict[str, None]:
+        """Return dict of Nones for each column."""
         return {
-            name: None
-            for name in self._ref_column
+            column.name: None
+            for column in self._ref_column
         }
 
     def _from_random_row(self, rows: GeneratedTable) -> OutputDict:
+        """Construct and return key from random row selected from the referenced table."""
         row = self._random.choice(rows)
         return {
-            name: row[ref_column.name]
-            for name, ref_column in self._ref_column.items()
+            column.name: row[ref_column.name]
+            for column, ref_column in self._ref_column.items()
         }
 
     def make_dict(self, generated_database: GeneratedDatabase) -> OutputDict:
+        """Generate data for a foreign key.
+
+        If there are no rows in the referenced table and all columns
+        are nullable, we return Nones.
+        If there are some rows, we choose randomly.
+        An error is raised in other cases.
+        """
         if not self._constraint:
             raise GeneratorSettingError('Dangling FK generator', self._generator_setting)
 
@@ -108,6 +144,13 @@ class ForeignKeyGenerator(RegisteredGenerator, MultiColumnGenerator):
 
 
 class PrimaryKeyGenerator(RegisteredGenerator, SingleColumnGenerator[int]):
+    """Surrogate key generator.
+
+    The numbers are generated by an interactive driver.
+    In case of a non-interactive driver, the IDs are assigned sequentially
+    starting from 1.
+    """
+
     supports_null = False
     is_database_generated = True
 

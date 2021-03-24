@@ -16,6 +16,8 @@ from core.service.output_driver import OutputDriver
 
 
 class ProcedureController:
+    """Controller for the data generation procedure."""
+
     def __init__(self,
                  project: Project,
                  requisition: ExportRequisition,
