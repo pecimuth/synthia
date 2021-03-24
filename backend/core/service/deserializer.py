@@ -1,7 +1,7 @@
 from typing import Any, List
 
 from sqlalchemy import MetaData, Table, Column, ForeignKeyConstraint, PrimaryKeyConstraint, UniqueConstraint, \
-    CheckConstraint
+    CheckConstraint, Constraint
 
 from core.model.meta_column import MetaColumn
 from core.model.meta_constraint import MetaConstraint
@@ -13,12 +13,14 @@ from core.service.types import get_sql_alchemy_type
 
 
 class StructureDeserializer:
+    """Convert meta entities into SQL Alchemy entities."""
 
     def __init__(self, proj: Project):
         self._proj = proj
 
     @classmethod
     def _deserialize_table(cls, meta_table: MetaTable, meta: MetaData) -> Table:
+        """Convert meta table into SQL Alchemy table."""
         columns = [cls._deserialize_column(col) for col in meta_table.columns]
         constraints = cls._make_constraints(meta_table)
         table = Table(
@@ -31,6 +33,7 @@ class StructureDeserializer:
 
     @classmethod
     def _deserialize_column(cls, meta_column: MetaColumn) -> Column:
+        """Convert meta column into SQL Alchemy column."""
         column = Column(
             meta_column.name,
             get_sql_alchemy_type(meta_column.col_type),
@@ -39,7 +42,8 @@ class StructureDeserializer:
         return column
 
     @classmethod
-    def _make_constraints(cls, meta_table: MetaTable) -> List[ForeignKeyConstraint]:
+    def _make_constraints(cls, meta_table: MetaTable) -> List[Constraint]:
+        """Convert meta constraints into SQL Alchemy constraints."""
         constraints = []
         for meta_constraint in meta_table.constraints:
             constrained_columns: Any = [
@@ -74,6 +78,7 @@ class StructureDeserializer:
         return constraints
 
     def deserialize(self) -> MetaData:
+        """Convert all project entities into SQL Alchemy Meta Data."""
         meta = MetaData()
         for table in self._proj.tables:
             self._deserialize_table(table, meta)

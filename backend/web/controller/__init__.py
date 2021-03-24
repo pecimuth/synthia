@@ -10,6 +10,7 @@ from web.service.json_encoder import JsonEncoder
 
 
 def init_app(app: Flask):
+    """Register all blueprints."""
     app.json_encoder = JsonEncoder
     app.register_blueprint(auth)
     app.register_blueprint(project)

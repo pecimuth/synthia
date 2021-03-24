@@ -8,6 +8,11 @@ import os
 
 
 def create_app(**kwargs) -> Flask:
+    """Create, configure and return a Flask app.
+
+    Keyword arguments may override any configuration parameter.
+    """
+
     app = Flask(
         __name__,
         instance_relative_config=True

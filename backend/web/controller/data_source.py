@@ -21,10 +21,16 @@ source = Blueprint('data_source', __name__, url_prefix='/api')
 
 
 def patch_database_data_source(data_source: DataSource):
+    """Patch the data source from request.json."""
     patch_all_from_json(data_source, ['driver', 'db', 'usr', 'pwd', 'host', 'port'])
 
 
 def with_data_source_by_id(view):
+    """Decorator for handlers accepting data source ID in path.
+
+    Fetches the data source by ID and calls the handler with the data source
+    instance instead of the ID.
+    """
     @functools.wraps(view)
     def wrapped_view(id: int):
         facade = inject(DataSourceFacade)

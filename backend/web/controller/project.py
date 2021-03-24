@@ -68,6 +68,11 @@ def create_project():
 
 
 def with_project_by_id(view):
+    """Decorator for handlers accepting project ID in path.
+
+    Fetches the project by ID and calls the handler with the project
+    instance instead of the ID.
+    """
     @functools.wraps(view)
     def wrapped_view(id):
         facade = inject(ProjectFacade)

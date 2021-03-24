@@ -9,7 +9,7 @@ from core.facade.table import TableFacade
 from core.model.meta_table import MetaTable
 from web.controller.auth import login_required
 from web.controller.util import TOKEN_SECURITY, BAD_REQUEST_SCHEMA, TABLE_NOT_FOUND, \
-    bad_request, PROJECT_NOT_FOUND, validate_json, error_into_message
+    bad_request, PROJECT_NOT_FOUND, validate_json, error_into_message, patch_from_json
 from web.service.database import get_db_session
 from web.service.injector import inject
 from web.view.project import ProjectView
@@ -19,6 +19,11 @@ table = Blueprint('table', __name__, url_prefix='/api')
 
 
 def with_table_by_id(view):
+    """Decorator for handlers accepting table ID in path.
+
+    Fetches the table by ID and calls the handler with the table
+    instance instead of the ID.
+    """
     @functools.wraps(view)
     def wrapped_view(id: int):
         facade = inject(TableFacade)
@@ -28,10 +33,6 @@ def with_table_by_id(view):
             return bad_request(TABLE_NOT_FOUND)
         return view(meta_table)
     return wrapped_view
-
-
-def try_patch_table(meta_table: MetaTable, request_json):
-    meta_table.name = request_json['name']
 
 
 @table.route('/table', methods=('POST',))
@@ -66,7 +67,7 @@ def create_table():
         return bad_request(PROJECT_NOT_FOUND)
 
     meta_table = MetaTable(project=project)
-    try_patch_table(meta_table, request.json)
+    patch_from_json(meta_table, 'name')
     db_session = get_db_session()
     db_session.commit()
     return TableView().dump(meta_table)
@@ -104,7 +105,7 @@ def create_table():
     }
 })
 def patch_table(meta_table: MetaTable):
-    try_patch_table(meta_table, request.json)
+    patch_from_json(meta_table, 'name')
     db_session = get_db_session()
     db_session.commit()
     return TableView().dump(meta_table)

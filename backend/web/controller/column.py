@@ -22,6 +22,11 @@ column = Blueprint('column', __name__, url_prefix='/api')
 
 
 def try_patch_column(meta_column: MetaColumn) -> bool:
+    """Try to patch the meta column from request.json.
+    Return operation status.
+
+    Generator assignment must be checked for errors.
+    """
     patch_all_from_json(meta_column, ['name', 'col_type', 'nullable'])
 
     generator_setting_id = request.json.get('generator_setting_id')
@@ -72,6 +77,11 @@ def create_column():
 
 
 def with_column_by_id(view):
+    """Decorator for handlers accepting column ID in path.
+
+    Fetches the column by ID and calls the handler with the column
+    instance instead of the ID.
+    """
     @functools.wraps(view)
     def wrapped_view(id: int):
         facade = inject(ColumnFacade)

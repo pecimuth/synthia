@@ -3,6 +3,7 @@ from sqlalchemy import MetaData, Table, Integer, Column, String, DateTime, Boole
 
 
 def mock_book_author_publisher() -> MetaData:
+    """Return mock SQL Alchemy schema."""
     meta = MetaData()
     Table(
         'book',

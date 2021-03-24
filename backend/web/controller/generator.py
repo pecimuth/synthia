@@ -54,6 +54,11 @@ def get_output_file_drivers():
 
 
 def with_generator_setting_by_id(view):
+    """Decorator for handlers accepting generator setting ID in path.
+
+    Fetches the generator setting by ID and calls the handler
+    with the generator setting instance instead of the ID.
+    """
     @functools.wraps(view)
     def wrapped_view(id: int):
         facade = inject(GeneratorFacade)
