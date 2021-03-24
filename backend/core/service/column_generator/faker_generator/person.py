@@ -13,10 +13,6 @@ class FakerPersonGenerator(FakerGenerator[str]):
         return Types.STRING
 
 
-class NameGenerator(RegisteredGenerator, FakerPersonGenerator):
-    provider = 'name'
-
-
 class FirstNameGenerator(RegisteredGenerator, FakerPersonGenerator):
     provider = 'first_name'
 
@@ -35,3 +31,7 @@ class EmailGenerator(RegisteredGenerator, FakerPersonGenerator):
 
 class UserNameGenerator(RegisteredGenerator, FakerPersonGenerator):
     provider = 'user_provider'
+
+
+class NameGenerator(RegisteredGenerator, FakerPersonGenerator):
+    provider = 'name'

@@ -29,11 +29,13 @@ class FakerDateTimeStringGenerator(FakerGenerator[str]):
 
 
 class DateStringGenerator(RegisteredGenerator, FakerDateTimeStringGenerator):
+    """Generated dates in a given format from 1970-1-1 until an end date."""
+
     provider = 'date'
 
-    @parameter(allowed_values=['%d/%m/%Y', '%Y-%m-%d', '%d.%m.%Y'])
+    @parameter(allowed_values=['%Y-%m-%d', '%d/%m/%Y', '%d.%m.%Y'])
     def pattern(self) -> str:
-        return '%d/%m/%Y'
+        return '%Y-%m-%d'
 
     @parameter
     def end(self) -> dt.datetime:
@@ -48,6 +50,8 @@ class DateStringGenerator(RegisteredGenerator, FakerDateTimeStringGenerator):
 
 
 class DateTime(RegisteredGenerator, FakerDateTimeGenerator):
+    """Generate date times uniformly sampled from an interval."""
+
     provider = 'date_time_between'
 
     @parameter
@@ -75,6 +79,8 @@ class DateTime(RegisteredGenerator, FakerDateTimeGenerator):
 
 
 class TimeStringGenerator(RegisteredGenerator, FakerDateTimeStringGenerator):
+    """Generate random time."""
+
     provider = 'time'
 
     @parameter(allowed_values=['%H:%M:%S', '%H:%M', '%M:%S'])

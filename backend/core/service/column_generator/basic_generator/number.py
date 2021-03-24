@@ -63,7 +63,7 @@ class FloatGenerator(RegisteredGenerator, SingleColumnGenerator[float]):
 
 
 class GaussianGenerator(RegisteredGenerator, SingleColumnGenerator[float]):
-    """Generate floats from a gaussian distribution."""
+    """Generate floats from gaussian distribution."""
 
     @parameter
     def mu(self) -> float:
