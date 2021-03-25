@@ -23,6 +23,9 @@ describe('GeneratorChoiceComponent', () => {
       'patchGeneratorName'
     ]
   );
+  const generatorForColumnByCategory = [{}, []];
+  generatorFacadeSpy.getGeneratorsForColumnByCategory.and
+    .returnValue(of(generatorForColumnByCategory));
  
   const columnFacadeSpy = jasmine.createSpyObj(
     'ColumnFacadeService',
