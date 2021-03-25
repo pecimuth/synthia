@@ -13,11 +13,7 @@ import { ActiveProjectService } from './service/active-project.service'
 })
 export class ProjectComponent implements OnInit, OnDestroy {
 
-  isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
-    .pipe(
-      map(result => result.matches),
-      shareReplay()
-    );
+  isHandset$: Observable<boolean>;
   project: ProjectView;
   private unsubscribe$ = new Subject();
 
@@ -36,6 +32,12 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.activeProject.project$
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((project) => this.project = project);
+    this.isHandset$ = this.breakpointObserver.observe(Breakpoints.Handset)
+      .pipe(
+        takeUntil(this.unsubscribe$),
+        map(result => result.matches),
+        shareReplay()
+      );
   }
 
   ngOnDestroy() {

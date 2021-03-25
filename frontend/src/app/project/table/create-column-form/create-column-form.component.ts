@@ -45,7 +45,7 @@ export class CreateColumnFormComponent implements OnInit, OnDestroy {
     this.unsubscribe$.complete();
   }
 
-  onSubmit() {
+  submit() {
     if (!this.columnForm.valid) {
       return;
     }

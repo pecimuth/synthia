@@ -1,4 +1,4 @@
-<mat-list role="list" dense>
+<mat-list *ngIf="table" role="list" dense>
   <mat-list-item role="listitem" *ngFor="let constraint of table.constraints">
     {{ constraint.name }}
     {{ constraint.constraint_type | uppercase }}

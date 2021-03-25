@@ -1,4 +1,4 @@
-<form [formGroup]="columnForm" novalidate (ngSubmit)="onSubmit()">
+<form [formGroup]="columnForm" novalidate (ngSubmit)="submit()">
   <h2>New column</h2>
 
   <app-form-field [form]="columnForm" label="Name" name="name" placeholder="my_column"></app-form-field>

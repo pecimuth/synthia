@@ -1,4 +1,4 @@
-<ng-container *ngIf="column.generator_setting as setting; else noGenerator">
+<ng-container *ngIf="column?.generator_setting as setting; else noGenerator">
   <button mat-button
     *ngIf="generatorFacade.isMultiColumn(setting.name); else singleColumn"
     color="primary"
