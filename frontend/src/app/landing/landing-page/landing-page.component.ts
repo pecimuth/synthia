@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { switchMap } from 'rxjs/operators';
 import { AuthFacadeService } from 'src/app/service/auth-facade.service';
-import { Snack } from 'src/app/service/constants';
 import { ProjectFacadeService } from 'src/app/service/project-facade.service';
+import { SnackService } from 'src/app/service/snack.service';
 
 @Component({
   selector: 'app-landing-page',
@@ -16,7 +15,7 @@ export class LandingPageComponent implements OnInit {
   constructor(
     private authFacade: AuthFacadeService,
     private projectFacade: ProjectFacadeService,
-    private snackBar: MatSnackBar,
+    private snackService: SnackService,
     private router: Router
   ) { }
 
@@ -33,11 +32,11 @@ export class LandingPageComponent implements OnInit {
       )
       .subscribe(
         (project) => {
-          this.snackBar.open('Created a project', Snack.OK, Snack.CONFIG);
+          this.snackService.snack('Created a project');
           this.router.navigate(['/project', project.id]);
         },
         () => {
-          this.snackBar.open('Could not start a project', Snack.OK, Snack.CONFIG);
+          this.snackService.snack('Could not start a project');
         }
       );
   }

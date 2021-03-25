@@ -1,13 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AuthFacadeService } from 'src/app/service/auth-facade.service';
 import { UserView } from 'src/app/api/models/user-view';
-import { Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { LoginFormComponent } from 'src/app/dialog/login-form/login-form.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Snack } from 'src/app/service/constants';
 import { RegisterFormComponent } from 'src/app/dialog/register-form/register-form.component';
 import { Router } from '@angular/router';
+import { SnackService } from 'src/app/service/snack.service';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-user-menu',
@@ -17,24 +17,26 @@ import { Router } from '@angular/router';
 export class UserMenuComponent implements OnInit, OnDestroy {
 
   user: UserView;
-  private userSub: Subscription;
+  private unsubscribe$ = new Subject();
 
   constructor(
     private authFacade: AuthFacadeService,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar,
+    private snackService: SnackService,
     private router: Router
   ) { }
 
   ngOnInit(): void {
-    this.userSub = this.authFacade.user$
+    this.authFacade.user$
+      .pipe(takeUntil(this.unsubscribe$))
       .subscribe(
         (user) => this.user = user
       );
   }
 
   ngOnDestroy() {
-    this.userSub.unsubscribe();
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   openLoginDialog() {
@@ -45,9 +47,9 @@ export class UserMenuComponent implements OnInit, OnDestroy {
     this.dialog.open(RegisterFormComponent);
   }
 
-  onLogout() {
+  logout() {
     this.authFacade.logout();
     this.router.navigateByUrl('/');
-    this.snackBar.open('Logged out', Snack.OK, Snack.CONFIG);
+    this.snackService.snack('Logged out');
   }
 }

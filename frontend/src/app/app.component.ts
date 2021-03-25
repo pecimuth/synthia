@@ -1,8 +1,9 @@
 import { Component, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
 import { AuthFacadeService } from './service/auth-facade.service';
 import { ProjectFacadeService } from './service/project-facade.service';
 import { GeneratorFacadeService } from './project/service/generator-facade.service';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -12,7 +13,7 @@ import { GeneratorFacadeService } from './project/service/generator-facade.servi
 export class AppComponent implements OnDestroy {
 
   showMenu = false;
-  private userSub: Subscription;
+  private unsubscribe$ = new Subject();
 
   constructor(
     private authFacade: AuthFacadeService,
@@ -23,7 +24,8 @@ export class AppComponent implements OnDestroy {
   ngOnInit() {
     this.authFacade.refresh();
     this.generatorFacade.refresh();
-    this.userSub = this.authFacade.user$
+    this.authFacade.user$
+      .pipe(takeUntil(this.unsubscribe$))
       .subscribe((user) => {
         this.showMenu = !!user;
         if (user) {
@@ -33,8 +35,7 @@ export class AppComponent implements OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.userSub) {
-      this.userSub.unsubscribe();
-    }
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 }

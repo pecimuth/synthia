@@ -1,4 +1,9 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
+import { AuthFacadeService } from 'src/app/service/auth-facade.service';
+import { ProjectFacadeService } from 'src/app/service/project-facade.service';
+import { SnackService } from 'src/app/service/snack.service';
+import { Spy } from 'src/app/test';
 
 import { LandingPageComponent } from './landing-page.component';
 
@@ -6,9 +11,28 @@ describe('LandingPageComponent', () => {
   let component: LandingPageComponent;
   let fixture: ComponentFixture<LandingPageComponent>;
 
+  const authFacadeSpy = jasmine.createSpyObj(
+    'AuthFacadeService',
+    ['register']
+  );
+
+  const projectFacadeSpy = jasmine.createSpyObj(
+    'ProjectFacadeService',
+    ['createProject']
+  );
+
+  const snackServiceSpy = Spy.snackService();
+  const routerSpy = Spy.router();
+
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ LandingPageComponent ]
+      declarations: [ LandingPageComponent ],
+      providers: [
+        {provide: SnackService, useValue: snackServiceSpy},
+        {provide: AuthFacadeService, useValue: authFacadeSpy},
+        {provide: ProjectFacadeService, useValue: projectFacadeSpy},
+        {provide: Router, useValue: routerSpy}
+      ]
     })
     .compileComponents();
   }));

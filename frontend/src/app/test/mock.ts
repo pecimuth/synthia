@@ -1,9 +1,21 @@
+import { DataSourceView } from '../api/models/data-source-view';
 import { OutputFileDriverListView } from '../api/models/output-file-driver-list-view';
 import { PreviewView } from '../api/models/preview-view';
 import { ProjectListView } from '../api/models/project-list-view';
 import { ProjectView } from '../api/models/project-view';
+import { UserView } from '../api/models/user-view';
 
+/**
+ * Create mock objects for testing purposes.
+ */
 export namespace Mock {
+  export function user(): UserView {
+    return {
+      email: 'mock@example.com',
+      id: 42
+    };
+  }
+
   export function outputFileDrivers(): OutputFileDriverListView {
     return {
       items: [
@@ -16,6 +28,19 @@ export namespace Mock {
   export function projectList(): ProjectListView {
     return {
       items: [project()]
+    };
+  }
+
+  export function dataSourceDatabase(): DataSourceView {
+    return {
+      db: 'foobar', 
+      driver: 'postgresql', 
+      file_name: null, 
+      host: 'examplehost', 
+      id: 983, 
+      mime_type: null, 
+      port: 4321, 
+      usr: 'baz'
     };
   }
 

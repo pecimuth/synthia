@@ -1,6 +1,9 @@
 import { of } from "rxjs";
 import { Mock } from "./mock";
 
+/**
+ * Create spy services for testing purposes.
+ */
 export namespace Spy {
   /**
    * Create a spy for the SnackService, without any return
@@ -17,7 +20,7 @@ export namespace Spy {
   }
 
   /** 
-   * Create a spy for the ActiverProjectService, with the project$
+   * Create a spy for the ActiveProjectService, with the project$
    * property returning the (observable) mock project.
    * 
    * @returns ActiveProjectService spy
@@ -42,6 +45,16 @@ export namespace Spy {
     return projectFacadeSpy;
   }
 
+  export function authFacadeObservableOnly() {
+    const user = Mock.user();
+    const authFacadeSpy = jasmine.createSpyObj(
+      'AuthFacadeService',
+      [],
+      {'user$': of(user)}
+    );
+    return authFacadeSpy;
+  }
+
   export function matDialog() {
     const dialogSpy = jasmine.createSpyObj(
       'MatDialog',
@@ -56,5 +69,29 @@ export namespace Spy {
       ['handleResponse']
     );
     return blobDownloadSpy;
+  }
+
+  export function router() {
+    const routerSpy = jasmine.createSpyObj(
+      'Router',
+      ['navigateByUrl', 'navigate']
+    );
+    return routerSpy;
+  }
+
+  export function formBuilder() {
+    const formBuilderSpy = jasmine.createSpyObj(
+      'FormBuilder',
+      ['group']
+    );
+    return formBuilderSpy;
+  }
+
+  export function dialogRef() {
+    const dialogRefSpy = jasmine.createSpyObj(
+      'MatDialogRef',
+      ['close']
+    );
+    return dialogRefSpy;
   }
 }

@@ -2,8 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Validators, FormBuilder } from '@angular/forms';
 import { AuthFacadeService } from 'src/app/service/auth-facade.service';
 import { MatDialogRef } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Snack } from 'src/app/service/constants';
+import { SnackService } from 'src/app/service/snack.service';
 
 @Component({
   selector: 'app-register-form',
@@ -20,21 +19,24 @@ export class RegisterFormComponent implements OnInit {
     private fb: FormBuilder,
     private authFacade: AuthFacadeService,
     private dialogRef: MatDialogRef<RegisterFormComponent>,
-    private snackBar: MatSnackBar
+    private snackService: SnackService
   ) {}
 
   ngOnInit() {}
   
-  onSubmit() {
+  submit() {
+    if (!this.registerForm.valid) {
+      return;
+    }
     this.authFacade
       .register(this.registerForm.value['email'], this.registerForm.value['pwd'])
       .subscribe(
         (user) => {
-          this.snackBar.open(`Logged in as ${user.email}`, Snack.OK, Snack.CONFIG);
+          this.snackService.snack(`Logged in as ${user.email}`);
           this.dialogRef.close()
         },
         () => {
-          this.snackBar.open('Could not register an account', Snack.OK, Snack.CONFIG);
+          this.snackService.snack('Could not register an account');
         }
       );
   }
