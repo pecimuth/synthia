@@ -21,7 +21,12 @@ export class DataSourceFacadeService {
     private blobDownloadService: BlobDownloadService
   ) { }
 
-
+  /**
+   * Import schema from a data source via the API and update the project state.
+   * 
+   * @param dataSourceId - The ID of the data source to be imported from
+   * @returns Observable of the new project schema
+   */
   import(dataSourceId: number): Observable<ProjectView> {
     return this.dataSourceService.postApiDataSourceIdImport(dataSourceId)
       .pipe(
@@ -29,6 +34,12 @@ export class DataSourceFacadeService {
       );
   }
 
+  /**
+   * Delete a data source via the API and update the active project state.
+   * 
+   * @param dataSourceId - The ID of the data source to be deleted
+   * @returns Observable of the operation status message
+   */
   delete(dataSourceId: number): Observable<MessageView> {
     return this.dataSourceService.deleteApiDataSourceId(dataSourceId)
       .pipe(
@@ -36,6 +47,12 @@ export class DataSourceFacadeService {
       );
   }
 
+  /**
+   * Start a download of a data source file.
+   * 
+   * @param dataSourceId - The ID of the data source to be downloaded
+   * @returns Observable of the file blob
+   */
   download(dataSourceId: number): Observable<Blob> {
     return this.dataSourceService.getApiDataSourceFileIdDownloadResponse(dataSourceId)
       .pipe(
@@ -46,6 +63,12 @@ export class DataSourceFacadeService {
       );
   }
 
+  /**
+   * Create a new database datasource via the API and update the active project.
+   * 
+   * @param dataSourceDatabase - The data source to be created
+   * @returns Observable of the created data source
+   */
   createDatabase(dataSourceDatabase: DataSourceDatabaseCreate): Observable<DataSourceView> {
     const project = this.activeProject.project$.value;
     dataSourceDatabase.project_id = project.id;
@@ -56,6 +79,13 @@ export class DataSourceFacadeService {
       );
   }
 
+  /**
+   * Patch a data source via the API and update the active project state.
+   * 
+   * @param dataSourceId - The ID od the data source to be patched
+   * @param dataSource - The content of the patch
+   * @returns Observable of the patched data source.
+   */
   patchDatabase(dataSourceId: number, dataSource: DataSourceDatabaseWrite): Observable<DataSourceView> {
     const params = {
       id: dataSourceId,
@@ -67,6 +97,12 @@ export class DataSourceFacadeService {
       );
   }
 
+  /**
+   * Create a file data source via the API and update the active project state.
+   * 
+   * @param dataFile - The file content
+   * @returns Observable of the created data source
+   */
   createFileSource(dataFile: Blob): Observable<DataSourceView> {
     const project = this.activeProject.project$.value;
     const params = {
@@ -80,6 +116,11 @@ export class DataSourceFacadeService {
       );
   }
 
+  /**
+   * Create a mock database via the API and update the active project state.
+   * 
+   * @returns Observable of the created database
+   */
   mockDatabase(): Observable<DataSourceView> {
     const project = this.activeProject.project$.value;
     return this.dataSourceService.postApiDataSourceMockDatabase(project.id)

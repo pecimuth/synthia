@@ -14,7 +14,7 @@ describe('ExportComponent', () => {
   let fixture: ComponentFixture<ExportComponent>;
   let loader: HarnessLoader;
 
-  const exportServiceSpy = jasmine.createSpyObj(
+  const exportServiceSpy: jasmine.SpyObj<ExportService> = jasmine.createSpyObj(
     'ExportService',
     ['export']
   );

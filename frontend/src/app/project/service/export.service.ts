@@ -20,6 +20,14 @@ export class ExportService {
     private blobDownloadService: BlobDownloadService
   ) { }
 
+  /**
+   * Export the project to a data source or start a file download.
+   * 
+   * @param outputChoice - Where should the result go (database data source,
+   * output file driver name, saved project)
+   * @param requisition - The requested tables, row counts and seeds
+   * @returns Observable of the downloaded file blob or status message
+   */
   export(outputChoice: DataSourceView | string | null,
          requisition: ExportRequisitionView): Observable<Blob | MessageView> {
     if (outputChoice === null) {
