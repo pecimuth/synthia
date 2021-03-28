@@ -1,20 +1,20 @@
-import { BrowserModule } from '@angular/platform-browser';
+import { LayoutModule } from '@angular/cdk/layout';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgModule } from '@angular/core';
+import { MatMomentDateModule, MAT_MOMENT_DATE_ADAPTER_OPTIONS } from '@angular/material-moment-adapter';
+import { MatButtonModule } from '@angular/material/button';
+import { MAT_DATE_LOCALE } from '@angular/material/core';
+import { MatIconModule } from '@angular/material/icon';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { environment } from 'src/environments/environment';
+import { ApiModule } from './api/api.module';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { LayoutModule } from '@angular/cdk/layout';
-import { ApiModule } from './api/api.module';
-import { environment } from 'src/environments/environment';
 import { AtomModule } from './atom/atom.module';
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { AuthInterceptorService } from './service/auth-interceptor.service';
 import { DialogModule } from './dialog/dialog.module';
-import { MatMomentDateModule, MAT_MOMENT_DATE_ADAPTER_OPTIONS } from '@angular/material-moment-adapter';
-import { MAT_DATE_LOCALE } from '@angular/material/core';
+import { AuthInterceptorService } from './service/auth-interceptor.service';
 
 
 @NgModule({

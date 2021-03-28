@@ -8,6 +8,13 @@ export class AuthInterceptorService implements HttpInterceptor {
 
   constructor() { }
 
+  /**
+   * Intercept API requests with the authorization token from the local storage.
+   * 
+   * @param request - API request
+   * @param next - The next request handler
+   * @returns Observable of the HTTP event
+   */
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {    
     const token = localStorage.getItem(Constants.TOKEN_KEY);
     if (token !== null) {

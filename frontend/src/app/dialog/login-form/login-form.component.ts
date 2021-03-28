@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AuthFacadeService } from 'src/app/service/auth-facade.service';
-import { MatDialogRef, MatDialog } from '@angular/material/dialog';
-import { RegisterFormComponent } from '../register-form/register-form.component';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { AuthFacadeService } from 'src/app/service/auth-facade.service';
 import { SnackService } from 'src/app/service/snack.service';
+import { RegisterFormComponent } from '../register-form/register-form.component';
 
 @Component({
   selector: 'app-login-form',
@@ -30,6 +30,9 @@ export class LoginFormComponent implements OnInit {
     });
   }
 
+  /**
+   * Try to log the user in.
+   */
   submit() {
     this.authFacade
       .login(this.loginForm.value['email'], this.loginForm.value['pwd'])
@@ -45,6 +48,9 @@ export class LoginFormComponent implements OnInit {
       );
   }
 
+  /**
+   * Open the register dialog and close this dialog.
+   */
   goToRegistration() {
     this.dialog.open(RegisterFormComponent);
     this.dialogRef.close();

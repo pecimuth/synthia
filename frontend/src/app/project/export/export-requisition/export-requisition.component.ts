@@ -2,8 +2,14 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ExportRequisitionView } from 'src/app/api/models/export-requisition-view';
 import { ProjectView } from 'src/app/api/models/project-view';
 
+/**
+ * Default row count for each project table.
+ */
 const BASE_COUNT = 10;
 
+/**
+ * Row inclusion and input value validity.
+ */
 interface InclusionValidity {
   included: boolean;
   rowCountValid: boolean;
@@ -22,11 +28,29 @@ type RowInclusionValidity = RequisitionRow & InclusionValidity;
 })
 export class ExportRequisitionComponent implements OnInit {
 
+  /**
+   * Array of requisiton rows with their inclusions and input value validities.
+   */
   requisitionRows: Array<RowInclusionValidity>;
+
+  /**
+   * Are all project tables included?
+   */
   allIncluded = true;
+
+  /**
+   * Are there some tables included and some tables not included?
+   */
   indeterminate = false;
 
+  /**
+   * The project we are reponsible for.
+   */
   private _project: ProjectView;
+
+  /**
+   * Set the project. Update the component properties.
+   */
   @Input() set project(newProject: ProjectView) {
     this._project = newProject;
     this.allIncluded = true;
@@ -44,18 +68,31 @@ export class ExportRequisitionComponent implements OnInit {
       });
     this.emit();
   }
+
   get project(): ProjectView {
     return this._project;
   }
 
+  /**
+   * Event triggered when the export requisition changes.
+   */
   @Output() requisitionChanged = new EventEmitter<ExportRequisitionView>();
 
+  /**
+   * List of columns displayed in the grid.
+   */
   displayedColumns = ['table', 'row_count', 'seed'];
 
   constructor() { }
 
   ngOnInit(): void {}
 
+  /**
+   * Set the requisition row's inclusion value.
+   * 
+   * @param row - The requisition row
+   * @param included - The inclusion value
+   */
   include(row: RowInclusionValidity, included: boolean) {
     row.included = included;
     this.allIncluded = row.included && this.requisitionRows.every((other) => other.included);
@@ -63,6 +100,11 @@ export class ExportRequisitionComponent implements OnInit {
     this.emit();
   }
 
+  /**
+   * Include or exclude all rows (tables).
+   * 
+   * @param included - The inclusion value for all rows
+   */
   includeAll(included: boolean) {
     this.allIncluded = included
     this.requisitionRows.forEach((row) => row.included = included);
@@ -70,6 +112,12 @@ export class ExportRequisitionComponent implements OnInit {
     this.emit();
   }
 
+  /**
+   * Change the number of requested rows for a table.
+   * 
+   * @param row - The affected row
+   * @param newCount - The updated row count
+   */
   changeRowCount(row: RowInclusionValidity, newCount: string) {
     const parsed = parseInt(newCount);
     row.rowCountValid = parsed > 0;
@@ -81,6 +129,12 @@ export class ExportRequisitionComponent implements OnInit {
     }
   }
 
+  /**
+   * Change the generator seed for a table.
+   * 
+   * @param row - The affected row
+   * @param newSeed - The updated seed value
+   */
   changeSeed(row: RowInclusionValidity, newSeed: string) {
     const parsed = parseInt(newSeed);
     row.seedValid = !isNaN(parsed);
@@ -92,6 +146,9 @@ export class ExportRequisitionComponent implements OnInit {
     }
   }
 
+  /**
+   * Emit requistion change event.
+   */
   private emit() {
     const result: ExportRequisitionView = {
       rows: []

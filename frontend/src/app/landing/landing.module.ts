@@ -1,8 +1,8 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LandingRoutingModule } from './landing-routing.module';
-import { LandingPageComponent } from './landing-page/landing-page.component';
+import { NgModule } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { LandingPageComponent } from './landing-page/landing-page.component';
+import { LandingRoutingModule } from './landing-routing.module';
 
 
 

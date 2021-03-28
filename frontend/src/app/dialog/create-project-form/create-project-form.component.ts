@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { ProjectFacadeService } from 'src/app/service/project-facade.service';
-import { MatDialogRef } from '@angular/material/dialog';
 import { FormBuilder, Validators } from '@angular/forms';
+import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { ProjectFacadeService } from 'src/app/service/project-facade.service';
 import { SnackService } from 'src/app/service/snack.service';
 
 @Component({
@@ -25,6 +25,9 @@ export class CreateProjectFormComponent implements OnInit {
 
   ngOnInit() {}
 
+  /**
+   * Create the project.
+   */
   submit() {
     if (!this.projectForm.valid) {
       return;

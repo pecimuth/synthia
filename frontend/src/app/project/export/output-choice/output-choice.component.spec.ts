@@ -2,8 +2,8 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { GeneratorService } from 'src/app/api/services';
 import { Mock } from 'src/app/test/mock';
-
 import { OutputChoiceComponent } from './output-choice.component';
+
 
 describe('OutputChoiceComponent', () => {
   let component: OutputChoiceComponent;

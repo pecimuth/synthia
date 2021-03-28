@@ -9,9 +9,25 @@ import { FormGroup } from '@angular/forms';
 export class FormFieldComponent implements OnInit {
 
   @Input() form: FormGroup;
+
+  /**
+   * Input label text
+   */
   @Input() label: string;
+
+  /**
+   * HTML input name
+   */
   @Input() name: string;
+
+  /**
+   * Type of the HTML input
+   */
   @Input() type = 'text';
+
+  /**
+   * Placeholder text
+   */
   @Input() placeholder: string = null;
 
   constructor() { }

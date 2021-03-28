@@ -16,7 +16,11 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class UserMenuComponent implements OnInit, OnDestroy {
 
+  /**
+   * Logged in user.
+   */
   user: UserView;
+
   private unsubscribe$ = new Subject();
 
   constructor(

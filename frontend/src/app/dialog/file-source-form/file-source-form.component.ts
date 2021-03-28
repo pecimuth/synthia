@@ -20,6 +20,9 @@ export class FileSourceFormComponent implements OnInit {
 
   ngOnInit() {}
 
+  /**
+   * Create the file data source.
+   */
   submit() {
     this.dataSourceFacade.createFileSource(this.fileInput.nativeElement.files[0])
       .subscribe(

@@ -15,11 +15,26 @@ import { ExportService } from '../service/export.service';
 })
 export class ExportComponent implements OnInit {
 
+  /**
+   * Active project.
+   */
   project: ProjectView;
+
+  /**
+   * Currently selected export requisition.
+   */
   requisition: ExportRequisitionView;
+
+  /**
+   * The selected output type.
+   */
   outputChoice: DataSourceView | string | null;
 
+  /**
+   * Should a progress bar be shown.
+   */
   showProgress = false;
+
   private unsubscribe$ = new Subject();
 
   constructor(
@@ -39,6 +54,11 @@ export class ExportComponent implements OnInit {
     this.unsubscribe$.complete();
   }
 
+  /**
+   * Is the export button disabled?
+   * It should be disabled when there is no export requisiton
+   * or the output choice is not defined.
+   */
   get exportDisabled(): boolean {
     return !this.requisition || this.outputChoice === undefined;
   }

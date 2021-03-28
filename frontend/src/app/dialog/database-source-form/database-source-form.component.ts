@@ -41,6 +41,9 @@ export class DatabaseSourceFormComponent implements OnInit {
     }
   }
 
+  /**
+   * Update or create the database data source.
+   */
   submit() {
     this.touchAll();
     if (!this.databaseForm.valid) {
@@ -61,6 +64,9 @@ export class DatabaseSourceFormComponent implements OnInit {
       );
   }
 
+  /**
+   * Mark all form controls as touched. This forces validation to take place.
+   */
   private touchAll() {
     Object.values(this.databaseForm.controls)
       .forEach((control) => control.markAsTouched());

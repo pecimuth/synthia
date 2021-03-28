@@ -23,7 +23,10 @@ export class RegisterFormComponent implements OnInit {
   ) {}
 
   ngOnInit() {}
-  
+
+  /**
+   * Register the user.
+   */
   submit() {
     if (!this.registerForm.valid) {
       return;

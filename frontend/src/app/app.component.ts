@@ -12,7 +12,11 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class AppComponent implements OnDestroy {
 
+  /**
+   * Should the menu be shown?
+   */
   showMenu = false;
+
   private unsubscribe$ = new Subject();
 
   constructor(

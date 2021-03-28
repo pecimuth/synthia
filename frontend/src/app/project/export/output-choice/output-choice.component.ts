@@ -14,9 +14,17 @@ import { GeneratorService } from 'src/app/api/services';
 export class OutputChoiceComponent implements OnInit {
 
   @Input() project: ProjectView;
+
+  /**
+   * Output choice selection events.
+   */
   @Output() outputChoiceChanged = new EventEmitter<DataSourceView | string | null>();
 
+  /**
+   * Available output file drivers.
+   */
   fileDrivers: OutputFileDriverListView = {items: []};
+
   private unsubscribe$ = new Subject();
 
   constructor(private generatorService: GeneratorService) { }
@@ -32,7 +40,12 @@ export class OutputChoiceComponent implements OnInit {
     this.unsubscribe$.complete();
   }
 
-  choose(value: DataSourceView | string) {
+  /**
+   * Trigger a new output choice selection event.
+   * 
+   * @param value - The value of the selection
+   */
+  choose(value: DataSourceView | string | null) {
     this.outputChoiceChanged.emit(value);
   }
 }

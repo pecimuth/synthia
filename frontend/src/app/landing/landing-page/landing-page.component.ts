@@ -22,6 +22,10 @@ export class LandingPageComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  /**
+   * Create an anonymous account and start a new project.
+   * No effect for a loggen in user.
+   */
   startNow() {
     if (this.authFacade.isLoggedIn) {
       return;

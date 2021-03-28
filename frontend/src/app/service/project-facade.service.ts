@@ -10,7 +10,11 @@ import { ProjectService } from '../api/services';
 })
 export class ProjectFacadeService implements OnDestroy {
 
+  /**
+   * List of user's projects.
+   */
   _list$ = new BehaviorSubject<ProjectListView>({items: []});
+
   get list$() {
     return this._list$;
   }
@@ -23,6 +27,9 @@ export class ProjectFacadeService implements OnDestroy {
     this.list$.complete();
   }
 
+  /**
+   * Refresh the list of user's projects from the API.
+   */
   refreshList() {
     this.projectService.getApiProjects()
       .subscribe(
@@ -30,6 +37,12 @@ export class ProjectFacadeService implements OnDestroy {
       );
   }
 
+  /**
+   * Create a new project via the API and add it to the list.
+   * 
+   * @param name - The name of the new project
+   * @returns Observable of the created project
+   */
   createProject(name: string): Observable<ProjectView> {
     return this.projectService
       .postApiProject(name)

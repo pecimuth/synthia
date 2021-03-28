@@ -10,7 +10,15 @@ import { Constants } from './constants';
   providedIn: 'root'
 })
 export class AuthFacadeService implements OnDestroy {
+
+  /**
+   * Replay subject of the logged in user.
+   */
   private _user$ = new ReplaySubject<UserView>(1);
+
+  /**
+   * Do we have a logged in user?
+   */
   private _isLoggedIn = false;
 
   get user$() {
@@ -39,6 +47,13 @@ export class AuthFacadeService implements OnDestroy {
     this.nextUser(userAndToken.user);
   }
 
+  /**
+   * Try to log in a user via the API.
+   * 
+   * @param email - The user's email
+   * @param password - The entered password
+   * @returns Observable of the logged in user
+   */
   login(email: string, password: string): Observable<UserView> {
     return this.authService.postApiAuthLogin({
       email: email,
@@ -49,6 +64,13 @@ export class AuthFacadeService implements OnDestroy {
       );
   }
 
+  /**
+   * Register a new user.
+   * 
+   * @param email - The new user's email
+   * @param password - The new user's password
+   * @returns Observable of the registered user
+   */
   register(email: string, password: string): Observable<UserView> {
     return this.authService.postApiAuthRegister({
       email: email,
@@ -59,11 +81,17 @@ export class AuthFacadeService implements OnDestroy {
       );
   }
 
+  /**
+   * Log out the user. The auth token is forgotten.
+   */
   logout() {
     localStorage.removeItem(Constants.TOKEN_KEY);
     this.nextUser(null);
   }
 
+  /**
+   * Refresh the logged in user's information.
+   */
   refresh() {
     this.authService.getApiAuthUser()
       .subscribe(

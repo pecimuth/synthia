@@ -14,6 +14,13 @@ export class AuthGuardService implements CanActivate {
     private router: Router
   ) { }
 
+  /**
+   * Allow the page to be activated only for a logged in user.
+   * 
+   * @param route - The guarded route
+   * @param state - Snapshot of the route state
+   * @returns Observable of a value whether the page can be activated
+   */
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
     return this.authFacade.user$.pipe(
       take(1),
