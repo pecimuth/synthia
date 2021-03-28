@@ -8,11 +8,13 @@ import { TableView } from 'src/app/api/models/table-view';
 })
 export class ConstraintListComponent implements OnInit {
 
+  /**
+   * The table for whose constraints we are responsible.
+   */
   @Input() table: TableView;
 
   constructor() { }
 
   ngOnInit(): void {
   }
-
 }

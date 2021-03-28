@@ -1,4 +1,4 @@
-<form [formGroup]="tableForm" novalidate (ngSubmit)="onSubmit()">
+<form [formGroup]="tableForm" novalidate (ngSubmit)="submit()">
   <h2>New table</h2>
 
   <app-form-field [form]="tableForm" label="Name" name="name" placeholder="my_table"></app-form-field>

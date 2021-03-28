@@ -7,7 +7,11 @@ import { ProjectView } from 'src/app/api/models/project-view';
 import { ProjectService } from 'src/app/api/services';
 import { ActiveProjectService } from '../service/active-project.service';
 
+/**
+ * How many table rows should be generated for each table?
+ */
 const N_PREVIEW_ROWS = 5;
+
 @Component({
   selector: 'app-preview',
   templateUrl: './preview.component.html',
@@ -15,11 +19,26 @@ const N_PREVIEW_ROWS = 5;
 })
 export class PreviewComponent implements OnInit {
 
+  /**
+   * Active project.
+   */
   project: ProjectView;
+
+  /**
+   * Generated preview.
+   */
   preview: PreviewView;
+
+  /**
+   * Optional error message; when the generation procedure fails.
+   */
   errorMessage: string;
 
+  /**
+   * Should a progress bar be shown?
+   */
   showProgress = false;
+
   private unsubscribe$ = new Subject();
 
   constructor(
@@ -58,6 +77,11 @@ export class PreviewComponent implements OnInit {
       );
   }
 
+  /**
+   * Prepare and return an export requisition for the API. 
+   * 
+   * @returns Preview export requisition
+   */
   private makeRequisition(): ExportRequisitionView {
     const result: ExportRequisitionView = {
       rows: this.project.tables.map((table, index) => {

@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-
-import { ProjectComponent } from './project.component';
-import { ProjectListComponent } from './project-list/project-list.component';
-import { TableListComponent } from './table/table-list/table-list.component';
-import { ResourceListComponent } from './resource/resource-list/resource-list.component';
-import { PreviewComponent } from './preview/preview.component';
+import { RouterModule, Routes } from '@angular/router';
 import { ExportComponent } from './export/export.component';
+import { PreviewComponent } from './preview/preview.component';
+import { ProjectListComponent } from './project-list/project-list.component';
+import { ProjectComponent } from './project.component';
+import { ResourceListComponent } from './resource/resource-list/resource-list.component';
+import { TableListComponent } from './table/table-list/table-list.component';
+
 
 const routes: Routes = [
   {

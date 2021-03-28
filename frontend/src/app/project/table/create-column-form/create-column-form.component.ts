@@ -8,6 +8,9 @@ import { Constants } from 'src/app/service/constants';
 import { SnackService } from 'src/app/service/snack.service';
 import { ColumnFacadeService } from '../../service/column-facade.service';
 
+/**
+ * Dialog input type.
+ */
 export interface CreateColumnFormInput {
   tableId: number
 }
@@ -19,6 +22,9 @@ export interface CreateColumnFormInput {
 })
 export class CreateColumnFormComponent implements OnInit, OnDestroy {
 
+  /**
+   * List of available value types.
+   */
   types = Constants.types;
 
   columnForm = this.fb.group({
@@ -45,6 +51,9 @@ export class CreateColumnFormComponent implements OnInit, OnDestroy {
     this.unsubscribe$.complete();
   }
 
+  /**
+   * Create the column via the API.
+   */
   submit() {
     if (!this.columnForm.valid) {
       return;

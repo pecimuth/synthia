@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { TableView } from 'src/app/api/models/table-view';
 
 type TablePreview = Array<{[key: string]: any}>
@@ -10,17 +10,32 @@ type TablePreview = Array<{[key: string]: any}>
 })
 export class TablePreviewComponent implements OnInit {
 
+  /**
+   * The table for whose preview we are responsible.
+   */
   private _table: TableView;
+
   get table(): TableView {
     return this._table;
   }
+
+  /**
+   * Set the table. List of displayed columns is constructed from the list
+   * of assigned table columns.
+   */
   @Input() set table(newTable: TableView) {
     this._table = newTable;
     this.displayedColumns = this.table.columns.map((column) => column.name);
   }
 
+  /**
+   * Generated preview for our table.
+   */
   @Input() preview: TablePreview;
 
+  /**
+   * The list of column names displayed in the grid.
+   */
   displayedColumns: string[] = [];
 
   constructor() { }

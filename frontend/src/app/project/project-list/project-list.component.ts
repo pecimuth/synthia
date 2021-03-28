@@ -1,10 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ProjectFacadeService } from 'src/app/service/project-facade.service';
-import { ProjectView } from 'src/app/api/models/project-view';
-import { Subject } from 'rxjs';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { CreateProjectFormComponent } from 'src/app/dialog/create-project-form/create-project-form.component';
+import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { ProjectView } from 'src/app/api/models/project-view';
+import { CreateProjectFormComponent } from 'src/app/dialog/create-project-form/create-project-form.component';
+import { ProjectFacadeService } from 'src/app/service/project-facade.service';
 
 @Component({
   selector: 'app-project-list',
@@ -13,7 +13,11 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class ProjectListComponent implements OnInit, OnDestroy {
 
+  /**
+   * List of user's projects.
+   */
   projects: ProjectView[];
+
   private unsubscribe$ = new Subject();
 
   constructor(
@@ -33,7 +37,10 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
   }
-  
+
+  /**
+   * Open the create project dialog.
+   */
   createProject() {
     this.dialog.open(CreateProjectFormComponent);
   }

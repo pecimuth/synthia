@@ -3,7 +3,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DataSourceView } from 'src/app/api/models/data-source-view';
-import { DataSourceService } from 'src/app/api/services';
 import { DatabaseSourceFormComponent } from 'src/app/dialog/database-source-form/database-source-form.component';
 import { SnackService } from 'src/app/service/snack.service';
 import { DataSourceFacadeService } from '../service/data-source-facade.service';
@@ -15,9 +14,16 @@ import { DataSourceFacadeService } from '../service/data-source-facade.service';
 })
 export class ResourceComponent implements OnInit, OnDestroy {
 
+  /**
+   * The data source we are responsible for.
+   */
   @Input() dataSource: DataSourceView;
 
+  /**
+   * Should a progress bar be visible?
+   */
   showProgress = false;
+
   private unsubscribe$ = new Subject();
   
   constructor(
@@ -34,6 +40,9 @@ export class ResourceComponent implements OnInit, OnDestroy {
     this.unsubscribe$.complete();
   }
 
+  /**
+   * Import schema from the data source.
+   */
   import() {
     this.showProgress = true;
     this.dataSourceFacade.import(this.dataSource.id)
@@ -50,6 +59,9 @@ export class ResourceComponent implements OnInit, OnDestroy {
       );
   }
 
+  /**
+   * Delete the data source via the API.
+   */
   delete() {
     this.dataSourceFacade.delete(this.dataSource.id)
       .pipe(takeUntil(this.unsubscribe$))
@@ -59,6 +71,9 @@ export class ResourceComponent implements OnInit, OnDestroy {
       );
   }
 
+  /**
+   * Download the data source file.
+   */
   download() {
     this.dataSourceFacade.download(this.dataSource.id)
       .pipe(takeUntil(this.unsubscribe$))
@@ -68,6 +83,9 @@ export class ResourceComponent implements OnInit, OnDestroy {
       );
   }
 
+  /**
+   * Open the edit database resource dialog.
+   */
   editDatabase() {
     this.dialog.open(DatabaseSourceFormComponent, {data: this.dataSource});
   }

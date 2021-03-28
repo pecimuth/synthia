@@ -6,10 +6,13 @@ import { ColumnView } from 'src/app/api/models/column-view';
 import { GeneratorSettingView } from 'src/app/api/models/generator-setting-view';
 import { TableView } from 'src/app/api/models/table-view';
 import { GeneratorFacadeService, GeneratorsByCategory, GeneratorView } from 'src/app/project/service/generator-facade.service';
+import { SnackService } from '../../../service/snack.service';
 import { ActiveProjectService } from '../../service/active-project.service';
 import { ColumnFacadeService } from '../../service/column-facade.service';
-import { SnackService } from '../../../service/snack.service';
 
+/**
+ * Dialog input data.
+ */
 export interface GeneratorChoiceInput {
   columnId: number,
   tableId: number
@@ -22,10 +25,26 @@ export interface GeneratorChoiceInput {
 })
 export class GeneratorChoiceComponent implements OnInit, OnDestroy {
 
+  /**
+   * The column for whose generator generator choice we are responsible.
+   */
   column: ColumnView;
+
+  /**
+   * The table containing the column.
+   */
   table: TableView;
+
+  /**
+   * Mapping of available generators by category.
+   */
   generatorsByCategory: GeneratorsByCategory;
+
+  /**
+   * List of existing multi-column settings belonging to the table.
+   */
   existingSettings: GeneratorSettingView[] = [];
+
   private unsubscribe$ = new Subject();
 
   constructor(
@@ -65,6 +84,11 @@ export class GeneratorChoiceComponent implements OnInit, OnDestroy {
     this.unsubscribe$.complete();
   }
 
+  /**
+   * Assign an existing setting to the column via the API.
+   * 
+   * @param setting - The selected setting
+   */
   selectSetting(setting: GeneratorSettingView) {
     this.columnFacade
       .setColumnGeneratorSetting(
@@ -79,11 +103,16 @@ export class GeneratorChoiceComponent implements OnInit, OnDestroy {
       );
   }
 
+  /**
+   * Delete a setting from the table via the API.
+   * 
+   * @param setting - The setting to be deleted
+   */
   deleteSetting(setting: GeneratorSettingView) {
     this.generatorFacade
       .deleteSetting(
         this.table.id,
-        setting
+        setting.id
       )
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe(
@@ -92,6 +121,11 @@ export class GeneratorChoiceComponent implements OnInit, OnDestroy {
       );
   }
 
+  /**
+   * Assign a generator to the column via the API.
+   * 
+   * @param generator - The chosen generator
+   */
   chooseGenerator(generator: GeneratorView) {
     if (!this.column.generator_setting ||
         this.generatorFacade.isMultiColumn(this.column.generator_setting.name) ||
@@ -102,6 +136,11 @@ export class GeneratorChoiceComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Create a setting belonging to our table via the API.
+   * 
+   * @param generator - The generator type
+   */
   private createSetting(generator: GeneratorView) {
     this.generatorFacade
       .createSetting(
@@ -116,11 +155,16 @@ export class GeneratorChoiceComponent implements OnInit, OnDestroy {
       );
   }
 
+  /**
+   * Change column's generator type via the API.
+   * 
+   * @param generator - The new generator type
+   */
   private patchSetting(generator: GeneratorView) {
     this.generatorFacade
       .patchGeneratorName(
         this.table.id,
-        this.column.generator_setting,
+        this.column.generator_setting.id,
         generator
       )
       .pipe(takeUntil(this.unsubscribe$))

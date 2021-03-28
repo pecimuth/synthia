@@ -16,7 +16,11 @@ import { DataSourceFacadeService } from '../../service/data-source-facade.servic
 })
 export class ResourceListComponent implements OnInit {
 
+  /**
+   * Active project.
+   */
   project: ProjectView;
+
   private unsubscribe$ = new Subject();
 
   constructor(
@@ -37,14 +41,23 @@ export class ResourceListComponent implements OnInit {
     this.unsubscribe$.complete();
   }
 
+  /**
+   * Open the create database data source dialog.
+   */
   createDatabase() {
     this.dialog.open(DatabaseSourceFormComponent);
   }
 
+  /**
+   * Open the create file data source dialog.
+   */
   createFileSource() {
     this.dialog.open(FileSourceFormComponent);
   }
 
+  /**
+   * Create a mock database data source via the API.
+   */
   mockDatabase() {
     this.dataSourceFacade.mockDatabase()
       .pipe(takeUntil(this.unsubscribe$))

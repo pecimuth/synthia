@@ -14,7 +14,11 @@ import { CreateTableFormComponent } from '../create-table-form/create-table-form
 })
 export class TableListComponent implements OnInit, OnDestroy {
 
+  /**
+   * Active project.
+   */
   project: ProjectView;
+
   private unsubscribe$ = new Subject();
 
   constructor(
@@ -33,6 +37,9 @@ export class TableListComponent implements OnInit, OnDestroy {
     this.unsubscribe$.complete();
   }
 
+  /**
+   * Open the create table dialog.
+   */
   createTable() {
     this.dialog.open(CreateTableFormComponent);
   }

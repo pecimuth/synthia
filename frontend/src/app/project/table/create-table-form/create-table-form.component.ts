@@ -37,7 +37,10 @@ export class CreateTableFormComponent implements OnInit {
     this.unsubscribe$.complete();
   }
 
-  onSubmit() {
+  /**
+   * Create the table via the API.
+   */
+  submit() {
     if (!this.tableForm.valid) {
       return;
     }

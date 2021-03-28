@@ -12,7 +12,14 @@ import { GeneratorChoiceComponent } from '../generator-choice/generator-choice.c
 })
 export class GeneratorFieldComponent implements OnInit {
 
+  /**
+   * Table containing the column.
+   */
   @Input() table: TableView;
+
+  /**
+   * The column for whose generator we are responsible.
+   */
   @Input() column: ColumnView;
 
   constructor(
@@ -23,10 +30,10 @@ export class GeneratorFieldComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  chooseGenerator(column: ColumnView) {
+  chooseGenerator() {
     this.dialog.open(GeneratorChoiceComponent, {
       data: {
-        columnId: column.id,
+        columnId: this.column.id,
         tableId: this.table.id
       }
     });

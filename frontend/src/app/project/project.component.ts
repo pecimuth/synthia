@@ -13,8 +13,18 @@ import { ActiveProjectService } from './service/active-project.service'
 })
 export class ProjectComponent implements OnInit, OnDestroy {
 
+  /**
+   * Observable of changes to the view area.
+   * 
+   * If the device is a handset, we should show a compact view.
+   */
   isHandset$: Observable<boolean>;
+
+  /**
+   * Active project.
+   */
   project: ProjectView;
+
   private unsubscribe$ = new Subject();
 
   constructor(

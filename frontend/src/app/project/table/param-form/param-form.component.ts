@@ -1,18 +1,25 @@
-import { Component, OnInit, Input, OnDestroy, Inject, LOCALE_ID } from '@angular/core';
-import { ColumnView } from 'src/app/api/models/column-view';
-import { GeneratorFacadeService, GeneratorParam, GeneratorView } from 'src/app/project/service/generator-facade.service';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { EMPTY, Observable, Subject } from 'rxjs';
-import { switchMap, debounceTime, takeUntil, tap, filter } from 'rxjs/operators';
-import { TableView } from 'src/app/api/models/table-view';
-import { GeneratorSettingView } from 'src/app/api/models/generator-setting-view';
 import { formatNumber } from '@angular/common';
-import { SnackService } from 'src/app/service/snack.service';
-import { DateAdapter, MatDateFormats, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
+import { Component, Inject, Input, LOCALE_ID, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_MOMENT_DATE_ADAPTER_OPTIONS, MomentDateAdapter } from '@angular/material-moment-adapter';
+import { DateAdapter, MatDateFormats, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
+import { EMPTY, Observable, Subject } from 'rxjs';
+import { debounceTime, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { ColumnView } from 'src/app/api/models/column-view';
+import { GeneratorSettingView } from 'src/app/api/models/generator-setting-view';
+import { TableView } from 'src/app/api/models/table-view';
+import { GeneratorFacadeService, GeneratorParam, GeneratorView } from 'src/app/project/service/generator-facade.service';
+import { SnackService } from 'src/app/service/snack.service';
 
+/**
+ * Patch the generator settings when at least TYPE_DEBOUNCE_MS ms
+ * elapsed after the last value change.
+ */
 const TYPE_DEBOUNCE_MS = 3000;
 
+/**
+ * Settings for the date input element. 
+ */
 export const DATE_FORMATS: MatDateFormats = {
   parse: {
     dateInput: 'YYYY-MM-DD',
@@ -40,11 +47,26 @@ export const DATE_FORMATS: MatDateFormats = {
 })
 export class ParamFormComponent implements OnInit, OnDestroy {
   
+  /**
+   * Table containing the column.
+   */
   @Input() table: TableView;
+
+  /**
+   * The column for whose generator we are responsible.
+   */
   @Input() column: ColumnView;
 
+  /**
+   * Parameter form with a structure dependent on the assigned generator.
+   */
   form: FormGroup;
+
+  /**
+   * The generator type fetched by the input column generator name.
+   */
   generator: GeneratorView;
+
   private unsubscribe$ = new Subject();
 
   constructor(
@@ -79,7 +101,9 @@ export class ParamFormComponent implements OnInit, OnDestroy {
     this.unsubscribe$.complete();
   }
 
-
+  /**
+   * Create the form based on the generator parameter definitions.
+   */
   private createForm() {
     if (!this.generator) {
       this.form = undefined;
@@ -104,6 +128,11 @@ export class ParamFormComponent implements OnInit, OnDestroy {
     this.form = this.fb.group(options);
   }
 
+  /**
+   * Observe form value changes and patch the generator setting parameters.
+   * 
+   * @returns Observable of the patched setting.
+   */
   private handleFormChanges(): Observable<GeneratorSettingView> {
     return this.form.valueChanges
       .pipe(
@@ -116,7 +145,7 @@ export class ParamFormComponent implements OnInit, OnDestroy {
             return this.generatorFacade
               .patchParams(
                 this.table.id,
-                this.column.generator_setting,
+                this.column.generator_setting.id,
                 {params: params}
               );
           }
@@ -124,6 +153,14 @@ export class ParamFormComponent implements OnInit, OnDestroy {
       );
   }
 
+  /**
+   * Convert a generator parameter to input type.
+   * Returns `select` for a select element, `number` and `text` to be used as HTML input
+   * types and `datetime` for a date input element.
+   * 
+   * @param param - Generator parameter definition
+   * @returns Form input type
+   */
   getInputType(param: GeneratorParam): string {
     if (param.allowed_values) {
       return 'select';
