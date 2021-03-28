@@ -68,9 +68,14 @@ class GeneratorSettingFacade:
             generator_setting.null_frequency = 0
         return generator_setting
 
+    def get_generator_type(self) -> Type[ColumnGenerator]:
+        """Return assigned generator type."""
+        generator_factory = RegisteredGenerator.get_by_name(self._generator_setting.name)
+        return generator_factory
+
     def make_generator_instance(self) -> ColumnGenerator:
         """Create and return an instance of the generator."""
-        generator_factory = RegisteredGenerator.get_by_name(self._generator_setting.name)
+        generator_factory = self.get_generator_type()
         return generator_factory(self._generator_setting)
 
     def maybe_estimate_params(self, injector: Injector):

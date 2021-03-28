@@ -46,17 +46,18 @@ class GeneratorAssignment:
         columns, the generator must be multi column.
         """
         facade = GeneratorSettingFacade(generator_setting)
-        column_gen = facade.make_generator_instance()
-        if not cls._assignment_allowed(column_gen, generator_setting, meta_column):
+        factory = facade.get_generator_type()
+        if not cls._assignment_allowed(factory, generator_setting, meta_column):
             return False
         meta_column.generator_setting = generator_setting
+        column_gen = facade.make_generator_instance()
         if isinstance(column_gen, MultiColumnGenerator):
             column_gen.unite_with(meta_column)
         return True
 
     @classmethod
     def _assignment_allowed(cls,
-                            column_gen: ColumnGenerator,
+                            factory: Type[ColumnGenerator],
                             generator_setting: GeneratorSetting,
                             meta_column: MetaColumn) -> bool:
         """Return whether generator (and its setting) is assignable to a column.
@@ -64,10 +65,10 @@ class GeneratorAssignment:
         The types must match. In case there are columns already assignment,
         it must be a multi column generator.
         """
-        if not cls._type_matches(column_gen, meta_column):
+        if not cls._type_matches(factory, meta_column.col_type):
             return False
         if generator_setting.columns:
-            return isinstance(column_gen, MultiColumnGenerator)
+            return issubclass(factory, MultiColumnGenerator)
         return True
 
     def _maybe_unite(self, factory: Type[ColumnGenerator], meta_column: MetaColumn) -> bool:
