@@ -119,7 +119,7 @@ export class ParamFormComponent implements OnInit, OnDestroy {
           if (options.hasOwnProperty(key)) {
             let formatted = value;
             if (typeof value === 'number') {
-              formatted = formatNumber(value, this.localeId, '1.0-2');
+              formatted = formatNumber(value, this.localeId, '1.0-2').replace(',', '');
             }
             options[key] = [formatted, Validators.required];
           }
