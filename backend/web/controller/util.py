@@ -71,8 +71,7 @@ def error_into_message(view):
         try:
             return view(*args, **kwargs)
         except SomeError as e:
-            # rollback may make more sense here
-            get_db_session().commit()
+            get_db_session().rollback()
             return bad_request(e.message)
     return wrapped_view
 
