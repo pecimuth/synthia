@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { Spy } from 'src/app/test';
 import { GeneratorFacadeService } from '../../service/generator-facade.service';
@@ -16,7 +16,7 @@ describe('GeneratorFieldComponent', () => {
 
   const dialogSpy = Spy.matDialog();
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ GeneratorFieldComponent ],
       providers: [

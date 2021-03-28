@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { GeneratorService } from 'src/app/api/services';
 import { Mock } from 'src/app/test/mock';
@@ -17,7 +17,7 @@ describe('OutputChoiceComponent', () => {
   const outputFileDrivers = Mock.outputFileDrivers();
   generatorServiceSpy.getApiOutputFileDrivers.and.returnValue(of(outputFileDrivers));
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ OutputChoiceComponent ],
       providers: [

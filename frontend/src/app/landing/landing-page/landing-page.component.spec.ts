@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { AuthFacadeService } from 'src/app/service/auth-facade.service';
 import { ProjectFacadeService } from 'src/app/service/project-facade.service';
@@ -24,7 +24,7 @@ describe('LandingPageComponent', () => {
   const snackServiceSpy = Spy.snackService();
   const routerSpy = Spy.router();
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ LandingPageComponent ],
       providers: [

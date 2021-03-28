@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { SnackService } from 'src/app/service/snack.service';
 import { Spy } from 'src/app/test';
@@ -24,7 +24,7 @@ describe('TableComponent', () => {
   const dialogSpy = Spy.matDialog();
   const snackServiceSpy = Spy.snackService();
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ TableComponent ],
       providers: [

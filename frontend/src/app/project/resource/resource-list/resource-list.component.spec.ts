@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { SnackService } from 'src/app/service/snack.service';
 import { Spy } from 'src/app/test';
@@ -18,7 +18,7 @@ describe('ResourceListComponent', () => {
     ['mockDatabase']
   );
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ ResourceListComponent ],
       providers: [

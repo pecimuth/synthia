@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { SnackService } from 'src/app/service/snack.service';
@@ -24,7 +24,7 @@ describe('CreateTableFormComponent', () => {
   const snackServiceSpy = Spy.snackService();
   const activeProjectSpy = Spy.activeProjectObservableOnly();
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ CreateTableFormComponent ],
       providers: [

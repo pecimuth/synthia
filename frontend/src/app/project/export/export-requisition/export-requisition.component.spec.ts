@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ExportRequisitionView } from 'src/app/api/models/export-requisition-view';
 import { ExportRequisitionComponent } from './export-requisition.component';
 import { Mock } from 'src/app/test/mock';
@@ -7,7 +7,7 @@ describe('ExportRequisitionComponent', () => {
   let component: ExportRequisitionComponent;
   let fixture: ComponentFixture<ExportRequisitionComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ ExportRequisitionComponent ]
     })

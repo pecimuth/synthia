@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { ProjectService } from 'src/app/api/services';
 import { Mock, Spy } from 'src/app/test';
@@ -17,7 +17,7 @@ describe('PreviewComponent', () => {
     ['postApiProjectIdPreview']
   );
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ PreviewComponent ],
       providers: [

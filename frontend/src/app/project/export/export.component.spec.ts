@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { SnackService } from 'src/app/service/snack.service';
 import { Spy } from 'src/app/test';
@@ -22,7 +22,7 @@ describe('ExportComponent', () => {
   const activeProjectSpy = Spy.activeProjectObservableOnly();
   const snackServiceSpy = Spy.snackService();
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ ExportComponent ],
       providers: [

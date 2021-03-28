@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { SnackService } from 'src/app/service/snack.service';
 import { Spy } from 'src/app/test';
@@ -20,7 +20,7 @@ describe('ParamFormComponent', () => {
 
   const snackServiceSpy = Spy.snackService();
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ ParamFormComponent ],
       providers: [

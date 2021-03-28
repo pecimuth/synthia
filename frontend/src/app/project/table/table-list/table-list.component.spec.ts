@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { Spy } from 'src/app/test';
 import { ActiveProjectService } from '../../service/active-project.service';
@@ -12,7 +12,7 @@ describe('TableListComponent', () => {
   const activeProjectSpy = Spy.activeProjectObservableOnly();
   const dialogSpy = Spy.matDialog();
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ TableListComponent ],
       providers: [

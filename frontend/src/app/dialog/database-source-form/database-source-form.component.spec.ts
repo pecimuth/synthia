@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DataSourceFacadeService } from 'src/app/project/service/data-source-facade.service';
@@ -23,7 +23,7 @@ describe('DatabaseSourceFormComponent', () => {
   const dataSource = Mock.dataSourceDatabase();
   const snackServiceSpy = Spy.snackService();
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ DatabaseSourceFormComponent ],
       providers: [

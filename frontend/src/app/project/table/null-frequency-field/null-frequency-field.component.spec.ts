@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { SnackService } from 'src/app/service/snack.service';
 import { Spy } from 'src/app/test';
 import { GeneratorFacadeService } from '../../service/generator-facade.service';
@@ -16,7 +16,7 @@ describe('NullFrequencyFieldComponent', () => {
 
   const snackServiceSpy = Spy.snackService();
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ NullFrequencyFieldComponent ],
       providers: [

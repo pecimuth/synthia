@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
 import { DataSourceFacadeService } from 'src/app/project/service/data-source-facade.service';
 import { SnackService } from 'src/app/service/snack.service';
@@ -18,7 +18,7 @@ describe('FileSourceFormComponent', () => {
   const dialogRefSpy = Spy.dialogRef();
   const snackServiceSpy = Spy.snackService();
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ FileSourceFormComponent ],
       providers: [
