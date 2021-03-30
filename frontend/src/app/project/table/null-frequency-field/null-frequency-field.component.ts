@@ -55,9 +55,10 @@ export class NullFrequencyFieldComponent implements OnInit {
     this.generatorFacade.getGeneratorByName(generatorName)
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((generator) => {
-        this.show = !!generator?.supports_null;
+        this.show = !!generator?.supports_null &&
+          (generator.is_multi_column || this.column?.nullable);
       });
-    
+
     this.valueChanges$
       .pipe(
         debounceTime(TYPE_DEBOUNCE_MS),
