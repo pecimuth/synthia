@@ -49,8 +49,8 @@ class GeneratorAssignment:
         factory = facade.get_generator_type()
         if not cls._assignment_allowed(factory, generator_setting, meta_column):
             return False
-        column_gen = facade.make_generator_instance()
-        if isinstance(column_gen, MultiColumnGenerator):
+        if issubclass(factory, MultiColumnGenerator):
+            column_gen = factory(generator_setting)
             column_gen.unite_with(meta_column)
         else:
             meta_column.generator_setting = generator_setting
