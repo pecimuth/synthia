@@ -1,6 +1,7 @@
 import { TestBed, waitForAsync } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
+import { ProjectView } from './api/models';
 import { AppComponent } from './app.component';
 import { GeneratorFacadeService } from './project/service/generator-facade.service';
 import { AuthFacadeService } from './service/auth-facade.service';
@@ -16,9 +17,11 @@ describe('AppComponent', () => {
     {'user$': of(user)}
   );
 
+  const project$ = new Subject<ProjectView>();
   const projectFacadeServiceSpy = jasmine.createSpyObj(
     'ProjectFacadeService',
-    ['refreshList']
+    ['refresh'],
+    {'project$': project$}
   );
 
   const generatorFacadeServiceSpy = jasmine.createSpyObj(

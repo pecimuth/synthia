@@ -32,6 +32,7 @@ export class AppComponent implements OnDestroy {
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((user) => {
         this.showMenu = !!user;
+        this.projectFacade.projects$.next(null);
         if (user) {
           this.projectFacade.refresh();
         }
