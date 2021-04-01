@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { ProjectView } from 'src/app/api/models/project-view';
-import { ProjectService } from 'src/app/api/services';
+import { ProjectFacadeService } from 'src/app/service/project-facade.service';
 import { Mock } from 'src/app/test';
 import { ActiveProjectService } from './active-project.service';
 
@@ -9,16 +9,16 @@ import { ActiveProjectService } from './active-project.service';
 describe('ActiveProjectService', () => {
   let service: ActiveProjectService;
 
-  let projectServiceSpy: jasmine.SpyObj<ProjectService>;
+  let projectFacadeSpy: jasmine.SpyObj<ProjectFacadeService>;
 
   beforeEach(() => {
-    projectServiceSpy = jasmine.createSpyObj(
-      'ProjectService',
-      ['getApiProjectId']
+    projectFacadeSpy = jasmine.createSpyObj(
+      'ProjectFacadeService',
+      ['findById']
     );
     TestBed.configureTestingModule({
       providers: [
-        {provide: ProjectService, useValue: projectServiceSpy}
+        {provide: ProjectFacadeService, useValue: projectFacadeSpy}
       ]
     });
     service = TestBed.inject(ActiveProjectService);
@@ -33,12 +33,12 @@ describe('ActiveProjectService', () => {
     
     beforeEach(() => {
       project = Mock.project();
-      projectServiceSpy.getApiProjectId.and.returnValue(of(project));
+      projectFacadeSpy.findById.and.returnValue(of(project));
       service.projectId = project.id;
     });
 
-    it('setting the project ID should fetch the project from API', () => {
-      expect(projectServiceSpy.getApiProjectId).toHaveBeenCalledWith(project.id);
+    it('setting the project ID should find the project', () => {
+      expect(projectFacadeSpy.findById).toHaveBeenCalledWith(project.id);
       expect(service.project$.value).toBe(project);
     });
   });  

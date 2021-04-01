@@ -17,6 +17,12 @@ export class TableFacadeService {
     private tableService: TableService
   ) { }
 
+  /**
+   * Create a table via the API and update the active project state.
+   * 
+   * @param table - The table to be created
+   * @returns Observable of the created table
+   */
   createTable(table: TableCreate): Observable<TableView> {
     return this.tableService.postApiTable(table)
       .pipe(
@@ -24,10 +30,16 @@ export class TableFacadeService {
       );
   }
 
+  /**
+   * Delete a table via the API and update the active project state.
+   * 
+   * @param tableId - The ID of the table to be deleted
+   * @returns Observable of the new project state
+   */
   deleteTable(tableId: number): Observable<ProjectView> {
     return this.tableService.deleteApiTableId(tableId)
       .pipe(
-        tap((project) => this.activeProject.project$.next(project))
+        tap((project) => this.activeProject.nextProject(project))
       );
   }
 }

@@ -36,11 +36,11 @@ export namespace Spy {
   }
 
   export function projectFacadeObservableOnly() {
-    const projectList = Mock.projectList();
+    const projectList = [Mock.project()];
     const projectFacadeSpy = jasmine.createSpyObj(
       'ProjectFacadeService',
       [],
-      {'list$': of(projectList)}
+      {'projects$': of(projectList)}
     );
     return projectFacadeSpy;
   }

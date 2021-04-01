@@ -9,7 +9,8 @@ describe('TableFacadeService', () => {
 
   const activeProjectSpy = jasmine.createSpyObj(
     'ActiveProjectService',
-    ['project$']
+    ['nextProject'],
+    {'project$': null}
   );
 
   const tableServiceSpy = jasmine.createSpyObj(

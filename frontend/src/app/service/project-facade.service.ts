@@ -1,7 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
-import { ProjectListView } from '../api/models/project-list-view';
+import { filter, map, take, tap } from 'rxjs/operators';
 import { ProjectView } from '../api/models/project-view';
 import { ProjectService } from '../api/services';
 
@@ -13,27 +12,23 @@ export class ProjectFacadeService implements OnDestroy {
   /**
    * List of user's projects.
    */
-  _list$ = new BehaviorSubject<ProjectListView>({items: []});
-
-  get list$() {
-    return this._list$;
-  }
+  projects$ = new BehaviorSubject<ProjectView[]>(null);
 
   constructor(
     private projectService: ProjectService
   ) { }
 
   ngOnDestroy() {
-    this.list$.complete();
+    this.projects$.complete();
   }
 
   /**
    * Refresh the list of user's projects from the API.
    */
-  refreshList() {
+  refresh() {
     this.projectService.getApiProjects()
       .subscribe(
-        (list) => this.list$.next(list)
+        (projects) => this.projects$.next(projects.items)
       );
   }
 
@@ -48,11 +43,41 @@ export class ProjectFacadeService implements OnDestroy {
       .postApiProject(name)
       .pipe(
         tap((project) => {
-          const list = this._list$.value;
-          this._list$.next({
-            items: [...list.items, project]
-          });
+          const projects = this.projects$.value ?? [];
+          this.projects$.next([
+            ...projects,
+            project
+          ]);
         })
       );
+  }
+
+  /**
+   * Replace a project instance in the list of cached projects.
+   * 
+   * @param project - The patched project
+   */
+  patchProject(project: ProjectView) {
+    const projects = this.projects$.value ?? [];
+    const patchedProjects = projects.map(
+      (other) => other.id === project.id ? project : other
+    );
+    this.projects$.next(patchedProjects);
+  }
+
+  /**
+   * Find a project in the project list by ID.
+   * Returns at most once. If the projects are not loaded yet,
+   * wait for it.
+   * 
+   * @param projectId - The ID of the requested project
+   * @returns Observable of a project, returning at most once
+   */
+  findById(projectId: number): Observable<ProjectView> {
+    return this.projects$.pipe(
+      filter((projects) => !!projects),
+      take(1),
+      map((projects) => projects.find((project) => project.id === projectId))
+    );
   }
 }

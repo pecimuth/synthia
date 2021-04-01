@@ -33,7 +33,7 @@ export class AppComponent implements OnDestroy {
       .subscribe((user) => {
         this.showMenu = !!user;
         if (user) {
-          this.projectFacade.refreshList();
+          this.projectFacade.refresh();
         }
       });
   }

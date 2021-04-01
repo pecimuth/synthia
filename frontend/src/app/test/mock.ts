@@ -25,12 +25,6 @@ export namespace Mock {
     };
   }
 
-  export function projectList(): ProjectListView {
-    return {
-      items: [project()]
-    };
-  }
-
   export function dataSourceDatabase(): DataSourceView {
     return {
       db: 'foobar', 

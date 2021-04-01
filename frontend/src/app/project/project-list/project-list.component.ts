@@ -26,10 +26,10 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.projectFacade.list$
+    this.projectFacade.projects$
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe(
-        (projects) => this.projects = projects.items
+        (projects) => this.projects = projects
       );
   }
 

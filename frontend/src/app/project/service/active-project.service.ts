@@ -6,7 +6,7 @@ import { DataSourceView } from 'src/app/api/models/data-source-view';
 import { GeneratorSettingView } from 'src/app/api/models/generator-setting-view';
 import { ProjectView } from 'src/app/api/models/project-view';
 import { TableView } from 'src/app/api/models/table-view';
-import { ProjectService } from 'src/app/api/services';
+import { ProjectFacadeService } from 'src/app/service/project-facade.service';
 
 type ProjectTransformer = (project: ProjectView) => ProjectView;
 type TableTransformer = (table: TableView) => TableView;
@@ -37,13 +37,11 @@ export class ActiveProjectService implements OnDestroy {
 
   /**
    * Set active project ID.
-   * 
-   * Fetches the project from API.
    */
   set projectId(newProjectId: number) {
     this.unsubscribe$.next();
-    this.projectService
-      .getApiProjectId(newProjectId)
+    this.projectFacade
+      .findById(newProjectId)
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe(
         (project) => this.project$.next(project)
@@ -51,7 +49,7 @@ export class ActiveProjectService implements OnDestroy {
   }
 
   constructor(
-    private projectService: ProjectService
+    private projectFacade: ProjectFacadeService
   ) { }
 
   ngOnDestroy() {
@@ -90,6 +88,17 @@ export class ActiveProjectService implements OnDestroy {
   }
 
   /**
+   * Replace the project instance by a new instance.
+   * Also replaces the project in the project facade's list.
+   * 
+   * @param project - The patche project instance
+   */
+  nextProject(project: ProjectView) {
+    this.projectFacade.patchProject(project);
+    this.project$.next(project);
+  }
+
+  /**
    * Apply a function to the active project state creating new state.
    * 
    * @param transformer - The function returning new project state
@@ -100,7 +109,7 @@ export class ActiveProjectService implements OnDestroy {
       return;
     }
     const newProject = transformer(project);
-    this.project$.next(newProject);
+    this.nextProject(newProject);
   }
 
   /**
