@@ -1,9 +1,9 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { Observable, ReplaySubject } from 'rxjs';
-import { UserView } from '../api/models/user-view';
-import { AuthService } from '../api/services';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { UserAndTokenView } from '../api/models/user-and-token-view';
+import { UserView } from '../api/models/user-view';
+import { AuthService } from '../api/services';
 import { Constants } from './constants';
 
 @Injectable({
@@ -12,21 +12,17 @@ import { Constants } from './constants';
 export class AuthFacadeService implements OnDestroy {
 
   /**
-   * Replay subject of the logged in user.
+   * Behavior subject of the logged in user.
+   * Value of undefined means that we have not fetched the user yet.
+   * Value of null means that there is no logged in user.
    */
-  private _user$ = new ReplaySubject<UserView>(1);
+  user$ = new BehaviorSubject<UserView>(undefined);
 
   /**
    * Do we have a logged in user?
    */
-  private _isLoggedIn = false;
-
-  get user$() {
-    return this._user$;
-  }
-
   get isLoggedIn(): boolean {
-    return this._isLoggedIn;
+    return !!this.user$.value;
   }
 
   constructor(
@@ -37,14 +33,9 @@ export class AuthFacadeService implements OnDestroy {
     this.user$.complete();
   }
 
-  private nextUser(user: UserView) {
-    this._isLoggedIn = !!user;
-    this._user$.next(user);
-  }
-
   private nextUserAndToken(userAndToken: UserAndTokenView) {
     localStorage.setItem(Constants.TOKEN_KEY, userAndToken.token);
-    this.nextUser(userAndToken.user);
+    this.user$.next(userAndToken.user);
   }
 
   /**
@@ -86,7 +77,7 @@ export class AuthFacadeService implements OnDestroy {
    */
   logout() {
     localStorage.removeItem(Constants.TOKEN_KEY);
-    this.nextUser(null);
+    this.user$.next(null);
   }
 
   /**
@@ -95,8 +86,8 @@ export class AuthFacadeService implements OnDestroy {
   refresh() {
     this.authService.getApiAuthUser()
       .subscribe(
-        (user) => this.nextUser(user),
-        () => this.nextUser(null)
+        (user) => this.user$.next(user),
+        () => this.user$.next(null)
       );
   }
 }
