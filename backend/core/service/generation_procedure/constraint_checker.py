@@ -12,9 +12,8 @@ class ConstraintChecker:
     UNIQUE and FOREIGN constraints.
     """
 
-    def __init__(self, project: Project, database: GeneratedDatabase, interactive_driver: bool):
+    def __init__(self, project: Project, interactive_driver: bool):
         self._project = project
-        self._database = database
         self._interactive_driver = interactive_driver
         """Is the driver interactive?"""
         self._watched_by_table: Dict[MetaTable, List[MetaConstraint]] = {

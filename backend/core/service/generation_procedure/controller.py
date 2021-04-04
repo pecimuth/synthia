@@ -1,5 +1,5 @@
 from collections import deque
-from typing import Iterable, Tuple, Optional
+from typing import Iterable, Tuple
 
 from sqlalchemy import Table
 
@@ -26,17 +26,14 @@ class ProcedureController:
         self._statistics = ProcedureStatistics(requisition)
         self._requisition = requisition
         self._output_driver = output_driver
-        self._database: Optional[GeneratedDatabase] = None
-        self._checker: Optional[ConstraintChecker] = None
+        self._database = GeneratedDatabase()
+        self._checker = ConstraintChecker(self._project,
+                                          self._output_driver.is_interactive)
 
     def run(self) -> GeneratedDatabase:
         """Generate the data according to the requisition using
         the provided output driver. Return the generated data.
         """
-        self._database = GeneratedDatabase()
-        self._checker = ConstraintChecker(self._project,
-                                          self._database,
-                                          self._output_driver.is_interactive)
         self._output_driver.start_run()
         states = deque((iter(self._table_loop(meta_table)), table, meta_table)
                        for table, meta_table in self._sorted_tables())
