@@ -45,8 +45,7 @@ class GeneratorAssignment:
         We check that the types are compatible and if there are already assigned
         columns, the generator must be multi column.
         """
-        facade = GeneratorSettingFacade(generator_setting)
-        factory = facade.get_generator_type()
+        factory = RegisteredGenerator.get_by_name(generator_setting.name)
         if not cls._assignment_allowed(factory, generator_setting, meta_column):
             return False
         if issubclass(factory, MultiColumnGenerator):
@@ -95,7 +94,7 @@ class GeneratorAssignment:
             factory = self._find_for_single_column(meta_column)
             if self._maybe_unite(factory, meta_column):
                 continue
-            facade = GeneratorSettingFacade.from_meta_column(meta_column, factory)
+            facade = GeneratorSettingFacade.with_new_setting(meta_column, factory)
             instance = facade.make_generator_instance()
             if isinstance(instance, MultiColumnGenerator):
                 self._multi.append(instance)

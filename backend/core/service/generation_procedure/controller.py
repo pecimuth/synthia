@@ -1,3 +1,4 @@
+import random
 from collections import deque
 from typing import Iterable, Tuple
 
@@ -70,9 +71,9 @@ class ProcedureController:
         """
         table_db = self._database.add_table(meta_table.name)
         stats = self._statistics.get_table_statistics(meta_table.name)
-        generators = GeneratorSettingFacade.instances_from_table(meta_table)
+        generators = self.instances_from_table(meta_table)
         table_seed = self._requisition.seed(meta_table.name)
-        GeneratorSettingFacade.seed_all(generators, table_seed)
+        self.seed_all(generators, table_seed)
         while stats.expects_next_row:
             row = self._make_row(generators)
             if not self._checker.check_row(meta_table, row):
@@ -97,3 +98,23 @@ class ProcedureController:
                 generated = generator.make_dict(self._database)
                 row.update(generated)
         return row
+
+    @staticmethod
+    def seed_all(instances: GeneratorList, seed: int):
+        """Seed all generator instances in a list with a random seed,
+        influenced by the input seed."""
+        random_inst = random.Random(seed)
+        for instance in instances:
+            instance.seed(random_inst.random())
+
+    @staticmethod
+    def instances_from_table(meta_table: MetaTable) -> GeneratorList:
+        """Make generator instances for generator settings in a table."""
+        instances = []
+        for generator_setting in meta_table.generator_settings:
+            if not generator_setting.columns:
+                continue
+            facade = GeneratorSettingFacade(generator_setting)
+            instance = facade.make_generator_instance()
+            instances.append(instance)
+        return instances
