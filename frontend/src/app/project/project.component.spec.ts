@@ -6,7 +6,6 @@ import { Mock, Spy } from '../test';
 
 import { ProjectComponent } from './project.component';
 import { ActiveProjectService } from './service/active-project.service';
-import { GeneratorFacadeService } from './service/generator-facade.service';
 
 describe('ProjectComponent', () => {
   let component: ProjectComponent;
@@ -28,25 +27,14 @@ describe('ProjectComponent', () => {
   );
   breakpointObserverSpy.observe.and.returnValue(of(breakpoint));
 
-  const generatorFacadeServiceSpy = jasmine.createSpyObj(
-    'GeneratorFacadeService',
-    ['refresh']
-  );
-
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ ProjectComponent ],
       providers: [
         {provide: ActiveProjectService, useValue: activeProjectSpy},
         {provide: ActivatedRoute, useValue: activatedRouteSpy},
-        {provide: BreakpointObserver, useValue: breakpointObserverSpy},
-        {provide: GeneratorFacadeService, useValue: generatorFacadeServiceSpy}
+        {provide: BreakpointObserver, useValue: breakpointObserverSpy}
       ]
-    })
-    .overrideComponent(ProjectComponent, {
-      set: {
-        providers: []
-      }
     })
     .compileComponents();
   }));

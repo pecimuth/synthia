@@ -30,7 +30,6 @@ describe('ExportService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        ExportService,
         {provide: ActiveProjectService, useValue: activeProjectSpy},
         {provide: ProjectService, useValue: projectServiceSpy},
         {provide: DataSourceService, useValue: dataSourceServiceSpy},

@@ -2,6 +2,7 @@ import { Component, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { AuthFacadeService } from './service/auth-facade.service';
 import { ProjectFacadeService } from './service/project-facade.service';
+import { GeneratorFacadeService } from './project/service/generator-facade.service';
 import { takeUntil } from 'rxjs/operators';
 
 @Component({
@@ -20,11 +21,13 @@ export class AppComponent implements OnDestroy {
 
   constructor(
     private authFacade: AuthFacadeService,
-    private projectFacade: ProjectFacadeService
+    private projectFacade: ProjectFacadeService,
+    private generatorFacade: GeneratorFacadeService
   ) {}
 
   ngOnInit() {
     this.authFacade.refresh();
+    this.generatorFacade.refresh();
     this.authFacade.user$
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((user) => {

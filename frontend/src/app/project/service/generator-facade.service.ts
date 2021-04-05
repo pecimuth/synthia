@@ -18,7 +18,9 @@ export type GeneratorsByCategory = {
   [category: string]: GeneratorView[]
 };
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class GeneratorFacadeService implements OnDestroy {
 
   /**

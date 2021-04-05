@@ -24,7 +24,6 @@ describe('TableFacadeService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        TableFacadeService,
         {provide: ActiveProjectService, useValue: activeProjectSpy},
         {provide: TableService, useValue: tableServiceSpy},
       ]

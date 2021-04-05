@@ -8,7 +8,9 @@ import { DataSourceService, ProjectService } from 'src/app/api/services';
 import { ActiveProjectService } from './active-project.service';
 import { BlobDownloadService } from './blob-download.service';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class ExportService {
 
   constructor(

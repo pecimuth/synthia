@@ -20,7 +20,6 @@ describe('ColumnFacadeService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        ColumnFacadeService,
         {provide: ActiveProjectService, useValue: activeProjectSpy},
         {provide: ColumnService, useValue: columnServiceSpy},
       ]

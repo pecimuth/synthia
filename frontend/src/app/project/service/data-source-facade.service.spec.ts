@@ -33,7 +33,6 @@ describe('DataSourceFacadeService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        DataSourceFacadeService,
         {provide: ActiveProjectService, useValue: activeProjectSpy},
         {provide: DataSourceService, useValue: dataSourceServiceSpy},
         {provide: BlobDownloadService, useValue: blobDownloadSpy}

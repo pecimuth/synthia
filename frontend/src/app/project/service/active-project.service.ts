@@ -12,7 +12,9 @@ type ProjectTransformer = (project: ProjectView) => ProjectView;
 type TableTransformer = (table: TableView) => TableView;
 type ColumnTransformer = (column: ColumnView) => ColumnView;
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class ActiveProjectService implements OnDestroy {
 
   /**

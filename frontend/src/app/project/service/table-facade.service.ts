@@ -7,7 +7,9 @@ import { TableView } from 'src/app/api/models/table-view';
 import { TableService } from 'src/app/api/services';
 import { ActiveProjectService } from './active-project.service';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class TableFacadeService {
 
   constructor(

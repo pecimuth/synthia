@@ -1,28 +1,15 @@
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ProjectView } from '../api/models/project-view';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, Subject } from 'rxjs';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { map, shareReplay, takeUntil } from 'rxjs/operators';
-import { ProjectView } from '../api/models/project-view';
-import { ActiveProjectService } from './service/active-project.service';
-import { ColumnFacadeService } from './service/column-facade.service';
-import { DataSourceFacadeService } from './service/data-source-facade.service';
-import { ExportService } from './service/export.service';
-import { GeneratorFacadeService } from './service/generator-facade.service';
-import { TableFacadeService } from './service/table-facade.service';
+import { ActiveProjectService } from './service/active-project.service'
 
 @Component({
   selector: 'app-project',
   templateUrl: './project.component.html',
-  styleUrls: ['./project.component.scss'],
-  providers: [
-    ActiveProjectService,
-    ColumnFacadeService,
-    DataSourceFacadeService,
-    ExportService,
-    GeneratorFacadeService,
-    TableFacadeService
-  ]
+  styleUrls: ['./project.component.scss']
 })
 export class ProjectComponent implements OnInit, OnDestroy {
 
@@ -43,8 +30,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   constructor(
     private breakpointObserver: BreakpointObserver,
     private activatedRoute: ActivatedRoute,
-    private activeProject: ActiveProjectService,
-    private generatorFacade: GeneratorFacadeService
+    private activeProject: ActiveProjectService
   ) { }
 
   ngOnInit(): void {
@@ -62,7 +48,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
         map(result => result.matches),
         shareReplay()
       );
-    this.generatorFacade.refresh();
   }
 
   ngOnDestroy() {

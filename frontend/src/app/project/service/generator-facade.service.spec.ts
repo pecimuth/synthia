@@ -30,7 +30,6 @@ describe('GeneratorFacadeService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        GeneratorFacadeService,
         {provide: ActiveProjectService, useValue: activeProjectSpy},
         {provide: GeneratorService, useValue: generatorServiceSpy},
       ]
