@@ -277,7 +277,7 @@ class MultiColumnGenerator(Generic[OutputType], ColumnGenerator[OutputType], ABC
 
     def should_unite_with(self, meta_column: MetaColumn) -> bool:
         """Should the generator instance be automatically united with the column?"""
-        return self.is_recommended_for(meta_column)
+        return False
 
     def unite_with(self, meta_column: MetaColumn):
         """Assign the column to the generator setting."""
