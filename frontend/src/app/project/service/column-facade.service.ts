@@ -7,9 +7,7 @@ import { ProjectView } from 'src/app/api/models/project-view';
 import { ColumnService } from 'src/app/api/services';
 import { ActiveProjectService } from './active-project.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class ColumnFacadeService {
 
   constructor(

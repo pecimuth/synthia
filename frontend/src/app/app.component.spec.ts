@@ -3,7 +3,6 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { of, Subject } from 'rxjs';
 import { ProjectView } from './api/models';
 import { AppComponent } from './app.component';
-import { GeneratorFacadeService } from './project/service/generator-facade.service';
 import { AuthFacadeService } from './service/auth-facade.service';
 import { ProjectFacadeService } from './service/project-facade.service';
 import { Mock } from './test';
@@ -24,11 +23,6 @@ describe('AppComponent', () => {
     {'project$': project$}
   );
 
-  const generatorFacadeServiceSpy = jasmine.createSpyObj(
-    'GeneratorFacadeService',
-    ['refresh']
-  );
-
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
@@ -39,8 +33,7 @@ describe('AppComponent', () => {
       ],
       providers: [
         {provide: AuthFacadeService, useValue: authFacadeServiceSpy},
-        {provide: ProjectFacadeService, useValue: projectFacadeServiceSpy},
-        {provide: GeneratorFacadeService, useValue: generatorFacadeServiceSpy}
+        {provide: ProjectFacadeService, useValue: projectFacadeServiceSpy}
       ]
     }).compileComponents();
   }));

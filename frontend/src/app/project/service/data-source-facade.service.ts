@@ -10,9 +10,7 @@ import { DataSourceService } from 'src/app/api/services';
 import { ActiveProjectService } from './active-project.service';
 import { BlobDownloadService } from './blob-download.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class DataSourceFacadeService {
 
   constructor(

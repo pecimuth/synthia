@@ -18,6 +18,7 @@ describe('ActiveProjectService', () => {
     );
     TestBed.configureTestingModule({
       providers: [
+        ActiveProjectService,
         {provide: ProjectFacadeService, useValue: projectFacadeSpy}
       ]
     });
