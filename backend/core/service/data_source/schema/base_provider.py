@@ -1,9 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import List, Iterable
+from typing import List
 
 from core.model.data_source import DataSource
 from core.model.meta_table import MetaTable
-from core.service.data_source.identifier import Identifier, structure_to_identifiers
 from core.service.injector import Injector
 
 
@@ -21,7 +20,3 @@ class SchemaProvider(ABC):
         should check the validity of table and column identifiers.
         """
         pass
-
-    def get_identifiers(self) -> Iterable[Identifier]:
-        """Return the list of all identifiers in a data source."""
-        return structure_to_identifiers(self.read_structure())
