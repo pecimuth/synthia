@@ -24,10 +24,11 @@ export class LandingPageComponent implements OnInit {
 
   /**
    * Create an anonymous account and start a new project.
-   * No effect for a loggen in user.
+   * In case the user is logged in, navigate them to the projects page..
    */
   startNow() {
     if (this.authFacade.isLoggedIn) {
+      this.router.navigate(['/project']);
       return;
     }
     this.authFacade.register(null, null)

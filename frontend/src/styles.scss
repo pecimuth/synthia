@@ -3,6 +3,8 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
+$gap: 10px;
+
 // grids
 .row {
   display: flex;
@@ -15,7 +17,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .col {
   flex: 1;
-  margin-right: 10px;
+  margin-right: $gap;
 }
 
 .col-fill {
@@ -48,7 +50,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 
 .flex-col-margin {
-  margin-bottom: 10px;
+  margin-bottom: $gap;
 }
 
 .flex-col-margin:last-child {
@@ -71,8 +73,8 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .corner-button {
   position: absolute;
-  bottom: -10px;
-  right: -10px;
+  bottom: -$gap;
+  right: -$gap;
 }
 
 .export-card {
@@ -85,7 +87,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 
 .action-buttons button {
-  margin-right: 10px;
+  margin-right: $gap;
 }
 
 .action-buttons button:last-child {
@@ -102,28 +104,28 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 // margins
 .margin {
-  margin: 10px;
+  margin: $gap;
 }
 
 .margin-left {
-  margin-left: 10px;
+  margin-left: $gap;
 }
 
 .margin-right {
-  margin-right: 10px;
+  margin-right: $gap;
 }
 
 .margin-top {
-  margin-top: 10px;
+  margin-top: $gap;
 }
 
 .margin-bottom {
-  margin-bottom: 10px;
+  margin-bottom: $gap;
 }
 
 // margin between
 .margin-between {
-  margin-right: 10px;
+  margin-right: $gap;
   display: inline-block;
 }
 
@@ -133,23 +135,23 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 // paddings
 .padding {
-  padding: 10px;
+  padding: $gap;
 }
 
 .padding-left {
-  padding-left: 10px;
+  padding-left: $gap;
 }
 
 .padding-right {
-  padding-right: 10px;
+  padding-right: $gap;
 }
 
 .padding-top {
-  padding-top: 10px;
+  padding-top: $gap;
 }
 
 .padding-bottom {
-  padding-bottom: 10px;
+  padding-bottom: $gap;
 }
 
 // text alignment

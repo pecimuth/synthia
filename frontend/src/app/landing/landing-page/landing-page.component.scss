@@ -8,3 +8,23 @@
   font-weight: 500;
   margin: 40px;
 }
+
+main {
+  max-width: 1200px;
+  margin: 50px auto;
+  color: rgba($color: #000000, $alpha: 0.7);
+}
+
+article {
+  padding: 10px;
+  font-size: 18px;
+}
+
+h2 {
+  text-align: center;
+  font-size: 24px;
+}
+
+li {
+  margin-bottom: 16px;
+}
