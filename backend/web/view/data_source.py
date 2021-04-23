@@ -22,7 +22,7 @@ class DataSourceView(Schema):
 class DataSourceDatabaseCreate(Schema):
     project_id = Int()
 
-    driver = Str(validate=OneOf([DataSourceConstants.DRIVER_POSTGRES]))
+    driver = Str(validate=OneOf(DataSourceConstants.CLIENT_SERVER_DB_DRIVERS))
     db = Str()
 
     usr = Str()
@@ -32,7 +32,7 @@ class DataSourceDatabaseCreate(Schema):
 
 
 class DataSourceDatabaseWrite(Schema):
-    driver = Str(validate=OneOf([DataSourceConstants.DRIVER_POSTGRES]), required=False)
+    driver = Str(validate=OneOf(DataSourceConstants.CLIENT_SERVER_DB_DRIVERS), required=False)
     db = Str(required=False)
 
     usr = Str(required=False)

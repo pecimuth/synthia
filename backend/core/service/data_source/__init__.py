@@ -12,3 +12,6 @@ class DataSourceConstants:
 
     DRIVER_SQLITE = 'sqlite'
     DRIVER_POSTGRES = 'postgresql'
+
+    CLIENT_SERVER_DB_DRIVERS = [DRIVER_POSTGRES]
+    """Driver names of supported client/server databases."""
