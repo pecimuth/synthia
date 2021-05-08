@@ -26,8 +26,6 @@ class UserFacade:
         user = User(email=email)
         if email is not None:
             password_service = PasswordService(user)
-            if not password_service.is_valid(pwd):
-                raise SomeError('Please choose a different password')
             password_service.set_password(pwd)
         self._db_session.add(user)
         return user
@@ -46,9 +44,6 @@ class UserFacade:
         if not password_service.check_password(pwd):
             raise SomeError('Wrong password')
 
-        password_service = PasswordService(user)
-        if not password_service.check_password(pwd):
-            raise SomeError('Wrong password')
         return user
 
     def get_token(self, user: User) -> str:

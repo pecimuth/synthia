@@ -4,6 +4,10 @@
     <mat-icon>expand_more</mat-icon>
   </button>
   <mat-menu #menu="matMenu">
+    <button *ngIf="!user.email" mat-menu-item (click)="openRegisterDialog()">
+      <mat-icon>login</mat-icon>
+      <span>Sign Up</span>
+    </button>
     <button mat-menu-item (click)="logout()">
       <mat-icon>exit_to_app</mat-icon>
       <span>Logout</span>

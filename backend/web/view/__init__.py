@@ -12,6 +12,11 @@ class UserView(Schema):
     email = Str()
 
 
+class UserWrite(Schema):
+    email = Str()
+    pwd = Str()
+
+
 class UserAndTokenView(Schema):
     user = Nested(UserView())
     token = Str()

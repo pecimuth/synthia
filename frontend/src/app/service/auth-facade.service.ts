@@ -90,4 +90,25 @@ export class AuthFacadeService implements OnDestroy {
         () => this.user$.next(null)
       );
   }
+
+  /**
+   * Change email and password of the logged in user.
+   * 
+   * @param email - The new user's email
+   * @param password - The new user's password
+   * @returns Observable of the patched user
+   */
+  patch(email: string, password: string): Observable<UserView> {
+    const user = this.user$.value;
+    return this.authService.patchApiAuthUserId({
+      id: user.id,
+      user: {
+        email: email,
+        pwd: password
+      }
+    }).pipe(
+        tap((userAndToken) => this.nextUserAndToken(userAndToken)),
+        map((userAndToken) => userAndToken.user)
+      );
+  }
 }

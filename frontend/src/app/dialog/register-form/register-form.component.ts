@@ -25,21 +25,29 @@ export class RegisterFormComponent implements OnInit {
   ngOnInit() {}
 
   /**
-   * Register the user.
+   * Patch the logged in user or register a new user.
+   * 
+   * In case we have a logged in user, change their email and password.
+   * Otherwise register a new user.
    */
   submit() {
     if (!this.registerForm.valid) {
       return;
     }
-    this.authFacade
-      .register(this.registerForm.value['email'], this.registerForm.value['pwd'])
-      .subscribe(
+
+    const user = this.authFacade.user$.value;
+
+    const action = (user)
+      ? this.authFacade.patch(this.registerForm.value['email'], this.registerForm.value['pwd'])
+      : this.authFacade.register(this.registerForm.value['email'], this.registerForm.value['pwd']);
+
+      action.subscribe(
         (user) => {
           this.snackService.snack(`Logged in as ${user.email}`);
           this.dialogRef.close()
         },
-        () => {
-          this.snackService.snack('Could not register an account');
+        (err) => {
+          this.snackService.errorIntoSnack(err, 'Could not register an account');
         }
       );
   }

@@ -28,6 +28,11 @@ class GeneratorRegistrationError(SomeError):
         super().__init__('Registered generator must be a column generator')
 
 
+class InvalidPasswordError(SomeError):
+    def __init__(self):
+        super().__init__('Please choose a different password')
+
+
 class GeneratorSettingError(SomeError):
     def __init__(self, message: str, generator_setting: GeneratorSetting):
         super().__init__('{} ({} generator {})'.format(message,

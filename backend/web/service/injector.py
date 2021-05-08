@@ -25,7 +25,7 @@ T = TypeVar('T')
 
 
 def inject(typ: Type[T]) -> T:
-    """Return an instance of a class using the shared injector/"""
+    """Return an instance of a class using the shared injector."""
     return get_injector().get(typ)
 
 

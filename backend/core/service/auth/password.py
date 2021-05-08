@@ -3,6 +3,7 @@ from hashlib import scrypt
 from typing import Tuple
 
 from core.model.user import User
+from core.service.exception import InvalidPasswordError
 
 
 class PasswordService:
@@ -20,6 +21,8 @@ class PasswordService:
 
     def set_password(self, plain_password: str):
         """Set user password."""
+        if not self.is_valid(plain_password):
+            raise InvalidPasswordError()
         hashed, salt = self._generate_hash_salt(plain_password)
         self._user.pwd = hashed
         self._user.salt = salt

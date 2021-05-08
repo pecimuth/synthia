@@ -4,14 +4,16 @@ from sqlalchemy.exc import IntegrityError
 
 from core.facade.user import UserFacade
 from core.model.user import User
-from web.controller.util import bad_request, TOKEN_SECURITY, BAD_REQUEST_SCHEMA, error_into_message
+from core.service.auth.password import PasswordService
+from web.controller.util import bad_request, TOKEN_SECURITY, BAD_REQUEST_SCHEMA, error_into_message, validate_json, \
+    patch_from_json, EMAIL_ALREADY_REGISTERED
 from web.service.database import get_db_session
 from sqlalchemy.orm.exc import NoResultFound
 from flasgger import swag_from
 
 from core.service.auth.token import TokenService
 from web.service.injector import get_injector, inject
-from web.view import UserView, UserAndTokenView
+from web.view import UserView, UserAndTokenView, UserWrite
 import functools
 
 auth = Blueprint('auth', __name__, url_prefix='/api/auth')
@@ -51,12 +53,12 @@ def register():
     email = request.form.get('email')
     pwd = request.form.get('pwd')
     user = facade.register(email, pwd)
-    db_session.flush()
-    token = facade.get_token(user)
     try:
+        db_session.flush()
+        token = facade.get_token(user)
         db_session.commit()
     except IntegrityError:
-        return bad_request('This email is already registered')
+        return bad_request(EMAIL_ALREADY_REGISTERED)
     return UserAndTokenView().dump({'user': user, 'token': token})
 
 
@@ -137,3 +139,51 @@ def login_required(view):
 })
 def get_user():
     return UserView().dump(g.user)
+
+
+@auth.route('/user/<id>', methods=('PATCH',))
+@login_required
+@validate_json(UserWrite)
+@error_into_message
+@swag_from({
+    'tags': ['Auth'],
+    'security': TOKEN_SECURITY,
+    'parameters': [
+        {
+            'name': 'id',
+            'in': 'path',
+            'description': 'User ID',
+            'required': True,
+            'type': 'integer'
+        },
+        {
+            'name': 'user',
+            'in': 'body',
+            'description': 'User content',
+            'required': True,
+            'schema': UserWrite
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'Return the patched user and issue a new token',
+            'schema': UserAndTokenView
+        },
+        400: BAD_REQUEST_SCHEMA
+    }
+})
+def patch_user(id):
+    if g.user.id != int(id):
+        return bad_request('Cannot patch user other than self')
+    patch_from_json(g.user, 'email')
+    pwd_attr = 'pwd'
+    if pwd_attr in request.json:
+        password_service = PasswordService(g.user)
+        password_service.set_password(request.json[pwd_attr])
+    facade = inject(UserFacade)
+    token = facade.get_token(g.user)
+    try:
+        get_db_session().commit()
+    except IntegrityError:
+        return bad_request(EMAIL_ALREADY_REGISTERED)
+    return UserAndTokenView().dump({'user': g.user, 'token': token})

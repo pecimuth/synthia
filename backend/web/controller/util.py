@@ -104,6 +104,7 @@ DATA_SOURCE_NOT_FOUND = 'Data source not found'
 GENERATOR_SETTING_NOT_FOUND = 'Generator setting not found'
 COLUMN_NOT_FOUND = 'Column not found'
 TABLE_NOT_FOUND = 'Table not found'
+EMAIL_ALREADY_REGISTERED = 'This email is already registered'
 
 
 def format_validation_errors(validation_errors: Dict[str, List[str]]) -> str:
