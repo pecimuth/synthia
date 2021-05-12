@@ -21,7 +21,13 @@ def mock_json_file() -> Tuple[BytesIO, str]:
             {'country': None, 'city': 'Foo', 'index': 0.1, 'count': None},
             {'country': 'Bar', 'city': None, 'index': -12.44, 'count': 123},
             {'country': 'FooBar', 'city': None, 'index': None, 'count': 431}
-        ]
+        ],
+        'number_test': [
+            {'int1': 1, 'float1': None, 'float2': 3.14},
+            {'int1': 2, 'float1': 2, 'float2': None},
+            {'int1': None, 'float1': 3.14, 'float2': 1},
+        ],
+        'empty': []
     }
     json_bytes = json.dumps(obj).encode('utf-8')
     io = BytesIO(json_bytes)
@@ -48,6 +54,17 @@ def mock_json_meta() -> MetaData:
         Column('city', String, nullable=True),
         Column('index', Float, nullable=True),
         Column('count', Integer, nullable=True)
+    )
+    Table(
+        'number_test',
+        meta,
+        Column('int1', Integer, nullable=True),
+        Column('float1', Float, nullable=True),
+        Column('float2', Float, nullable=True)
+    )
+    Table(
+        'empty',
+        meta
     )
     return meta
 

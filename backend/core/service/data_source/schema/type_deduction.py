@@ -39,7 +39,12 @@ class TypeDeduction:
 
     def get_types(self) -> ColumnTypes:
         """Return the deduced types. Columns with None values
-        are assumed to be string."""
+        are assumed to be string.
+
+        In case there are no rows, return an empty dictionary.
+        """
+        if self._types is None:
+            return {}
         return {
             key: Types.STRING if value == Types.NONE else value
             for key, value in self._types.items()
@@ -83,7 +88,8 @@ class TypeDeduction:
     def _merge_with(self, types: ColumnTypes):
         for key, value_type in types.items():
             saved_type = self._types[key]
-            if saved_type == Types.NONE or saved_type == Types.INTEGER:
+            # everything overrides None, float overrides int
+            if saved_type == Types.NONE or value_type == Types.FLOAT:
                 self._types[key] = value_type
 
     def _update_nullable(self, row: Row):
