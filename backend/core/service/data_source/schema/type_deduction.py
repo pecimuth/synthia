@@ -1,4 +1,4 @@
-from typing import Dict, Optional, Set
+from typing import Dict, Optional, Set, Iterable
 
 from core.service.exception import SomeError
 from core.service.types import AnyBasicType, Types, get_value_type
@@ -18,6 +18,8 @@ class TypeDeduction:
     Sequences without None values are assumed to be NOT NULL.
     """
     Row = Dict[str, AnyBasicType]
+
+    TYPES_NUMERIC = [Types.INTEGER, Types.FLOAT]
 
     def __init__(self):
         self._types: Optional[ColumnTypes] = None
@@ -47,12 +49,24 @@ class TypeDeduction:
         """Return whether the column identified by name is nullable."""
         return col_name in self._nullable
 
-    @staticmethod
-    def _deduct_types(row: Row) -> ColumnTypes:
+    @classmethod
+    def _deduct_types(cls, row: Row) -> ColumnTypes:
+        """Deduce column types from a row of values.
+
+        Whole numbers (floats) are converted to ints.
+        """
         return {
-            key: get_value_type(value)
+            key: get_value_type(cls.whole_number_to_int(value))
             for key, value in row.items()
         }
+
+    @staticmethod
+    def whole_number_to_int(value: AnyBasicType) -> AnyBasicType:
+        """Convert the value to int in case it is a whole number of type float.
+        Return the original value otherwise."""
+        if isinstance(value, float) and value.is_integer():
+            return int(value)
+        return value
 
     def _is_consistent(self, types: ColumnTypes) -> bool:
         for key, value_type in types.items():
@@ -62,13 +76,14 @@ class TypeDeduction:
             if saved_type == Types.NONE:
                 continue
             if value_type != Types.NONE and value_type != saved_type:
-                return False
+                # float/integer is consistent - values are converted to float
+                return value_type in self.TYPES_NUMERIC and saved_type in self.TYPES_NUMERIC
         return True
 
     def _merge_with(self, types: ColumnTypes):
         for key, value_type in types.items():
             saved_type = self._types[key]
-            if saved_type == Types.NONE:
+            if saved_type == Types.NONE or saved_type == Types.INTEGER:
                 self._types[key] = value_type
 
     def _update_nullable(self, row: Row):

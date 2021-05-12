@@ -4,7 +4,7 @@ from core.model.meta_column import MetaColumn
 from core.model.meta_constraint import MetaConstraint
 from core.model.meta_table import MetaTable
 from core.model.project import Project
-from core.service.generation_procedure.database import GeneratedDatabase, GeneratedRow
+from core.service.generation_procedure.database import GeneratedRow
 
 
 class ConstraintChecker:

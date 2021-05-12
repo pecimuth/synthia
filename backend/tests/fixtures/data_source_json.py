@@ -14,7 +14,7 @@ def mock_json_file() -> Tuple[BytesIO, str]:
     obj = {
         'person': [
             {'name': 'Foo Bar', 'age': 12, 'nothing': None, 'flag': True},
-            {'name': 'Bär Bar', 'age': 42, 'nothing': None, 'flag': False},
+            {'name': 'Bär Bar', 'age': 42.5, 'nothing': None, 'flag': False},
             {'name': 'Fóó Bar', 'age': -1, 'nothing': None, 'flag': True}
         ],
         'place': [
@@ -37,7 +37,7 @@ def mock_json_meta() -> MetaData:
         'person',
         meta,
         Column('name', String, nullable=False),
-        Column('age', Integer, nullable=False),
+        Column('age', Float, nullable=False),
         Column('nothing', String, nullable=True),
         Column('flag', Boolean, nullable=False)
     )
