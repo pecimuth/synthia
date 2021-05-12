@@ -1,4 +1,4 @@
-from typing import Dict, Optional, Set, Iterable
+from typing import Dict, Optional, Set
 
 from core.service.exception import SomeError
 from core.service.types import AnyBasicType, Types, get_value_type
