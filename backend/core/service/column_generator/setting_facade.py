@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from typing import List, Type
 
-from sqlalchemy.orm.attributes import flag_modified
-
 from core.model.generator_setting import GeneratorSetting
 from core.model.meta_column import MetaColumn
 from core.service.column_generator.base import ColumnGenerator, RegisteredGenerator
@@ -46,21 +44,26 @@ class GeneratorSettingFacade:
         return factory(self._generator_setting)
 
     def maybe_estimate_params(self, injector: Injector):
-        """Estimate the generator (setting) params in case a data source is available.
+        """Estimate the generator setting params in case a data source is available.
 
-        The generator parameters are normalized in either case.
+        The generator parameters are normalized and saved in either case.
         """
-        gen_instance = self.make_generator_instance()  # normalizes params
+        gen_instance = self.make_generator_instance()
         if not self._has_data_source():
+            gen_instance.save_params()
             return
         self.estimate_params(gen_instance, injector)
 
     def estimate_params(self, gen_instance: ColumnGenerator, injector: Injector):
-        """Estimate parameters for the generator instance."""
+        """Estimate parameters for the generator instance.
+
+        The estimated parameters are normalized and saved to the generator setting
+        instance.
+        """
         factory = DataProviderFactory(self._generator_setting.columns, injector)
         provider = factory.find_provider()
         gen_instance.estimate_params(provider)
-        flag_modified(self._generator_setting, 'params')  # register the param change
+        gen_instance.save_params()
 
     def _has_data_source(self) -> bool:
         """Return whether any of the assigned column has a data source defined."""

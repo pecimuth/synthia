@@ -6,8 +6,6 @@ from enum import Enum
 from inspect import signature
 from typing import List, Dict, Generic, TypeVar, Optional, Callable, Any, Type, Iterable
 
-from sqlalchemy.orm.attributes import flag_modified
-
 from core.model.generator_setting import GeneratorSetting
 from core.model.meta_column import MetaColumn
 from core.service.column_generator.params import normalized_params, ParamDict, ColumnGeneratorParamList
@@ -71,9 +69,9 @@ class ColumnGenerator(Generic[OutputType], ABC):
         assert generator_setting.name == self.name()
         self._random = random.Random()
         self._generator_setting = generator_setting
-        self._generator_setting.params = \
-            normalized_params(self, self.param_list, self._generator_setting.params)
-        flag_modified(generator_setting, 'params')  # register the param change
+        # normalize the params in case the parameter definitions have changed
+        # in order to avoid deadlocks, we should not persist the new object
+        self.params = normalized_params(self, self.param_list, self._generator_setting.params)
 
     @classmethod
     def name(cls):
@@ -125,10 +123,12 @@ class ColumnGenerator(Generic[OutputType], ABC):
         """Return the setting instance assigned to this generator instance."""
         return self._generator_setting
 
-    @property
-    def params(self) -> ParamDict:
-        """Return dictionary of parameter names and values."""
-        return self._generator_setting.params
+    def save_params(self, normalize: bool = False):
+        """Save the current parameters to the generator setting. If normalize is True,
+        the parameters are also normalized according to the definitions."""
+        if normalize:
+            self.params = normalized_params(self, self.param_list, self.params)
+        self._generator_setting.params = self.params
 
     @property
     def _meta_columns(self) -> List[MetaColumn]:
@@ -139,7 +139,9 @@ class ColumnGenerator(Generic[OutputType], ABC):
         """Estimate the generator params with the given provider.
 
         In case the generator supports nulls, null frequency is estimated.
-        After that, estimators are called.
+        After that, estimators are called. The method does not update
+        the generator setting instance. Estimated parameters may not adhere
+        to the parameter definitions - normalization is needed.
         """
         if self.supports_null:
             estimate = provider.estimate_null_frequency()

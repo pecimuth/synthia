@@ -192,7 +192,7 @@ export class GeneratorFacadeService implements OnDestroy {
 
   /**
    * Change generator setting's generator name via the API and update the active project
-   * state.
+   * state. The parameters are estimated.
    * 
    * @param tableId - The ID of the table containing the generator setting
    * @param settingId - The ID of the setting to be patched
@@ -205,7 +205,8 @@ export class GeneratorFacadeService implements OnDestroy {
     const params = {
       id: settingId,
       generatorSetting: {
-        name: generator.name
+        name: generator.name,
+        estimate_params: true
       }
     };
     return this.generatorService.patchApiGeneratorSettingId(params)

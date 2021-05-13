@@ -115,6 +115,7 @@ def create_generator_setting():
 @swag_from({
     'tags': ['Generator'],
     'security': TOKEN_SECURITY,
+    'description': 'Patch a generator setting and optionally estimate its parameters.',
     'parameters': [
         {
             'name': 'id',
@@ -147,7 +148,8 @@ def patch_generator_setting(generator_setting: GeneratorSetting):
     if estimate_params:
         facade.maybe_estimate_params(get_injector())
     else:
-        facade.make_generator_instance()  # normalizes params
+        gen_instance = facade.make_generator_instance()
+        gen_instance.save_params()
 
     db_session = get_db_session()
     db_session.commit()
