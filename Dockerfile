@@ -6,7 +6,6 @@ ENV PIP_NO_CACHE_DIR=1
 ADD ./backend /opt/app/
 WORKDIR /opt/app
 
-# RUN python setup.py install
 RUN python -m pip install -r requirements.txt
 RUN python -m pip install gunicorn
 
