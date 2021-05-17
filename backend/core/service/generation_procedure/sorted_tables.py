@@ -57,14 +57,24 @@ class SortedTables:
     def _dfs_from(self,
                   start: MetaTable,
                   visited: Set[MetaTable],
-                  skip_nullable: bool) -> Iterable[MetaTable]:
-        """Start DFS from a table. Yield tables sorted by exit time."""
+                  skip_nullable: bool,
+                  recursion_stack: Set[MetaTable] = None) -> Iterable[MetaTable]:
+        """Start DFS from a table. Yield tables sorted by exit time.
+
+        The visited parameter is the set of tables visited in any dfs tree.
+        Recursion stack is the set of tables visited in the current tree - we need this to detect cycles.
+        """
         if start in visited:
             return []
         visited.add(start)
+        if recursion_stack is None:
+            recursion_stack = set()
+        recursion_stack.add(start)
         for neighbor in self._neighbors(start, skip_nullable):
             if neighbor in visited:
-                self._cycle_detected = True
+                if neighbor in recursion_stack:
+                    self._cycle_detected = True
                 continue
-            yield from self._dfs_from(neighbor, visited, skip_nullable)
+            yield from self._dfs_from(neighbor, visited, skip_nullable, recursion_stack)
+        recursion_stack.remove(start)
         yield start
