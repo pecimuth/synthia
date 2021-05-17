@@ -29,7 +29,8 @@ class ProcedureController:
         self._output_driver = output_driver
         self._database = GeneratedDatabase()
         self._checker = ConstraintChecker(self._project,
-                                          self._output_driver.is_interactive)
+                                          self._output_driver.is_interactive,
+                                          requisition)
 
     def run(self) -> GeneratedDatabase:
         """Generate the data according to the requisition using

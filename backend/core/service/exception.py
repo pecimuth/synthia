@@ -67,3 +67,9 @@ class ColumnGeneratorError(SomeError):
 class MalformedIdentifierError(SomeError):
     def __init__(self, identifier: str):
         super().__init__('Malformed identifier: {}'.format(identifier))
+
+
+class RequisitionMissingReferenceError(SomeError):
+    def __init__(self, included_table: str, ref_table: str):
+        super().__init__('The table `{}` references the table `{}`, but it is not included in the export'
+                         .format(included_table, ref_table))

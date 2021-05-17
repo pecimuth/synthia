@@ -4,7 +4,9 @@ from core.model.meta_column import MetaColumn
 from core.model.meta_constraint import MetaConstraint
 from core.model.meta_table import MetaTable
 from core.model.project import Project
+from core.service.exception import RequisitionMissingReferenceError
 from core.service.generation_procedure.database import GeneratedRow
+from core.service.generation_procedure.requisition import ExportRequisition
 
 
 class ConstraintChecker:
@@ -12,7 +14,7 @@ class ConstraintChecker:
     UNIQUE and FOREIGN constraints.
     """
 
-    def __init__(self, project: Project, interactive_driver: bool):
+    def __init__(self, project: Project, interactive_driver: bool, requisition: ExportRequisition):
         self._project = project
         self._interactive_driver = interactive_driver
         """Is the driver interactive?"""
@@ -30,13 +32,19 @@ class ConstraintChecker:
         For a FOREIGN constraint, these are sets of unique tuples
         constructed from referenced columns in the referenced table.
         """
-        self._prepare()
+        self._prepare(requisition)
 
-    def _prepare(self):
-        """Prepare the watched_by_table list of constraints for each table.
-        Create empty sets of unique tuples for relevant constraints.
+    def _prepare(self, requisition: ExportRequisition):
+        """Prepare the watched_by_table list of constraints for each table
+        in the export requisition. Create empty sets of unique tuples
+        for relevant constraints.
+
+        Raise an error if a table included in the requisition references a table
+        outside the requisition.
         """
         for meta_table in self._project.tables:
+            if meta_table.name not in requisition:
+                continue
             for constraint in meta_table.constraints:
                 if constraint.constraint_type not in (MetaConstraint.FOREIGN,
                                                       MetaConstraint.PRIMARY,
@@ -48,6 +56,8 @@ class ConstraintChecker:
                     if not constraint.referenced_columns:
                         continue
                     ref_table = constraint.referenced_columns[0].table
+                    if ref_table.name not in requisition:
+                        raise RequisitionMissingReferenceError(meta_table.name, ref_table.name)
                 self._watched_by_table[ref_table].append(constraint)
 
     @classmethod
