@@ -1,5 +1,10 @@
 <mat-progress-bar *ngIf="showProgress" mode="indeterminate"></mat-progress-bar>
 
+<app-export-requisition
+  *ngIf="project"
+  [project]="project"
+  (requisitionChanged)="setRequisition($event)"></app-export-requisition>
+
 <ng-container *ngIf="project && preview">
   <app-table-preview
     *ngFor="let table of project.tables"

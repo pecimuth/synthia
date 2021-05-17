@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
-import { filter, switchMap, takeUntil } from 'rxjs/operators';
+import { catchError, debounceTime, filter, switchMap, takeUntil } from 'rxjs/operators';
 import { ExportRequisitionView } from 'src/app/api/models/export-requisition-view';
 import { PreviewView } from 'src/app/api/models/preview-view';
 import { ProjectView } from 'src/app/api/models/project-view';
@@ -8,9 +8,9 @@ import { ProjectService } from 'src/app/api/services';
 import { ActiveProjectService } from '../service/active-project.service';
 
 /**
- * How many table rows should be generated for each table?
+ * How long should we wait (in ms) before requesting the preview from the API?
  */
-const N_PREVIEW_ROWS = 5;
+const DEBOUNCE_TIME_MS = 300;
 
 @Component({
   selector: 'app-preview',
@@ -39,6 +39,15 @@ export class PreviewComponent implements OnInit {
    */
   showProgress = false;
 
+  /**
+   * Subject of the preview export requisition for the API.
+   * 
+   * Includes changes of table names, row counts, and seeds.
+   * Preview is refetched on each change of the requisition
+   * or change to the project.
+   */
+  requisition$ = new Subject<ExportRequisitionView>();
+
   private unsubscribe$ = new Subject();
 
   constructor(
@@ -48,16 +57,30 @@ export class PreviewComponent implements OnInit {
 
   ngOnInit(): void {
     this.activeProject.project$
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((project) => this.project = project);
+      
+    this.requisition$
       .pipe(
         takeUntil(this.unsubscribe$),
-        filter((project) => !!project),
-        switchMap((project) => {
-          this.project = project;
+        filter((requisition) => !!requisition),
+        debounceTime(DEBOUNCE_TIME_MS),
+        switchMap((requisition) => {
           this.showProgress = true;
           return this.projectService.postApiProjectIdPreview({
-            id: project.id,
-            requisition: this.makeRequisition()
+            id: this.project.id,
+            requisition: requisition
           });
+        }),
+        catchError((err, caught) => {
+          this.preview = null;
+          if (err?.error?.message) {
+            this.errorMessage = err.error.message;
+          } else {
+            this.errorMessage = 'An error occured';
+          }
+          this.showProgress = false;
+          return caught;
         })
       )
       .subscribe(
@@ -65,34 +88,12 @@ export class PreviewComponent implements OnInit {
           this.preview = preview;
           this.showProgress = false;
           this.errorMessage = null;
-        },
-        (err) => {
-          if (err?.error?.message) {
-            this.errorMessage = err.error.message;
-          } else {
-            this.errorMessage = 'An error occured';
-          }
-          this.showProgress = false;
         }
       );
   }
 
-  /**
-   * Prepare and return an export requisition for the API. 
-   * 
-   * @returns Preview export requisition
-   */
-  private makeRequisition(): ExportRequisitionView {
-    const result: ExportRequisitionView = {
-      rows: this.project.tables.map((table, index) => {
-        return {
-          table_name: table.name,
-          row_count: N_PREVIEW_ROWS,
-          seed: index
-        };
-      })
-    };
-    return result;
+  setRequisition(requisition: ExportRequisitionView) {
+    this.requisition$.next(requisition);
   }
 
   ngOnDestroy() {
