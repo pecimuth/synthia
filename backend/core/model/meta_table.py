@@ -11,7 +11,7 @@ class MetaTable(base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
 
-    project_id = Column(Integer, ForeignKey('project.id'))
+    project_id = Column(Integer, ForeignKey('project.id', ondelete='CASCADE'))
     project = relationship('Project', back_populates='tables')
 
     columns = relationship('MetaColumn',

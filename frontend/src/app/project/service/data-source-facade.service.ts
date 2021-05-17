@@ -30,7 +30,7 @@ export class DataSourceFacadeService {
   import(dataSourceId: number): Observable<ProjectView> {
     return this.dataSourceService.postApiDataSourceIdImport(dataSourceId)
       .pipe(
-        tap((project) => this.activeProject.project$.next(project))
+        tap((project) => this.activeProject.nextProject(project))
       );
   }
 

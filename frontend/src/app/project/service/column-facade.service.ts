@@ -63,7 +63,7 @@ export class ColumnFacadeService {
   deleteColumn(columnId: number): Observable<ProjectView> {
     return this.columnService.deleteApiColumnId(columnId)
       .pipe(
-        tap((project) => this.activeProject.project$.next(project))
+        tap((project) => this.activeProject.nextProject(project))
       );
   }
 }

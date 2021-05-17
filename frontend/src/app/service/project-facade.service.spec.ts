@@ -8,7 +8,12 @@ describe('ProjectFacadeService', () => {
 
   const projectServiceSpy = jasmine.createSpyObj(
     'ProjectService',
-    ['getApiProjects', 'postApiProject']
+    [
+      'getApiProjects',
+      'postApiProject',
+      'deleteApiProjectId',
+      'patchApiProjectId'
+    ]
   );
 
   beforeEach(() => {

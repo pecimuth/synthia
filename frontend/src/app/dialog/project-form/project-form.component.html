@@ -1,5 +1,6 @@
 <form [formGroup]="projectForm" novalidate (ngSubmit)="submit()">
-  <h2>Create Project</h2>
+  <h2 *ngIf="!project">Create Project</h2>
+  <h2 *ngIf="project">Edit Project</h2>
 
   <app-form-field [form]="projectForm" label="Name" name="name"></app-form-field>
 
@@ -7,6 +8,6 @@
     <button mat-flat-button mat-dialog-close type="button">Cancel</button>
   </div>
   <div class="margin-between">
-    <button mat-raised-button color="primary" type="submit">Create</button>
+    <button mat-raised-button color="primary" type="submit">Save</button>
   </div>
 </form>

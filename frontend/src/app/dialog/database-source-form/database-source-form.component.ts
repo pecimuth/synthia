@@ -4,7 +4,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DataSourceView } from 'src/app/api/models/data-source-view';
 import { DataSourceFacadeService } from 'src/app/project/service/data-source-facade.service';
 import { SnackService } from 'src/app/service/snack.service';
-import { CreateProjectFormComponent } from '../create-project-form/create-project-form.component';
+import { ProjectFormComponent } from '../project-form/project-form.component';
 
 @Component({
   selector: 'app-database-source-form',
@@ -24,7 +24,7 @@ export class DatabaseSourceFormComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private dialogRef: MatDialogRef<CreateProjectFormComponent>,
+    private dialogRef: MatDialogRef<ProjectFormComponent>,
     private dataSourceFacade: DataSourceFacadeService,
     private snackService: SnackService,
     @Inject(MAT_DIALOG_DATA) public dataSource: DataSourceView,

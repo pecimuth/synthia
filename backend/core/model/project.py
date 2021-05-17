@@ -14,9 +14,14 @@ class Project(base):
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship('User', back_populates='projects')
 
-    tables = relationship('MetaTable', order_by=MetaTable.id, back_populates='project', cascade='all, delete, delete-orphan')
-    data_sources = relationship('DataSource', order_by=DataSource.id, back_populates='project', cascade='all, delete, delete-orphan')
-
+    tables = relationship('MetaTable',
+                          order_by=MetaTable.id,
+                          back_populates='project',
+                          cascade='all, delete, delete-orphan')
+    data_sources = relationship('DataSource',
+                                order_by=DataSource.id,
+                                back_populates='project',
+                                cascade='all, delete, delete-orphan')
 
     __table_args__ = (
         Index('ix_project_user', user_id),

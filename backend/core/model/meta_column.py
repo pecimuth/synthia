@@ -11,7 +11,7 @@ class MetaColumn(base):
     col_type = Column(String)
     nullable = Column(Boolean)
 
-    table_id = Column(Integer, ForeignKey('metatable.id'))
+    table_id = Column(Integer, ForeignKey('metatable.id', ondelete='CASCADE'))
     table = relationship('MetaTable', back_populates='columns')
 
     constraints = relationship(

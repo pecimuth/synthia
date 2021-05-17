@@ -2,8 +2,23 @@
 
 <div *ngIf="projects" class="row flex-wrap margin">
   <mat-card *ngFor="let project of projects" class="margin resource-card">
-    <mat-card-header>
+    <mat-card-header class="row justify-space-between">
       <mat-card-title class="margin-top">{{ project.name }}</mat-card-title>
+      <div>
+        <button mat-icon-button [matMenuTriggerFor]="projectContext">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #projectContext="matMenu">
+          <button mat-menu-item (click)="editProject(project)">
+            <mat-icon>edit</mat-icon>
+            Edit
+          </button>
+          <button mat-menu-item (click)="deleteProject(project)">
+            <mat-icon>delete</mat-icon>
+            Delete
+          </button>
+        </mat-menu>
+      </div>
     </mat-card-header>
     <mat-card-content>
       <span *ngFor="let table of project.tables">{{ table.name }} </span>

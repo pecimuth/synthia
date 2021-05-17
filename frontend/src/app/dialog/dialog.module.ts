@@ -7,11 +7,11 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { CreateProjectFormComponent } from './create-project-form/create-project-form.component';
 import { DatabaseSourceFormComponent } from './database-source-form/database-source-form.component';
 import { FileSourceFormComponent } from './file-source-form/file-source-form.component';
 import { FormFieldComponent } from './form-field/form-field.component';
 import { LoginFormComponent } from './login-form/login-form.component';
+import { ProjectFormComponent } from './project-form/project-form.component';
 import { RegisterFormComponent } from './register-form/register-form.component';
 
 
@@ -19,7 +19,7 @@ import { RegisterFormComponent } from './register-form/register-form.component';
   declarations: [
     LoginFormComponent,
     RegisterFormComponent,
-    CreateProjectFormComponent,
+    ProjectFormComponent,
     DatabaseSourceFormComponent,
     FileSourceFormComponent,
     FormFieldComponent
@@ -37,7 +37,7 @@ import { RegisterFormComponent } from './register-form/register-form.component';
   entryComponents: [
     LoginFormComponent,
     RegisterFormComponent,
-    CreateProjectFormComponent,
+    ProjectFormComponent,
     DatabaseSourceFormComponent,
     FileSourceFormComponent
   ],

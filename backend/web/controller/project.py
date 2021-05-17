@@ -11,10 +11,11 @@ from core.model.project import Project
 from core.service.data_source import DataSourceConstants
 from core.service.types import json_serialize_default
 from web.controller.util import bad_request, PROJECT_NOT_FOUND, BAD_REQUEST_SCHEMA, TOKEN_SECURITY, \
-    FILE_SCHEMA, file_attachment_headers, validate_json, error_into_message
+    FILE_SCHEMA, file_attachment_headers, validate_json, error_into_message, OK_REQUEST_SCHEMA, ok_request, \
+    patch_from_json
 from web.service.injector import inject
 from web.view.project import ProjectListView, ProjectView, PreviewView, ExportRequisitionView, \
-    ExportFileRequisitionView, SaveView
+    ExportFileRequisitionView, SaveView, ProjectWrite
 from web.controller.auth import login_required
 from web.service.database import get_db_session
 
@@ -237,3 +238,69 @@ def save_project(proj: Project):
         mimetype=DataSourceConstants.MIME_TYPE_JSON,
         headers=file_attachment_headers(file_name)
     )
+
+
+@project.route('/project/<id>', methods=('DELETE',))
+@login_required
+@with_project_by_id
+@error_into_message
+@swag_from({
+    'tags': ['Project'],
+    'security': TOKEN_SECURITY,
+    'parameters': [
+        {
+            'name': 'id',
+            'in': 'path',
+            'description': 'Project ID',
+            'required': True,
+            'type': 'integer'
+        }
+    ],
+    'responses': {
+        200: OK_REQUEST_SCHEMA,
+        400: BAD_REQUEST_SCHEMA
+    }
+})
+def delete_project(proj: Project):
+    db_session = get_db_session()
+    db_session.delete(proj)
+    db_session.commit()
+    return ok_request('Project deleted')
+
+
+@project.route('/project/<id>', methods=('PATCH',))
+@login_required
+@with_project_by_id
+@validate_json(ProjectWrite)
+@error_into_message
+@swag_from({
+    'tags': ['Project'],
+    'security': TOKEN_SECURITY,
+    'parameters': [
+        {
+            'name': 'id',
+            'in': 'path',
+            'description': 'Project ID',
+            'required': True,
+            'type': 'integer'
+        },
+        {
+            'name': 'project',
+            'in': 'body',
+            'description': 'Project content',
+            'required': True,
+            'schema': ProjectWrite
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'Patched project',
+            'schema': ProjectView
+        },
+        400: BAD_REQUEST_SCHEMA
+    }
+})
+def patch_project(proj: Project):
+    patch_from_json(proj, 'name')
+    get_db_session().commit()
+    return ProjectView().dumps(proj)

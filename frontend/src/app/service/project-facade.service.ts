@@ -1,6 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { filter, map, take, tap } from 'rxjs/operators';
+import { MessageView } from '../api/models';
 import { ProjectView } from '../api/models/project-view';
 import { ProjectService } from '../api/services';
 
@@ -79,5 +80,42 @@ export class ProjectFacadeService implements OnDestroy {
       take(1),
       map((projects) => projects.find((project) => project.id === projectId))
     );
+  }
+
+  /**
+   * Delete a project via the API and update the list of cached projects.
+   * 
+   * @param projectId - The ID of the project to be deleted
+   * @returns Observable of the operation status message
+   */
+  deleteProject(projectId: number): Observable<MessageView> {
+    return this.projectService.deleteApiProjectId(projectId)
+      .pipe(
+        tap(() => {
+          let projects = this.projects$.value ?? [];
+          projects = projects.filter((project) => project.id !== projectId);
+          this.projects$.next(projects);
+        })
+      );
+  }
+
+  /**
+   * Change the name of a project via the API and update the list of cached projects.
+   * 
+   * @param projectId - The ID of the project to be renamed
+   * @param newName - The new name of the project
+   * @returns Observable of the patched project
+   */
+  renameProject(projectId: number, newName: string): Observable<ProjectView> {
+    const params = {
+      id: projectId,
+      project: {
+        name: newName
+      }
+    };
+    return this.projectService.patchApiProjectId(params)
+      .pipe(
+        tap((project) => this.patchProject(project))
+      );
   }
 }

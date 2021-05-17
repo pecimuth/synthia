@@ -19,7 +19,7 @@ class MetaConstraint(base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=True)
 
-    table_id = Column(Integer, ForeignKey('metatable.id'))
+    table_id = Column(Integer, ForeignKey('metatable.id', ondelete='CASCADE'))
     table = relationship('MetaTable', back_populates='constraints')
 
     constraint_type = Column(String)  # PRIMARY | FOREIGN | UNIQUE | CHECK

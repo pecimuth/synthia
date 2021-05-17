@@ -22,7 +22,7 @@ class DataSource(base):
     host = Column(String, nullable=True)
     port = Column(Integer, nullable=True)
 
-    project_id = Column(Integer, ForeignKey('project.id'))
+    project_id = Column(Integer, ForeignKey('project.id', ondelete='CASCADE'))
     project = relationship('Project', back_populates='data_sources')
 
     __table_args__ = (

@@ -3,8 +3,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ProjectView } from 'src/app/api/models/project-view';
-import { CreateProjectFormComponent } from 'src/app/dialog/create-project-form/create-project-form.component';
+import { ProjectFormComponent } from 'src/app/dialog/project-form/project-form.component';
 import { ProjectFacadeService } from 'src/app/service/project-facade.service';
+import { SnackService } from 'src/app/service/snack.service';
 
 @Component({
   selector: 'app-project-list',
@@ -22,7 +23,8 @@ export class ProjectListComponent implements OnInit, OnDestroy {
 
   constructor(
     private projectFacade: ProjectFacadeService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private snackService: SnackService
   ) { }
 
   ngOnInit(): void {
@@ -42,6 +44,31 @@ export class ProjectListComponent implements OnInit, OnDestroy {
    * Open the create project dialog.
    */
   createProject() {
-    this.dialog.open(CreateProjectFormComponent);
+    this.dialog.open(ProjectFormComponent);
+  }
+
+  /**
+   * Delete the project via the API and in the client's list.
+   * 
+   * @param project - The project to be deleted
+   */
+  deleteProject(project: ProjectView) {
+    this.projectFacade.deleteProject(project.id)
+      .subscribe(
+        (msg) => this.snackService.snack(msg.message),
+        (err) => this.snackService.errorIntoSnack(err)
+      );
+  }
+
+  /**
+   * Open the edit project dialog.
+   * 
+   * @param project - The project to be edited
+   */
+  editProject(project: ProjectView) {
+    const config = {
+      data: project
+    };
+    this.dialog.open(ProjectFormComponent, config);
   }
 }

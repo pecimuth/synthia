@@ -18,6 +18,10 @@ class ProjectView(Schema):
     data_sources = List(Nested(DataSourceView()))
 
 
+class ProjectWrite(Schema):
+    name = Str()
+
+
 class ProjectListView(Schema):
     items = List(Nested(ProjectView()))
 
