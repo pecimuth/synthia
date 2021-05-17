@@ -22,6 +22,7 @@ class FakerGenerator(Generic[OutputType], SingleColumnGenerator[OutputType]):
 
     def seed(self, seed: float):
         """Seed the Faker generator instance."""
+        super().seed(seed)
         self._fake.seed_instance(seed)
 
     def make_scalar(self, generated_database: GeneratedDatabase) -> OutputType:
