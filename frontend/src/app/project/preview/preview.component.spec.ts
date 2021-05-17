@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { ProjectService } from 'src/app/api/services';
 import { Mock, Spy } from 'src/app/test';
@@ -38,10 +38,11 @@ describe('PreviewComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should fetch the preview', () => {
+  it('should fetch the preview', fakeAsync(() => {
     const preview = Mock.preview();
     projectServiceSpy.postApiProjectIdPreview.and.returnValue(of(preview));
-    component.ngOnInit();
+    component.setRequisition({});
+    tick(300);
     expect(component.preview).toBe(preview);
-  });
+  }));
 });

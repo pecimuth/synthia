@@ -1,16 +1,14 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { FormBuilder } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatInputModule } from '@angular/material/input';
-
-import { LoginFormComponent } from './login-form.component';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { Spy } from 'src/app/test';
-import { SnackService } from 'src/app/service/snack.service';
+import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
 import { AuthFacadeService } from 'src/app/service/auth-facade.service';
+import { SnackService } from 'src/app/service/snack.service';
+import { Spy } from 'src/app/test';
+import { LoginFormComponent } from './login-form.component';
+
 
 describe('LoginFormComponent', () => {
   let component: LoginFormComponent;

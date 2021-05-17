@@ -1,8 +1,5 @@
-import { HarnessLoader } from '@angular/cdk/testing';
-import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { FormBuilder } from '@angular/forms';
-import { MatButtonHarness } from '@angular/material/button/testing';
+import { FormBuilder, FormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ProjectFacadeService } from 'src/app/service/project-facade.service';
@@ -14,14 +11,13 @@ import { ProjectFormComponent } from './project-form.component';
 describe('ProjectFormComponent', () => {
   let component: ProjectFormComponent;
   let fixture: ComponentFixture<ProjectFormComponent>;
-  let loader: HarnessLoader;
 
   const projectFacadeSpy = jasmine.createSpyObj(
     'ProjectFacadeService',
     ['createProject', 'renameProject']
   );
 
-  const formBuilderSpy = Spy.formBuilder();
+  const formBuilderSpy = new FormBuilder();
   const dialogRefSpy = Spy.dialogRef();
   const routerSpy = Spy.router();
   const snackServiceSpy = Spy.snackService();
@@ -29,6 +25,7 @@ describe('ProjectFormComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ ProjectFormComponent ],
+      imports: [ FormsModule ],
       providers: [
         {provide: ProjectFacadeService, useValue: projectFacadeSpy},
         {provide: FormBuilder, useValue: formBuilderSpy},
@@ -45,7 +42,7 @@ describe('ProjectFormComponent', () => {
     fixture = TestBed.createComponent(ProjectFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    loader = TestbedHarnessEnvironment.loader(fixture);
+    component.ngOnInit
   });
 
   it('should create', () => {
@@ -53,8 +50,7 @@ describe('ProjectFormComponent', () => {
   });
 
   it('should not accept an empty form', async () => {
-    const button = await loader.getHarness(MatButtonHarness.with({selector: '[type=submit]'}));
-    await button.click();
+    component.submit();
     expect(projectFacadeSpy.createProject).not.toHaveBeenCalled();
     expect(projectFacadeSpy.renameProject).not.toHaveBeenCalled();
   });
