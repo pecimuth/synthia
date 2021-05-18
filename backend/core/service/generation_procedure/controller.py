@@ -7,6 +7,7 @@ from sqlalchemy import Table
 from core.model.meta_table import MetaTable
 from core.model.project import Project
 from core.service.column_generator.setting_facade import GeneratorSettingFacade, GeneratorList
+from core.service.exception import SomeError
 from core.service.generation_procedure.deserializer import StructureDeserializer
 from core.service.generation_procedure.constraint_checker import ConstraintChecker
 from core.service.generation_procedure.database import GeneratedRow, GeneratedDatabase
@@ -110,7 +111,16 @@ class ProcedureController:
 
     @staticmethod
     def instances_from_table(meta_table: MetaTable) -> GeneratorList:
-        """Make generator instances for generator settings in a table."""
+        """Make generator instances for generator settings in a table.
+
+        Check that each meta column in the table has a generator setting assigned.
+        If it is not the case, an error is raised.
+        """
+        for meta_column in meta_table.columns:
+            if meta_column.generator_setting is None:
+                raise SomeError('The column `{}.{}` has no generator assigned'.format(
+                    meta_table.name, meta_column.name
+                ))
         instances = []
         for generator_setting in meta_table.generator_settings:
             if not generator_setting.columns:

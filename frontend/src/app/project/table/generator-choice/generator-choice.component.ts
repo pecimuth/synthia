@@ -12,6 +12,9 @@ import { ColumnFacadeService } from '../../service/column-facade.service';
 
 /**
  * Dialog input data.
+ * 
+ * We need the ID of the column for which we are choosing the generator and the ID
+ * of its table.
  */
 export interface GeneratorChoiceInput {
   columnId: number,
@@ -150,7 +153,7 @@ export class GeneratorChoiceComponent implements OnInit, OnDestroy {
       )
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe(
-        () => null,
+        () => this.dialogRef.close(),
         (err) => this.snackService.errorIntoSnack(err, 'Could not create the generator')
       );
   }

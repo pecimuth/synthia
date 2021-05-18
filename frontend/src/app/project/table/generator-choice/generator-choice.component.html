@@ -23,15 +23,27 @@
     <div *ngFor="let item of generatorsByCategory | keyvalue" class="margin-bottom">
       <h3>{{ item.key }}</h3>
       <mat-chip-list>
-        <mat-chip *ngFor="let generator of item.value"
-          selectable 
-          (click)="chooseGenerator(generator)"
-          [selected]="generator.name === column.generator_setting?.name"
-          [attr.cdkFocusInitial]="generator.name === column.generator_setting?.name ? true : null"
-          color="accent"
-          class="cursor-pointer">
-          {{ generator.name }}
-        </mat-chip>
+        <ng-container *ngFor="let generator of item.value">
+          <mat-chip
+            *ngIf="generator.name === column.generator_setting?.name"
+            removable
+            [selected]="true"
+            [attr.cdkFocusInitial]="true"
+            (removed)="deleteSetting(column.generator_setting)"
+            color="accent"
+            class="cursor-pointer">
+            {{ generator.name }}
+            <mat-icon matChipRemove>cancel</mat-icon>
+          </mat-chip>
+          <mat-chip
+            *ngIf="generator.name !== column.generator_setting?.name"
+            selectable
+            (click)="chooseGenerator(generator)"
+            color="accent"
+            class="cursor-pointer">
+            {{ generator.name }}
+          </mat-chip>
+        </ng-container>
       </mat-chip-list>
     </div>
   </ng-container>
