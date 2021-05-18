@@ -8,6 +8,7 @@ import { SnackService } from 'src/app/service/snack.service';
 import { ColumnFacadeService } from '../service/column-facade.service';
 import { TableFacadeService } from '../service/table-facade.service';
 import { ColumnFormComponent } from './column-form/column-form.component';
+import { TableFormComponent } from './table-form/table-form.component';
 
 @Component({
   selector: 'app-table',
@@ -61,6 +62,15 @@ export class TableComponent implements OnInit, OnDestroy {
         () => null,
         (err) => this.snackService.errorIntoSnack(err)
       );
+  }
+
+  /**
+   * Open the edit table dialog.
+   */
+  editTable() {
+    this.dialog.open(TableFormComponent, {
+      data: this.table
+    });
   }
 
   /**

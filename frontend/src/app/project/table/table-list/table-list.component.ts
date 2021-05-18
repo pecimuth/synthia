@@ -5,7 +5,7 @@ import { takeUntil } from 'rxjs/operators';
 import { ProjectView } from 'src/app/api/models/project-view';
 import { TableView } from 'src/app/api/models/table-view';
 import { ActiveProjectService } from '../../service/active-project.service';
-import { CreateTableFormComponent } from '../create-table-form/create-table-form.component';
+import { TableFormComponent } from '../table-form/table-form.component';
 
 @Component({
   selector: 'app-table-list',
@@ -41,7 +41,7 @@ export class TableListComponent implements OnInit, OnDestroy {
    * Open the create table dialog.
    */
   createTable() {
-    this.dialog.open(CreateTableFormComponent);
+    this.dialog.open(TableFormComponent);
   }
 
   trackById = (index: number, item: TableView) => item.id;

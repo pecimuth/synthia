@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SnackService } from 'src/app/service/snack.service';
 import { Spy } from 'src/app/test';
 import { ActiveProjectService } from '../../service/active-project.service';
 import { TableFacadeService } from '../../service/table-facade.service';
 
-import { CreateTableFormComponent } from './create-table-form.component';
+import { TableFormComponent } from './table-form.component';
 
-describe('CreateTableFormComponent', () => {
-  let component: CreateTableFormComponent;
-  let fixture: ComponentFixture<CreateTableFormComponent>;
+describe('TableFormComponent', () => {
+  let component: TableFormComponent;
+  let fixture: ComponentFixture<TableFormComponent>;
 
   const tableFacadeSpy = jasmine.createSpyObj(
     'TableFacadeService',
@@ -23,23 +23,25 @@ describe('CreateTableFormComponent', () => {
   const dialogRefSpy = Spy.dialogRef();
   const snackServiceSpy = Spy.snackService();
   const activeProjectSpy = Spy.activeProjectObservableOnly();
+  const data = null;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ CreateTableFormComponent ],
+      declarations: [ TableFormComponent ],
       providers: [
         {provide: FormBuilder, useValue: formBuilderSpy},
         {provide: MatDialogRef, useValue: dialogRefSpy},
         {provide: TableFacadeService, useValue: tableFacadeSpy},
         {provide: SnackService, useValue: snackServiceSpy},
-        {provide: ActiveProjectService, useValue: activeProjectSpy}
+        {provide: ActiveProjectService, useValue: activeProjectSpy},
+        {provide: MAT_DIALOG_DATA, useValue: data}
       ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(CreateTableFormComponent);
+    fixture = TestBed.createComponent(TableFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

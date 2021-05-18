@@ -35,11 +35,11 @@ import { ResourceListComponent } from './resource/resource-list/resource-list.co
 import { ResourceComponent } from './resource/resource.component';
 import { ColumnFormComponent } from './table/column-form/column-form.component';
 import { ConstraintListComponent } from './table/constraint-list/constraint-list.component';
-import { CreateTableFormComponent } from './table/create-table-form/create-table-form.component';
 import { GeneratorChoiceComponent } from './table/generator-choice/generator-choice.component';
 import { GeneratorFieldComponent } from './table/generator-field/generator-field.component';
 import { NullFrequencyFieldComponent } from './table/null-frequency-field/null-frequency-field.component';
 import { ParamFormComponent } from './table/param-form/param-form.component';
+import { TableFormComponent } from './table/table-form/table-form.component';
 import { TableListComponent } from './table/table-list/table-list.component';
 import { TableComponent } from './table/table.component';
 
@@ -62,7 +62,7 @@ import { TableComponent } from './table/table.component';
     ConstraintListComponent,
     NullFrequencyFieldComponent,
     ColumnFormComponent,
-    CreateTableFormComponent,
+    TableFormComponent,
     GeneratorFieldComponent,
     ExportRequisitionComponent
   ],

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { TableWrite } from 'src/app/api/models';
 import { ProjectView } from 'src/app/api/models/project-view';
 import { TableCreate } from 'src/app/api/models/table-create';
 import { TableView } from 'src/app/api/models/table-view';
@@ -40,6 +41,24 @@ export class TableFacadeService {
     return this.tableService.deleteApiTableId(tableId)
       .pipe(
         tap((project) => this.activeProject.nextProject(project))
+      );
+  }
+
+  /**
+   * Patch a via the API and update the active project state.
+   * 
+   * @param tableId - The ID of the table to be patched
+   * @param table - The patched content of the table
+   * @returns Observable of the created table
+   */
+  patchTable(tableId: number, table: TableWrite): Observable<TableView> {
+    const params = {
+      id: tableId,
+      table: table
+    };
+    return this.tableService.patchApiTableId(params)
+      .pipe(
+        tap((newTable) => this.activeProject.patchTable(newTable))
       );
   }
 }

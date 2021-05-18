@@ -231,6 +231,16 @@ export class ActiveProjectService implements OnDestroy {
   }
 
   /**
+   * Replace a table in the project state.
+   * 
+   * @param table - The table that replaces a table with the same ID
+   */
+  patchTable(table: TableView) {
+    const transformTable: TableTransformer = (other) => table;
+    this.transformTable(table.id, transformTable);
+  }
+
+  /**
    * Append a new column to a table in the project state.
    * 
    * @param tableId - The ID of the target table
