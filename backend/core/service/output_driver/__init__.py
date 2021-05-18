@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from sqlalchemy import Table
+from sqlalchemy import Table, MetaData
 
 from core.model.meta_table import MetaTable
 from core.service.generation_procedure.database import GeneratedRow, GeneratedDatabase
@@ -17,7 +17,7 @@ class OutputDriver(ABC):
     """Identifier, which makes the driver available from CLI."""
 
     @abstractmethod
-    def start_run(self):
+    def start_run(self, meta: MetaData):
         """Start the data generation run.
 
         Should be called once at the beginning of each run.
@@ -51,7 +51,7 @@ class PreviewOutputDriver(OutputDriver):
     """Output driver for data preview. Has no effect."""
     is_interactive = False
 
-    def start_run(self):
+    def start_run(self, meta: MetaData):
         pass
 
     def end_run(self, database: GeneratedDatabase):

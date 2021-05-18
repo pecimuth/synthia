@@ -32,12 +32,14 @@ class ProcedureController:
         self._checker = ConstraintChecker(self._project,
                                           self._output_driver.is_interactive,
                                           requisition)
+        deserializer = StructureDeserializer(self._project)
+        self._meta = deserializer.deserialize()
 
     def run(self) -> GeneratedDatabase:
         """Generate the data according to the requisition using
         the provided output driver. Return the generated data.
         """
-        self._output_driver.start_run()
+        self._output_driver.start_run(self._meta)
         states = deque((iter(self._table_loop(meta_table)), table, meta_table)
                        for table, meta_table in self._sorted_tables())
         while states:
@@ -55,11 +57,9 @@ class ProcedureController:
         """Return pairs of SQL Alchemy tables and MetaTables
         in order of foreign key dependencies.
         """
-        deserializer = StructureDeserializer(self._project)
-        meta = deserializer.deserialize()
         table_by_name = {
             name: table
-            for name, table in meta.tables.items()
+            for name, table in self._meta.tables.items()
         }
         sorted_tables = SortedTables(self._project.tables, self._requisition)
         for meta_table in sorted_tables.get_order():

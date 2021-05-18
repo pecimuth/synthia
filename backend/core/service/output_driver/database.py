@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy import Table
+from sqlalchemy import Table, MetaData
 from sqlalchemy.engine import Connection
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
@@ -26,7 +26,7 @@ class DatabaseOutputDriver(OutputDriver):
         self._current_table: Optional[Table] = None
         self._primary_constraint: Optional[MetaConstraint] = None
 
-    def start_run(self):
+    def start_run(self, meta: MetaData):
         self._conn = self._conn_manager.get_connection(self._data_source_url)
 
     def end_run(self, database: GeneratedDatabase):

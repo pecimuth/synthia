@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import TypeVar, Generic, Optional, final
 
-from sqlalchemy import Table
+from sqlalchemy import Table, MetaData
 
 from core.model.meta_table import MetaTable
 from core.service.generation_procedure.database import GeneratedRow, GeneratedDatabase
@@ -36,7 +36,7 @@ class FileOutputDriver(Generic[DumpType], OutputDriver):
             return cls_name[:-len(suffix)]
         return cls_name
 
-    def start_run(self):
+    def start_run(self, meta: MetaData):
         pass
 
     def end_run(self, database: GeneratedDatabase):

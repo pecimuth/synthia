@@ -1,7 +1,7 @@
 from typing import Any, List
 
 from sqlalchemy import MetaData, Table, Column, ForeignKeyConstraint, PrimaryKeyConstraint, UniqueConstraint, \
-    CheckConstraint, Constraint
+    Constraint
 
 from core.model.meta_column import MetaColumn
 from core.model.meta_constraint import MetaConstraint
@@ -71,7 +71,9 @@ class StructureDeserializer:
                     name=meta_constraint.name
                 )
             elif meta_constraint.constraint_type == MetaConstraint.CHECK:
-                constraint = CheckConstraint(meta_constraint.check_expression)
+                # check expressions cause errors in SqliteOutputFileDriver
+                # constraint = CheckConstraint(meta_constraint.check_expression)
+                continue
             else:
                 raise SomeError('Unknown constraint type')
             constraints.append(constraint)
