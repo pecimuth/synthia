@@ -1,3 +1,4 @@
+import { ColumnView } from '../api/models';
 import { DataSourceView } from '../api/models/data-source-view';
 import { OutputFileDriverListView } from '../api/models/output-file-driver-list-view';
 import { PreviewView } from '../api/models/preview-view';
@@ -35,6 +36,22 @@ export namespace Mock {
       mime_type: null, 
       port: 4321, 
       usr: 'baz'
+    };
+  }
+
+  export function column(): ColumnView {
+    return {
+      col_type: 'string', 
+      generator_setting: {
+        id: 103, 
+        name: 'FirstName', 
+        null_frequency: 0.0, 
+        params: {}
+      }, 
+      id: 126, 
+      name: 'first_name', 
+      nullable: false,
+      reflected_column_idf: 'author.first_name'
     };
   }
 

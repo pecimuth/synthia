@@ -1,11 +1,12 @@
 <form [formGroup]="columnForm" novalidate (ngSubmit)="submit()">
-  <h2>New column</h2>
+  <h2 *ngIf="!editMode">New Column</h2>
+  <h2 *ngIf="editMode">Edit Column</h2>
 
   <app-form-field [form]="columnForm" label="Name" name="name" placeholder="my_column"></app-form-field>
 
   <mat-form-field class="margin-top">
     <mat-label>Type</mat-label>
-    <mat-select formControlName="col_type">
+    <mat-select formControlName="col_type" [disabled]="colTypeDisabled">
       <mat-option *ngFor="let type of types" [value]="type">
         {{ type }}
       </mat-option>

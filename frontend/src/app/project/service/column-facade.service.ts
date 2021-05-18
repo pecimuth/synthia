@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { ColumnWrite } from 'src/app/api/models';
 import { ColumnCreate } from 'src/app/api/models/column-create';
 import { ColumnView } from 'src/app/api/models/column-view';
 import { ProjectView } from 'src/app/api/models/project-view';
@@ -22,22 +23,16 @@ export class ColumnFacadeService {
    * 
    * @param tableId - The ID of the table containing the setting
    * @param columnId - The ID of the column
-   * @param settingId - The ID of the setting 
-   * @returns Obserable of the updated column
+   * @param settingId - The ID of the setting
+   * @returns Observable of the updated column
    */
   setColumnGeneratorSetting(tableId: number,
                             columnId: number,
                             settingId: number): Observable<ColumnView> {
-    const params = {
-      id: columnId,
-      column: {
-        generator_setting_id: settingId
-      }
+    const column = {
+      generator_setting_id: settingId
     };
-    return this.columnService.patchApiColumnId(params)
-      .pipe(
-        tap((newColumn) => this.activeProject.patchColumn(tableId, newColumn))
-      );
+    return this.patchColumn(tableId, columnId, column);
   }
 
   /**
@@ -64,6 +59,25 @@ export class ColumnFacadeService {
     return this.columnService.deleteApiColumnId(columnId)
       .pipe(
         tap((project) => this.activeProject.nextProject(project))
+      );
+  }
+
+  /**
+   * Patch a column via the API and update the active project.
+   * 
+   * @param tableId - The ID of the table containing the column
+   * @param columnId - The ID of the column
+   * @param column - The updated column content
+   * @returns Observable of the updated column
+   */
+  patchColumn(tableId: number, columnId: number, column: ColumnWrite): Observable<ColumnView> {
+    const params = {
+      id: columnId,
+      column: column
+    };
+    return this.columnService.patchApiColumnId(params)
+      .pipe(
+        tap((newColumn) => this.activeProject.patchColumn(tableId, newColumn))
       );
   }
 }

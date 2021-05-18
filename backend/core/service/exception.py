@@ -58,15 +58,24 @@ class DataSourceIdentifierError(DataSourceError):
         self.identifier = identifier
 
 
-class ColumnGeneratorError(SomeError):
+class ColumnError(SomeError):
     def __init__(self, message: str, meta_column: MetaColumn):
-        super().__init__('{}: {}'.format(meta_column.name, message))
+        super().__init__('Column `{}`: {}'.format(meta_column.name, message))
         self.meta_column = meta_column
+
+
+class ColumnGeneratorError(ColumnError):
+    pass
+
+
+class ColumnGeneratorNotAssignableError(ColumnGeneratorError):
+    def __init__(self, meta_column: MetaColumn):
+        super().__init__('the generator is not assignable to this column', meta_column)
 
 
 class MalformedIdentifierError(SomeError):
     def __init__(self, identifier: str):
-        super().__init__('Malformed identifier: {}'.format(identifier))
+        super().__init__('Malformed identifier: `{}`'.format(identifier))
 
 
 class RequisitionMissingReferenceError(SomeError):

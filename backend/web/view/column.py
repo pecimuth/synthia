@@ -37,6 +37,7 @@ class ColumnView(Schema):
     col_type = Str()
     nullable = Bool()
     generator_setting = Nested(GeneratorSettingView())
+    reflected_column_idf = Str()
 
     @post_load
     def make_meta_column(self, data, **kwargs):

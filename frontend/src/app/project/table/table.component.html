@@ -20,6 +20,9 @@
           <button mat-icon-button aria-label="Delete column" (click)="deleteColumn(column)">
             <mat-icon>close</mat-icon>
           </button>
+          <button mat-icon-button aria-label="Edit column" (click)="editColumn(column)">
+            <mat-icon>edit</mat-icon>
+          </button>
           <div class="margin-right">
             <div>{{ column.name }}</div>
             <small>

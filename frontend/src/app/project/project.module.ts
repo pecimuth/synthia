@@ -33,8 +33,8 @@ import { ProjectRoutingModule } from './project-routing.module';
 import { ProjectComponent } from './project.component';
 import { ResourceListComponent } from './resource/resource-list/resource-list.component';
 import { ResourceComponent } from './resource/resource.component';
+import { ColumnFormComponent } from './table/column-form/column-form.component';
 import { ConstraintListComponent } from './table/constraint-list/constraint-list.component';
-import { CreateColumnFormComponent } from './table/create-column-form/create-column-form.component';
 import { CreateTableFormComponent } from './table/create-table-form/create-table-form.component';
 import { GeneratorChoiceComponent } from './table/generator-choice/generator-choice.component';
 import { GeneratorFieldComponent } from './table/generator-field/generator-field.component';
@@ -61,7 +61,7 @@ import { TableComponent } from './table/table.component';
     GeneratorChoiceComponent,
     ConstraintListComponent,
     NullFrequencyFieldComponent,
-    CreateColumnFormComponent,
+    ColumnFormComponent,
     CreateTableFormComponent,
     GeneratorFieldComponent,
     ExportRequisitionComponent

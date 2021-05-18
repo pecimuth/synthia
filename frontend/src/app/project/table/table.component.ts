@@ -7,7 +7,7 @@ import { TableView } from 'src/app/api/models/table-view';
 import { SnackService } from 'src/app/service/snack.service';
 import { ColumnFacadeService } from '../service/column-facade.service';
 import { TableFacadeService } from '../service/table-facade.service';
-import { CreateColumnFormComponent } from './create-column-form/create-column-form.component';
+import { ColumnFormComponent } from './column-form/column-form.component';
 
 @Component({
   selector: 'app-table',
@@ -44,9 +44,9 @@ export class TableComponent implements OnInit, OnDestroy {
    * Open the create column dialog for our table.
    */
   createColumn() {
-    this.dialog.open(CreateColumnFormComponent, {
+    this.dialog.open(ColumnFormComponent, {
       data: {
-        tableId: this.table.id
+        table: this.table
       }
     });
   }
@@ -75,5 +75,19 @@ export class TableComponent implements OnInit, OnDestroy {
         () => null,
         (err) => this.snackService.errorIntoSnack(err)
       );
+  }
+
+  /**
+   * Open the edit column dialog for a column.
+   * 
+   * @param column - The column to be edited
+   */
+  editColumn(column: ColumnView) {
+    this.dialog.open(ColumnFormComponent, {
+      data: {
+        table: this.table,
+        column: column
+      }
+    });
   }
 }

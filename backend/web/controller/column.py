@@ -8,9 +8,10 @@ from core.facade.column import ColumnFacade
 from core.facade.generator import GeneratorFacade
 from core.facade.project import ProjectFacade
 from core.facade.table import TableFacade
+from core.service.exception import ColumnError
 from web.controller.auth import login_required
 from core.model.meta_column import MetaColumn
-from web.controller.util import bad_request, INVALID_INPUT, TOKEN_SECURITY, BAD_REQUEST_SCHEMA, COLUMN_NOT_FOUND, \
+from web.controller.util import bad_request, TOKEN_SECURITY, BAD_REQUEST_SCHEMA, COLUMN_NOT_FOUND, \
     TABLE_NOT_FOUND, validate_json, patch_all_from_json, \
     error_into_message
 from web.service.database import get_db_session
@@ -23,10 +24,18 @@ column = Blueprint('column', __name__, url_prefix='/api')
 
 def try_patch_column(meta_column: MetaColumn) -> bool:
     """Try to patch the meta column from request.json.
-    Return operation status.
 
     Generator assignment must be checked for errors.
+    Disallow column type change when a generator is assigned and when the column
+    is imported. An error is raised in that case.
     """
+
+    if 'col_type' in request.json and request.json['col_type'] != meta_column.col_type:
+        if meta_column.reflected_column_idf is not None:
+            raise ColumnError('cannot change the type of an imported column', meta_column)
+        if meta_column.generator_setting is not None:
+            raise ColumnError('cannot change the type of a column with an assigned generator', meta_column)
+
     patch_all_from_json(meta_column, ['name', 'col_type', 'nullable'])
 
     generator_setting_id = request.json.get('generator_setting_id')
@@ -68,8 +77,7 @@ def create_column():
         return bad_request(TABLE_NOT_FOUND)
 
     meta_column = MetaColumn(table=meta_table)
-    if not try_patch_column(meta_column):
-        return bad_request(INVALID_INPUT)
+    try_patch_column(meta_column)
 
     db_session = get_db_session()
     db_session.commit()
@@ -126,8 +134,7 @@ def with_column_by_id(view):
     }
 })
 def patch_column(meta_column: MetaColumn):
-    if not try_patch_column(meta_column):
-        return bad_request(INVALID_INPUT)
+    try_patch_column(meta_column)
     db_session = get_db_session()
     db_session.commit()
     return ColumnView().dump(meta_column)

@@ -12,7 +12,7 @@ from core.model.project import Project
 from core.model.user import User
 from core.service.column_generator.assignment import GeneratorAssignment
 from core.service.column_generator.setting_facade import GeneratorSettingFacade
-from core.service.exception import SomeError, ColumnGeneratorError
+from core.service.exception import SomeError, ColumnGeneratorError, ColumnGeneratorNotAssignableError
 from core.service.injector import Injector
 
 
@@ -88,26 +88,21 @@ class GeneratorFacade:
         )
         if meta_column is not None:
             if not GeneratorAssignment.maybe_assign(generator_setting, meta_column):
-                raise ColumnGeneratorError(
-                    'The generator is not assignable to this column',
-                    meta_column
-                )
+                raise ColumnGeneratorNotAssignableError(meta_column)
             facade = GeneratorSettingFacade(generator_setting)
             facade.maybe_estimate_params(self._injector)
         self._db_session.add(generator_setting)
         return generator_setting
 
-    def update_column_generator(self, meta_column: MetaColumn, generator_setting_id: int) -> bool:
-        """Try to assign a generator setting to a meta column. Estimate the params.
-        Return whether the operation succeeded."""
+    def update_column_generator(self, meta_column: MetaColumn, generator_setting_id: int):
+        """Try to assign a generator setting to a meta column. Estimate the params."""
         generator_setting = self.find_setting_in_table(
             generator_setting_id,
             meta_column.table
         )
 
         if not GeneratorAssignment.maybe_assign(generator_setting, meta_column):
-            return False
+            raise ColumnGeneratorNotAssignableError(meta_column)
 
         facade = GeneratorSettingFacade(generator_setting)
         facade.maybe_estimate_params(self._injector)
-        return True
