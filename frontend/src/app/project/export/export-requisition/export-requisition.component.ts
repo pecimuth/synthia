@@ -136,10 +136,17 @@ export class ExportRequisitionComponent implements OnInit {
    * @param newSeed - The updated seed value
    */
   changeSeed(row: RowInclusionValidity, newSeed: string) {
-    const parsed = parseInt(newSeed);
-    row.seedValid = !isNaN(parsed);
-    if (!isNaN(parsed)) {
-      row.seed = parsed;
+    if (!newSeed) {
+      row.seed = null;
+      row.seedValid = true;
+    } else {
+      const parsed = parseInt(newSeed);
+      row.seedValid = !isNaN(parsed);
+      if (row.seedValid) {
+        row.seed = parsed;
+      }
+    }
+    if (row.seedValid) {
       this.emit();
     } else {
       this.requisitionChanged.emit();

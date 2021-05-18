@@ -100,7 +100,7 @@ class ColumnGenerator(Generic[OutputType], ABC):
         """
         pass
 
-    def seed(self, seed: float):
+    def seed(self, seed: Optional[float]):
         """Set random seed."""
         self._random.seed(seed)
 

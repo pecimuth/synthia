@@ -1,4 +1,4 @@
-<form *ngIf="form" [formGroup]="form" novalidate (ngSubmit)="onSubmit()">
+<form *ngIf="form" [formGroup]="form" novalidate>
   <div class="margin-between" *ngFor="let param of generator.param_list">
     <ng-container [ngSwitch]="getInputType(param)">
       <mat-form-field *ngSwitchCase="'datetime'">

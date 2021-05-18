@@ -1,6 +1,6 @@
 import random
 from collections import deque
-from typing import Iterable, Tuple
+from typing import Iterable, Tuple, Optional
 
 from sqlalchemy import Table
 
@@ -102,12 +102,19 @@ class ProcedureController:
         return row
 
     @staticmethod
-    def seed_all(instances: GeneratorList, seed: int):
+    def seed_all(instances: GeneratorList, seed: Optional[int]):
         """Seed all generator instances in a list with a random seed,
-        influenced by the input seed."""
-        random_inst = random.Random(seed)
-        for instance in instances:
-            instance.seed(random_inst.random())
+        influenced by the input seed.
+
+        None means to use a source of randomness provided by the OS.
+        """
+        if seed is None:
+            for instance in instances:
+                instance.seed(None)
+        else:
+            random_inst = random.Random(seed)
+            for instance in instances:
+                instance.seed(random_inst.random())
 
     @staticmethod
     def instances_from_table(meta_table: MetaTable) -> GeneratorList:

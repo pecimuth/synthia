@@ -1,4 +1,4 @@
-from typing import TypeVar, Generic
+from typing import TypeVar, Generic, Optional
 
 from faker import Faker
 
@@ -20,7 +20,7 @@ class FakerGenerator(Generic[OutputType], SingleColumnGenerator[OutputType]):
         self._fake: Faker = Faker()
         self._functor = getattr(self._fake, self.provider)
 
-    def seed(self, seed: float):
+    def seed(self, seed: Optional[float]):
         """Seed the Faker generator instance."""
         super().seed(seed)
         self._fake.seed_instance(seed)

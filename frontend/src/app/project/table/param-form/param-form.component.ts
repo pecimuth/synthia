@@ -92,7 +92,7 @@ export class ParamFormComponent implements OnInit, OnDestroy {
       )
       .subscribe(
         () => null,
-        (err) => this.snackService.errorIntoSnack(err, 'Failed to update parameters')
+        (err) => this.snackService.errorIntoSnack(err, 'Failed to update the parameters')
       );
   }
 

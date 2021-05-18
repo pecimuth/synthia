@@ -29,7 +29,7 @@ class ProjectListView(Schema):
 class ExportRequisitionRowView(Schema):
     table_name = Str()
     row_count = Int(validate=Range(min=1))
-    seed = Int()
+    seed = Int(allow_none=True)
 
     @post_load
     def make_row(self, data, **kwargs):
