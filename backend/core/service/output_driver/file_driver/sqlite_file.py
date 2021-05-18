@@ -17,7 +17,7 @@ class SqliteOutputDriver(FileOutputDriver[bytes]):
     """Output file driver creating SQLite files."""
 
     mime_type = DataSourceConstants.MIME_TYPE_SQLITE
-    display_name = 'SQLite database file'
+    display_name = 'SQLite Database File'
     cli_command = 'sqlite'
 
     def __init__(self):
@@ -33,6 +33,7 @@ class SqliteOutputDriver(FileOutputDriver[bytes]):
 
     def end_run(self, database: GeneratedDatabase):
         super(SqliteOutputDriver, self).end_run(database)
+        self._conn.close()
         os.close(self._db_fd)
         with open(self._db_file, 'rb') as file:
             self._output = file.read()
@@ -47,6 +48,7 @@ class SqliteOutputDriver(FileOutputDriver[bytes]):
         except IntegrityError:
             return None
         except SQLAlchemyError:
+            self._conn.close()
             os.close(self._db_fd)
             os.unlink(self._db_file)
             raise FatalDatabaseError()
