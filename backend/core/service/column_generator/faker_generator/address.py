@@ -22,6 +22,7 @@ class CountryGenerator(RegisteredGenerator, FakerAddressGenerator):
 
 
 class CountryCodeGenerator(RegisteredGenerator, FakerAddressGenerator):
+    """Generate country codes in the Alpha 2 format."""
     provider = 'country_code'
 
 
@@ -34,4 +35,4 @@ class StreetAddressGenerator(RegisteredGenerator, FakerAddressGenerator):
 
 
 class StreetNameGenerator(RegisteredGenerator, FakerAddressGenerator):
-    provider = 'street_provider'
+    provider = 'street_name'

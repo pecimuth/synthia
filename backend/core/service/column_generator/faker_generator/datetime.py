@@ -79,7 +79,7 @@ class DateTime(RegisteredGenerator, FakerDateTimeGenerator):
 
 
 class TimeStringGenerator(RegisteredGenerator, FakerDateTimeStringGenerator):
-    """Generate random time."""
+    """Generate random time in a format of choice."""
 
     provider = 'time'
 
@@ -96,6 +96,8 @@ class DayOfMonthGenerator(RegisteredGenerator, FakerDateTimeStringGenerator):
 
 
 class DayOfWeekGenerator(RegisteredGenerator, FakerDateTimeStringGenerator):
+    """Generate English names of the days of the week."""
+
     provider = 'day_of_week'
 
 
@@ -104,10 +106,14 @@ class MonthGenerator(RegisteredGenerator, FakerDateTimeStringGenerator):
 
 
 class MonthNameGenerator(RegisteredGenerator, FakerDateTimeStringGenerator):
-    provider = 'month_provider'
+    """Generate English names of the month."""
+
+    provider = 'month_name'
 
 
 class TimeZoneGenerator(RegisteredGenerator, FakerDateTimeStringGenerator):
+    """Generate string denoting a canonical time zone from the tz database."""
+
     provider = 'timezone'
 
 

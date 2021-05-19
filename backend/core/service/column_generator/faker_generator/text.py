@@ -16,10 +16,13 @@ class FakerTextGenerator(FakerGenerator[str]):
 
 
 class WordGenerator(RegisteredGenerator, FakerTextGenerator):
+    """Generate random English words."""
+
     provider = 'word'
 
 
 class TextGenerator(RegisteredGenerator, FakerTextGenerator):
+    """Generate text with a given number of characters."""
     provider = 'text'
 
     @parameter(min_value=0, max_value=200)
@@ -31,6 +34,7 @@ class TextGenerator(RegisteredGenerator, FakerTextGenerator):
 
 
 class ParagraphGenerator(RegisteredGenerator, FakerTextGenerator):
+    """Generate paragraphs with a given number of sentences."""
     provider = 'paragraph'
 
     @parameter(min_value=0, max_value=10)

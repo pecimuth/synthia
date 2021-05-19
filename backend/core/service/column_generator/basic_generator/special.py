@@ -12,7 +12,11 @@ from core.service.types import Types
 
 
 class ForeignKeyGenerator(RegisteredGenerator, MultiColumnGenerator):
-    """General foreign key generator with composite key support."""
+    """General foreign key generator with composite key support.
+
+    Requires a matching foreign key constraint on the table and the column.
+    The values are chosen randomly from the referenced table.
+    """
 
     def __init__(self, generator_setting: GeneratorSetting):
         super().__init__(generator_setting)

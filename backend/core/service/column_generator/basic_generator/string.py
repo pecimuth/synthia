@@ -8,8 +8,8 @@ from core.service.generation_procedure.database import GeneratedDatabase
 
 
 class StringGenerator(RegisteredGenerator, SingleColumnGenerator[str]):
-    """Generate strings of ascii letter of random length, sampled uniformly
-    from an interval.
+    """Generate strings of ASCII letters of random length.
+    The length is sampled uniformly from a closed interval.
     """
 
     @parameter(min_value=1)

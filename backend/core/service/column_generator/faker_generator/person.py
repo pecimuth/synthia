@@ -14,14 +14,20 @@ class FakerPersonGenerator(FakerGenerator[str]):
 
 
 class FirstNameGenerator(RegisteredGenerator, FakerPersonGenerator):
+    """Generate human first names."""
+
     provider = 'first_name'
 
 
 class LastNameGenerator(RegisteredGenerator, FakerPersonGenerator):
+    """Generate human last names."""
+
     provider = 'last_name'
 
 
 class PhoneNumberGenerator(RegisteredGenerator, FakerPersonGenerator):
+    """Generate phone numbers in various formats."""
+
     provider = 'phone_number'
 
 
@@ -30,8 +36,12 @@ class EmailGenerator(RegisteredGenerator, FakerPersonGenerator):
 
 
 class UserNameGenerator(RegisteredGenerator, FakerPersonGenerator):
-    provider = 'user_provider'
+    """Generate realistic user names."""
+
+    provider = 'user_name'
 
 
 class NameGenerator(RegisteredGenerator, FakerPersonGenerator):
+    """Generate human names."""
+
     provider = 'name'

@@ -9,7 +9,7 @@ from core.service.generation_procedure.database import GeneratedDatabase
 
 
 class IntegerGenerator(RegisteredGenerator, SingleColumnGenerator[int]):
-    """Generate uniform integers from an interval."""
+    """Generate integers uniformly from a closed interval."""
 
     @parameter
     def min(self) -> int:
@@ -36,7 +36,7 @@ class IntegerGenerator(RegisteredGenerator, SingleColumnGenerator[int]):
 
 
 class FloatGenerator(RegisteredGenerator, SingleColumnGenerator[float]):
-    """Generate uniform floats from an interval."""
+    """Generate uniform floats from a closed interval."""
 
     @parameter
     def min(self) -> float:
@@ -63,7 +63,10 @@ class FloatGenerator(RegisteredGenerator, SingleColumnGenerator[float]):
 
 
 class GaussianGenerator(RegisteredGenerator, SingleColumnGenerator[float]):
-    """Generate floats from gaussian distribution."""
+    """Generate floats from a Gaussian distribution.
+
+    Mu is the mean, sigma is the standard deviation.
+    """
 
     @parameter
     def mu(self) -> float:
