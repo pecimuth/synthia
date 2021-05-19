@@ -123,7 +123,7 @@ class ForeignKeyGenerator(RegisteredGenerator, MultiColumnGenerator):
         """Generate data for a foreign key.
 
         If there are no rows in the referenced table and all columns
-        are nullable, we return Nones.
+        are nullable, we return None.
         If there are some rows, we choose randomly.
         An error is raised in other cases.
         """

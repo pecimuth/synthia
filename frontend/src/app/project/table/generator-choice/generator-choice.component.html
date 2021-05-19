@@ -31,7 +31,8 @@
             [attr.cdkFocusInitial]="true"
             (removed)="deleteSetting(column.generator_setting)"
             color="accent"
-            class="cursor-pointer">
+            class="cursor-pointer"
+            [matTooltip]="generator.tooltip">
             {{ generator.name }}
             <mat-icon matChipRemove>cancel</mat-icon>
           </mat-chip>
@@ -40,7 +41,8 @@
             selectable
             (click)="chooseGenerator(generator)"
             color="accent"
-            class="cursor-pointer">
+            class="cursor-pointer"
+            [matTooltip]="generator.tooltip">
             {{ generator.name }}
           </mat-chip>
         </ng-container>

@@ -21,6 +21,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AtomModule } from '../atom/atom.module';
 import { DialogModule } from '../dialog/dialog.module';
 import { ExportRequisitionComponent } from './export/export-requisition/export-requisition.component';
@@ -92,7 +93,8 @@ import { TableComponent } from './table/table.component';
     MatFormFieldModule,
     DialogModule,
     MatDatepickerModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatTooltipModule
   ]
 })
 export class ProjectModule { }

@@ -1,6 +1,6 @@
 from abc import ABC
 from datetime import datetime, date
-from typing import Type, Union, Optional
+from typing import Type, Union, Optional, Callable
 
 from sqlalchemy import Column, Integer, String, DateTime, Numeric, Boolean, Enum
 from sqlalchemy.sql.type_api import TypeEngine
@@ -110,11 +110,24 @@ def get_python_type(type_literal: Types) -> Type[AnyBasicType]:
     raise SomeError('Unknown type literal {}'.format(type_literal))
 
 
+def get_type_conversion_functor(type_literal: Types,
+                                datetime_format=DATETIME_FORMAT) -> Callable[[AnyBasicType], AnyBasicType]:
+    """Return a function that converts its argument to the type
+    defined by the type literal.
+    """
+    if type_literal == Types.DATETIME:
+        def datetime_conv(value: AnyBasicType):
+            if isinstance(value, str):
+                return datetime.strptime(value, datetime_format)
+            assert isinstance(value, datetime)
+            return value
+        return datetime_conv
+    return get_python_type(type_literal)
+
+
 def convert_value_to_type(value: AnyBasicType, type_literal: Types) -> AnyBasicType:
     """Convert a python value to a type defined by the type literal."""
-    if type_literal == Types.DATETIME and isinstance(value, str):
-        return datetime.strptime(value, DATETIME_FORMAT)
-    return get_python_type(type_literal)(value)
+    return get_type_conversion_functor(type_literal)(value)
 
 
 def get_value_type(value: AnyBasicType) -> Types:

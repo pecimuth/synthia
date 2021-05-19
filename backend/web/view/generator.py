@@ -57,6 +57,7 @@ class GeneratorView(Schema):
     supports_null = Bool()
     is_multi_column = Method('get_is_multi_column')
     param_list = List(Nested(GeneratorParam()))
+    tooltip = Method('get_tooltip')
 
     def get_name(self, obj: Type[ColumnGenerator]):
         return obj.name()
@@ -69,6 +70,9 @@ class GeneratorView(Schema):
 
     def get_is_multi_column(self, obj: Type[ColumnGenerator]):
         return issubclass(obj, MultiColumnGenerator)
+
+    def get_tooltip(self, obj: Type[ColumnGenerator]):
+        return obj.__doc__
 
 
 class GeneratorListView(Schema):

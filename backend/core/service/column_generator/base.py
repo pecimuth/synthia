@@ -8,7 +8,7 @@ from typing import List, Dict, Generic, TypeVar, Optional, Callable, Any, Type, 
 
 from core.model.generator_setting import GeneratorSetting
 from core.model.meta_column import MetaColumn
-from core.service.column_generator.params import normalized_params, ParamDict, ColumnGeneratorParamList
+from core.service.column_generator.params import normalized_params, ColumnGeneratorParamList
 from core.service.data_source.data_provider.base_provider import DataProvider
 from core.service.exception import GeneratorSettingError, GeneratorRegistrationError, SomeError
 from core.service.generation_procedure.database import GeneratedDatabase
