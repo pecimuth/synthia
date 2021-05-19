@@ -6,7 +6,7 @@
 
   <mat-form-field class="margin-top">
     <mat-label>Type</mat-label>
-    <mat-select formControlName="col_type" [disabled]="colTypeDisabled">
+    <mat-select formControlName="col_type">
       <mat-option *ngFor="let type of types" [value]="type">
         {{ type }}
       </mat-option>

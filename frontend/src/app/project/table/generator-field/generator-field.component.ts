@@ -43,7 +43,7 @@ export class GeneratorFieldComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.setting = this.column.generator_setting;
+    this.setting = this.column?.generator_setting;
     if (!this.setting) {
       return;
     }

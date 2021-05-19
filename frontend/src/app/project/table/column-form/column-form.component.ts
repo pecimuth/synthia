@@ -44,14 +44,6 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
    */
   editMode: boolean;
 
-  /**
-   * Is the column type input disabled?
-   * 
-   * Should be disabled in edit mode, when the column is imported
-   * or has a generator assigned.
-   */
-  colTypeDisabled: boolean;
-
   private unsubscribe$ = new Subject();
 
   constructor(
@@ -71,9 +63,10 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
         nullable: this.data.column.nullable
       });
     }
-    this.colTypeDisabled = this.editMode && !!(
-      this.data.column.reflected_column_idf || this.data.column.generator_setting
-    );
+    if (this.editMode && !!(this.data.column.reflected_column_idf ||
+                            this.data.column.generator_setting)) {
+        this.columnForm.controls.col_type.disable();
+    }
   }
 
   ngOnDestroy() {

@@ -55,10 +55,6 @@ describe('ColumnFormComponent', () => {
     expect(component.editMode).toBeTruthy();
   });
 
-  it('#colTypeDisabled should be true', () => {
-    expect(component.colTypeDisabled).toBeTruthy();
-  });
-
   it('should patch the column on submit', () => {
     columnFacadeSpy.patchColumn.and.returnValue(of(column));
     dialogRefSpy.close.and.returnValue();
@@ -66,7 +62,7 @@ describe('ColumnFormComponent', () => {
     expect(columnFacadeSpy.patchColumn).toHaveBeenCalledWith(
       tableId,
       column.id,
-      {name: column.name, col_type: column.col_type, nullable: column.nullable}
+      {name: column.name, nullable: column.nullable} // col type is disabled
     );
     expect(dialogRefSpy.close).toHaveBeenCalled();
     expect(columnFacadeSpy.createColumn).not.toHaveBeenCalled();

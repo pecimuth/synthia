@@ -11,7 +11,7 @@ describe('GeneratorFieldComponent', () => {
 
   const generatorFacadeSpy = jasmine.createSpyObj(
     'GeneratorFacadeService',
-    ['isMultiColumn']
+    ['getGeneratorByName']
   );
 
   const dialogSpy = Spy.matDialog();
