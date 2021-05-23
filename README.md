@@ -8,12 +8,12 @@ docker-compose up
 
 Create the database schema:
 ```sh
-docker exec synthia_backend_1 flask recreate-database
+docker-compose exec backend flask recreate-database
 ```
 
 Create the API schema:
 ```
-docker exec synthia_frontend_1 npm run api
+docker-compose exec frontend npm run api
 ```
 
 The API server is available on `localhost:5000/apidocs`. The frontend listens on `localhost:4200`.
