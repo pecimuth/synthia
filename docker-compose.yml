@@ -28,3 +28,4 @@ services:
             - 49153:49153
         volumes:
             - ./frontend:/app
+            - /app/node_modules
