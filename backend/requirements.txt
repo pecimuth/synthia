@@ -1,7 +1,7 @@
 apispec==4.3.0
 attrs==20.3.0
 click==7.1.2
-Faker==6.5.0
+Faker==8.2.1
 flasgger==0.9.5
 Flask==1.1.2
 Flask-Cors==3.0.10
